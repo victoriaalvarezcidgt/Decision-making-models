@@ -17,8 +17,7 @@ PAY_(0 --> 6): History of past payment --> We tracked the past monthly payment r
 			-1 = pay duly; 
 			1 = payment delay for one month; 
 			2 = payment delay for two months
-			8 = payment delay for eight months	
-			9 = payment delay for nine months and above
+			3 - 9 =  payment delay for (3 - 9) months
 
 BILL_AMT(1-6): Amount of bill statement (in dollars). 
 	BILL_AMT1 = amount of bill statement in September, 2005

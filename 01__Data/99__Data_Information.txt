@@ -36,3 +36,7 @@ Information obtained from following webpage - (https://www.listendata.com/2019/0
 6. Credit Card Data from “Econometric Analysis” - (https://www.kaggle.com/datasets/dansbecker/aer-credit-card-data)
 
 	A small credit card dataset for simple econometric analysis
+
+7. Credit Risk Data - (https://www.kaggle.com/datasets/laotse/credit-risk-dataset)
+
+	This dataset contains columns simulating credit bureau data
