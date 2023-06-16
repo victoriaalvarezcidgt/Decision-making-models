@@ -1,0 +1,12 @@
+card: Dummy variable (1 if application for credit card accepted; 0 if not)
+reports: Number of major derogatory reports
+age: Age in years (plus twelfths of a year)
+income: Yearly income (divided by 10,000)
+share: Ratio of monthly credit card expenditure to yearly incomee
+expenditure: Average monthly credit card expenditure
+owner: 1 if owns their home, 0 if rent
+selfempl: 1 if self employed, 0 if not.
+dependents: 1 + number of dependents
+months: Months living at current address
+majorcards: Number of major credit cards held
+active: Number of active credit accounts

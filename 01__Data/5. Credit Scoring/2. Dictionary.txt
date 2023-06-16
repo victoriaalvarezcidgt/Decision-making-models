@@ -1,0 +1,41 @@
+YOB: Year of birth (If unknown the year will be 99)
+NKID: Number of children
+DEP: Number of other dependents
+PHON: Is there a home phone (1 = yes, 0 = no)
+SINC: Spouse's incom
+AES: Applicant's employment status 
+  	V = Government
+  	W = housewife
+  	M = military 
+  	P = private sector
+  	B = public sector
+  	R = retired
+  	E = self employed
+  	T = student
+  	U = unemployed
+  	N = others
+  	Z  = no response
+DAINC: Applicant's income 
+RES: Residential status 
+  	O = Owner
+  	F = tenant furnished
+  	U = Tenant Unfurnished
+  	P = With parents
+  	N = Other
+  	Z = No response
+DHVAL: Value of Home  
+  	0 = no response or not owner
+  	000001 = zero value
+  	blank = no response
+DMORT: Mortgage balance outstanding
+  	0 = no response or not owner
+  	000001 = zero balance
+  	blank = no response
+DOUTM: Outgoings on mortgage or rent 
+DOUTL: Outgoings on Loans 
+DOUTHP: Outgoings on Hire Purchase 
+DOUTCC: Outgoings on credit card
+
+BAD: Bad Good/bad indicator 
+	1 = Bad
+  	0 = Good

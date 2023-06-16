@@ -1,0 +1,38 @@
+Open source data sets that we could use
+
+Information obtained from following webpage - (https://www.listendata.com/2019/08/datasets-for-credit-risk-modeling.html)
+
+1. German Credit Data (https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data))
+
+	This dataset classifies people described by a set of attributes as good or bad credit risks
+    
+
+2. Australian Credit Approval - (https://archive.ics.uci.edu/dataset/143/statlog+australian+credit+approval)
+
+	This file concerns credit card applications.
+    
+
+3. Default on Credit Card Clients from Taiwan (https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients)
+
+	The “Taiwan” dataset of Taiwan’s credit card clients’ default cases which has 23 features and 30,000 instances, out of which 6,626 (22.1%) are default cases.
+    
+	Some of the features of this dataset are credit limit, gender, marital status, last 6 months bills, last 6 months payments, and last 6 months re-payment status.
+    
+
+4. Home Equity Loans - (http://www.creditriskanalytics.net/datasets-private2.html)
+
+	The data set HMEQ reports characteristics and delinquency information for 5,960 home equity loans.
+    
+	A home equity loan is a loan where the obligor uses the equity of his or her home as the underlying collateral
+    
+
+5. Credit Scoring Dataset - (https://github.com/deepanshu88/Datasets/blob/master/CreditData/Loan%20Data.csv)
+
+	Dataset obtained from github and imported into excel
+    
+	Information regarding the variables can be located here - https://www.listendata.com/2019/08/datasets-for-credit-risk-modeling.html) (near bottom of page)
+    
+
+6. Credit Card Data from “Econometric Analysis” - (https://www.kaggle.com/datasets/dansbecker/aer-credit-card-data)
+
+	A small credit card dataset for simple econometric analysis
