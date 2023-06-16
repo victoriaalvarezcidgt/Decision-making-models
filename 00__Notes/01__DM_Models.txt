@@ -1,6 +1,8 @@
 DECISION MAKING MODELS
 
-A decision-making model is a systematic approach or framework that helps individuals or organizations make effective and informed decisions. It provides a structured process to analyze a situation, consider alternatives, and choose the best course of action - in this case these models help financial institutions and lenders make informed decisions about whether to approve or deny credit applications, set appropriate credit limits, determine interest rates, and manage overall credit risk exposure.
+A decision-making model is a systematic approach or framework that helps individuals or organizations make effective and informed decisions. It provides a structured process to analyze a 
+situation, consider alternatives, and choose the best course of action - in this case these models help financial institutions and lenders make informed decisions about whether to approve 
+or deny credit applications, set appropriate credit limits, determine interest rates, and manage overall credit risk exposure.
 
 Decision-making models can vary in complexity and details, but they generally involve the following key steps:
 1. Identify the decision: Clearly define the problem or the decision that needs to be made. This step involves understanding the context, the objectives, and the desired outcomes.
@@ -31,7 +33,9 @@ TOY EXAMPLE (explained like I am a 5 year old)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREDIT RISK DECISION MAKING MODEL
-A credit risk decision-making model is a method or framework that helps banks, financial institutions, or lenders assess the creditworthiness of borrowers and make informed decisions regarding lending or extending credit. It involves analyzing various factors and assigning a level of risk associated with granting credit to an individual or entity. These models use statistical techniques and predictive analytics to estimate the probability of default, evaluate the creditworthiness of borrowers, and determine appropriate risk mitigation measures.
+A credit risk decision-making model is a method or framework that helps banks, financial institutions, or lenders assess the creditworthiness of borrowers and make informed decisions 
+regarding lending or extending credit. It involves analyzing various factors and assigning a level of risk associated with granting credit to an individual or entity. These models use 
+statistical techniques and predictive analytics to estimate the probability of default, evaluate the creditworthiness of borrowers, and determine appropriate risk mitigation measures.
 
 SIMPLIFED EXAMPLE (again cause I’m dumb)
 1. Imagine you have a special tool that helps you decide if it's safe to lend money to someone --> this tool is called a credit risk decision-making model
