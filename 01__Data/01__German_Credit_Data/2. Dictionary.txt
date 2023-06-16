@@ -1,0 +1,11 @@
+ID: Participant ID
+Age: Age (in years)
+Sex: 1 = male; 2 = female
+Job: 0 = unskilled and non-resident; 1 = unskilled and resident; 2 = skilled; 3 = highly skilled
+Housing: own; rent; free
+Saving accounts: little; moderate; quite rich; rich
+Checking account: little; moderate; rich
+Credit amount: Numeric range (in Deutschmark)
+Duration: in months)
+Purpose: car; furniture/equipment; radio/TV; domestic appliances; repairs; education; business; vacation/others
+Risk: 0 = bad; 1 = good
