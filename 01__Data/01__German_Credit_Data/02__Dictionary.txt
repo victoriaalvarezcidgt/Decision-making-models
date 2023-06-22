@@ -1,0 +1,186 @@
+Dictionary for German Credit Dataset (Binary Version) - used in previous GT analyses
+Information obtained from: https://online.stat.psu.edu/stat857/node/222/
+
+1. Class: classification of person's credit risk/loan default (good/bad) [should be recoded to 0 = bad; 1 = good]
+2. Duration: loan duration (in months)
+3. Amount: amount of loan
+4. InstallmentRatePercentage: 
+5. ResidenceDuration: How long living in current household for
+	less than 1 year = 1
+	between 1 - 4 years = 2
+	between 4 - 7 years = 3
+	over 7 years = 4
+6. Age: Age of person (in years)
+7. NumberExistingCredits: Number of previous credits at this bank (including the running one)
+	one credit = 1
+	two or three credits = 2
+	four or five credits = 3
+	six or more credits = 4
+8. NumberPeopleMaintenance: Number of persons entitled to maintenance
+	zero - two people = 2
+	three or more = 1
+9. Telephone: Do you have a telephone
+	no = 0
+	yes = 1
+10. ForeignWorker: are you a foreign worker
+	no = 0
+	yes = 1
+11. CheckingAccountStatus.lt.0: Balance of current account (no balance or debit)
+	no = 0
+	yes = 1
+12. CheckingAccountStatus.0.to.200 Balance of current account (between 0 - 200 DM)
+	no = 0
+	yes = 1
+13. CheckingAccountStatus.gt.200: Balance of current account (200+ DM OR has had checking account for 1+ years)
+	no = 0
+	yes = 1
+14. CheckingAccountStatus.none: Balance of current account (no running balance)
+	no = 0
+	yes = 1
+15. CreditHistory.NoCredit.AllPaid: Payment of previous credits (no previous credits / paid back all previous credits)
+	no = 0
+	yes = 1
+16. CreditHistory.ThisBank.AllPaid: Payment of previous credits (paid back previous credits at this bank)
+	no = 0
+	yes = 1
+17. CreditHistory.PaidDuly: Payment of previous credits (no problems with current credits at this bank)
+	no = 0
+	yes = 1
+18. CreditHistory.Delay: Payment of previous credits (hesitant payment of previous credits)
+	no = 0
+	yes = 1
+19. CreditHistory.Critical: Payment of previous credits (problematic running account / there are further credits running but at other banks)
+	no = 0
+	yes = 1
+20. Purpose.NewCar: Purpose of credit (new car)
+	no = 0
+	yes = 1
+21. Purpose.UsedCar: Purpose of credit (used car)
+	no = 0
+	yes = 1
+22. Purpose.Furniture.Equipment: Purpose of credit (items of furniture)
+	no = 0
+	yes = 1
+23. Purpose.Radio.Television: Purpose of credit (radio / television)
+	no = 0
+	yes = 1
+24. Purpose.DomesticAppliance: Purpose of credit (household appliance)
+	no = 0
+	yes = 1
+25. Purpose.Repairs: Purpose of credit (repairs)
+	no = 0
+	yes = 1
+26. Purpose.Education: Purpose of credit (education)
+	no = 0
+	yes = 1
+27. Purpose.Vacation: Purpose of credit (vacation)
+	no = 0
+	yes = 1
+28. Purpose.Retraining: Purpose of credit (retraining)
+	no = 0
+	yes = 1
+29. Purpose.Business: Purpose of credit (business purposes)
+	no = 0
+	yes = 1
+30. Purpose.Other: Purpose of credit (other purposes)
+	no = 0
+	yes = 1
+31. SavingsAccountBonds.lt.100: Value of savings or stocks (less than 100 DM)
+	no = 0
+	yes = 1
+32. SavingsAccountBonds.100.to.500: Value of savings or stocks (between 100 and 500 DM)
+	no = 0
+	yes = 1
+33. SavingsAccountBonds.500.to.1000: Value of savings or stocks (between 500 and 1000 DM)
+	no = 0
+	yes = 1
+34. SavingsAccountBonds.gt.1000: Value of savings or stocks (1000+ DM)
+	no = 0
+	yes = 1
+35. SavingsAccountBonds.Unknown: Value of savings or stocks (not available / no savings)
+	no = 0
+	yes = 1
+36: EmploymentDuration.lt.1: Has been employed by current employer for (less than 1 year)
+	no = 0
+	yes = 1
+37: EmploymentDuration.1.to.4: Has been employed by current employer for (between 1 and 4 years)
+	no = 0
+	yes = 1
+38: EmploymentDuration.4.to.7: Has been employed by current employer for (between 4 and 7 years)
+	no = 0
+	yes = 1
+39: EmploymentDuration.gt.7: Has been employed by current employer for (7+ years)
+	no = 0
+	yes = 1
+40: EmploymentDuration.Unemployed: Has been employed by current employer for (unemployeed)
+	no = 0
+	yes = 1
+41: Personal.Male.Divorced.Seperated: sex and marital status (male: divorced / living apart)
+	no = 0
+	yes = 1
+42: Personal.Female.NotSingle: sex and marital status (female: not single)
+	no = 0
+	yes = 1
+43: Personal.Male.Single: sex and marital status (male: single)
+	no = 0
+	yes = 1
+44: Personal.Male.Married.Widowed: sex and marital status (male: married / widowed)
+	no = 0
+	yes = 1
+45: Personal.Female.Single: sex and marital status (female: single)**
+	no = 0
+	yes = 1
+46. OtherDebtorsGuarantors.None: Further debtors / Guarantors (none)
+	no = 0
+	yes = 1
+47. OtherDebtorsGuarantors.CoApplicant: Further debtors / Guarantors (Co-Applicant)
+	no = 0
+	yes = 1
+48. OtherDebtorsGuarantors.Guarantor: Further debtors / Guarantors (Guarantor)
+	no = 0
+	yes = 1
+49. Property.RealEstate: Most valuable available assets (Ownership of house or land)
+	no = 0
+	yes = 1
+50. Property.Insurance: Most valuable available assets (Savings contract with a building society / Life insurance)
+	no = 0
+	yes = 1
+51. Property.CarOther: Most valuable available assets (Car / Other)
+	no = 0
+	yes = 1
+52. Property.Unknown: Most valuable available assets (not available / no assets)
+	no = 0
+	yes = 1
+53. OtherInstallmentPlans.Bank: Further running credits (at other banks)
+	no = 0
+	yes = 1
+54. OtherInstallmentPlans.Stores: Further running credits (at department store or mail order house)
+	no = 0
+	yes = 1
+55. OtherInstallmentPlans.None: Further running credits (no further running credits)
+	no = 0
+	yes = 1
+56. Housing.Rent: Type of apartment (rented flat)
+	no = 0
+	yes = 1
+57. Housing.Own: Type of apartment (owner-occupied flat)
+	no = 0
+	yes = 1
+58. Housing.ForFree: Type of apartment (free apartment)
+	no = 0
+	yes = 1
+59. Job.UnemployedUnskilled: Occupation (unemployed / unskilled with no permanent residence)
+	no = 0
+	yes = 1
+60. Job.UnskilledResident: Occupation (unskilled with permanent residence)
+	no = 0
+	yes = 1
+61. Job.SkilledEmployee: Occupation (skilled worker / skilled employee / minor civil servant)
+	no = 0
+	yes = 1
+62. Job.Management.SelfEmp.HighlyQualified: Occupation (executive / self-employed / higher civil servant)
+	no = 0
+	yes = 1
+
+
+
