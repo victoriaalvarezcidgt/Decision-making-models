@@ -2,6 +2,8 @@ rm(list = ls())
 
 library(dplyr)
 library(rpart)
+library(ggplot2)
+library(gplots)
 
 # Reading in data --------------------------------------------------------------
 path_data <- "./01__Data/01__German_Credit_Data/"
@@ -38,7 +40,7 @@ range(predictions_all_full)
 
 predicted_classes <- ifelse(predictions_all_full > 0.5, "Yes", "No")
 
-# Evaluation
+# Evaluation -------------------------------------------------------------------
 confusion_matrix <- table(predicted_classes, test_set$Class)
 
 accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
@@ -51,3 +53,7 @@ precision
 recall
 f1_score
 
+# Plotting evaluation
+heatmap.2(confusion_matrix, main = "Confusion Matrix", 
+          xlab = "Actual", ylab = "Predicted", col = c("lightblue", "pink"),
+          density.info = "none", trace = "none", key = FALSE)
