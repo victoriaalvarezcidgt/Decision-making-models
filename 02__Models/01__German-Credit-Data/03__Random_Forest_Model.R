@@ -24,6 +24,17 @@ set.seed(123)
 f_selection <- Boruta(Class ~ ., data = german_data,
                       doTrace = 2, maxRuns = 500)
 
+# Viewing output and the selected variables
+# print(f_selection)
+# getSelectedAttributes(f_selection)
+
+# Assessing what to do with the "Tentative" labelled variables?get
+f_selection_final <- TentativeRoughFix(f_selection)
+
+# Viewing output and the selected variables
+# print(f_selection_final)
+# getSelectedAttributes(f_selection_final)
+
 # Splitting data ---------------------------------------------------------------
 set.seed(147)
 
@@ -50,7 +61,7 @@ best_model <- NULL
 # through the above values and select the best performing model
 for (ntree in ntree_values) {
   for (mtry in mtry_values) {
-    model <- randomForest(formula = getNonRejectedFormula(f_selection), 
+    model <- randomForest(formula = getNonRejectedFormula(f_selection_final), 
                           data = training_set, ntree = ntree, mtry = mtry)
     predicted <- predict(model, newdata = test_set)
     confusion_matrix <- table(predicted, test_set$Class)
