@@ -28,7 +28,7 @@ f_selection <- Boruta(Class ~ ., data = german_data,
 # print(f_selection)
 # getSelectedAttributes(f_selection)
 
-# Assessing what to do with the "Tentative" labelled variables?get
+# Assessing what to do with the "Tentative" labelled variables
 f_selection_final <- TentativeRoughFix(f_selection)
 
 # Viewing output and the selected variables
