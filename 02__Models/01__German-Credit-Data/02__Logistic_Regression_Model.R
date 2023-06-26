@@ -8,7 +8,7 @@ library(gplots)
 # Reading in data --------------------------------------------------------------
 path_data <- "./01__Data/01__German_Credit_Data/"
 
-german_data <- read.csv(file.path(path_data, "03__Other/01b__Data_FRED.csv"))
+german_data <- read.csv(file.path(path_data, "01__GCD-Binary.csv"))
 
 # Processing -------------------------------------------------------------------
 german_data <- german_data %>%
@@ -57,3 +57,6 @@ f1_score
 heatmap.2(confusion_matrix, main = "Confusion Matrix", 
           xlab = "Actual", ylab = "Predicted", col = c("lightblue", "pink"),
           density.info = "none", trace = "none", key = FALSE)
+
+
+roc_obj <- pROC::roc()
