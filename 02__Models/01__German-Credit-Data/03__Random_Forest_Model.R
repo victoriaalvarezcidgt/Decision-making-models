@@ -21,12 +21,7 @@ german_data <- german_data %>%
 set.seed(123)
 
 # Performing feature selection to select most important variables
-f_selection <- Boruta(Class ~ ., data = german_data,
-                      doTrace = 2, maxRuns = 500)
-
-# Viewing output and the selected variables
-# print(f_selection)
-# getSelectedAttributes(f_selection)
+f_selection <- Boruta(Class ~ ., data = german_data, doTrace = 2, maxRuns = 500)
 
 # Assessing what to do with the "Tentative" labelled variables
 f_selection_final <- TentativeRoughFix(f_selection)
@@ -51,28 +46,55 @@ test_set <- german_data[-index_train, ]
 set.seed(148)
 
 # Assessing the accuracy of different tree sizes and splits
-ntree_values <- c(100, 200, 300, 400, 500, 600, 700) # Number of trees
-mtry_values <- c(3, 5, 7, 8, 9, 10) # Number of variables to consider at each split
+ntree_values <- seq(100, 1000, by = 100) # Number of trees
+mtry_values <- seq(1, 10, by = 1) # Number of variables to consider at each split
 
+# Creating all possible combinations of the above values
+combinations <- expand.grid(ntree = ntree_values, mtry = mtry_values)
+
+# For storing output
 best_accuracy <- 0
 best_model <- NULL
 
-# The below code will utilize the feature selected variables and also cycle 
-# through the above values and select the best performing model
-for (ntree in ntree_values) {
-  for (mtry in mtry_values) {
-    model <- randomForest(formula = getNonRejectedFormula(f_selection_final), 
-                          data = training_set, ntree = ntree, mtry = mtry)
-    predicted <- predict(model, newdata = test_set)
-    confusion_matrix <- table(predicted, test_set$Class)
-    accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
-    
-    if (accuracy > best_accuracy) {
-      best_accuracy <- accuracy
-      best_model <- model
-    }
+# The below loop with iterate through all possible combinations of the tree/split
+# values and find the best performing model
+for (i in 1:nrow(combinations)) {
+  ntree <- combinations$ntree[i]
+  mtry <- combinations$mtry[i]
+  
+  model <- randomForest(formula = getNonRejectedFormula(f_selection_final), 
+                        data = training_set, ntree = ntree, mtry = mtry)
+  predicted <- predict(model, newdata = test_set)
+  confusion_matrix <- table(predicted, test_set$Class)
+  accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+  
+  # If a model has better accuracy it is saved
+  if (accuracy > best_accuracy) {
+    best_accuracy <- accuracy
+    best_model <- model
   }
 }
 
+# Performing predictions and evaluating ----------------------------------------
 predictions <- predict(best_model, newdata = test_set)
-confusionMatrix(table(predictions, test_set$Class))
+confusion_matrix <- confusionMatrix(table(predictions, test_set$Class))
+
+# Outputting -------------------------------------------------------------------
+best_model
+confusion_matrix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
