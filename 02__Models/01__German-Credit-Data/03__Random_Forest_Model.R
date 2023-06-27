@@ -79,7 +79,15 @@ for (i in 1:nrow(combinations)) {
 predictions <- predict(best_model, newdata = test_set)
 confusion_matrix <- confusionMatrix(table(predictions, test_set$Class))
 
-# Outputting -------------------------------------------------------------------
+# Outputting and exporting -----------------------------------------------------
+export_path <- "./02__Models/01__German-Credit-Data/"
+
+model_output <- capture.output(best_model)
+matrix_output <- capture.output(confusion_matrix)
+
+writeLines(model_output, file.path(export_path, "results/01__Model_output.txt"))
+writeLines(matrix_output, file.path(export_path, "results/02__Confusion_matrix.txt"))
+
 best_model
 confusion_matrix
 
