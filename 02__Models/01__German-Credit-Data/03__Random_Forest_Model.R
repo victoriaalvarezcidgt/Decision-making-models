@@ -83,18 +83,3 @@ confusion_matrix <- confusionMatrix(table(predictions, test_set$Class))
 best_model
 confusion_matrix
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
