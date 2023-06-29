@@ -51,10 +51,10 @@ params <- list(
   gamma = 0,                                   # Default
   min_child_weight = 1,                        # Default
   subsample = 1,                               # Default
-  booster = "gbtree",
+  booster = "gbtree",                          # Default
   objective = "binary:logistic",               # Binary classification
   eval_metric = "auc",                         # Metric to evaluate model performance
-  verbosity = 0
+  verbosity = 0                                # Verbosity of printing messages
 )
 
 # Useing cross validation to find best number of rounds
