@@ -1,4 +1,4 @@
-# Logistic Regression Decision Tree --------------------------------------------
+# XGBoost Decision Tree --------------------------------------------------------
 rm(list = ls())
 
 library(dplyr)
