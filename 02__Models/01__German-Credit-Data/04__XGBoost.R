@@ -3,8 +3,10 @@ rm(list = ls())
 
 library(dplyr)
 library(xgboost)
+library(ParBayesianOptimization)
+library(ggplot2)
 library(ROCR)
-library(Boruta) # for feature selection
+
 
 # Reading in data --------------------------------------------------------------
 path_data <- "./01__Data/01__German_Credit_Data/"
@@ -28,68 +30,205 @@ training_set <- german_data[index_train, ]
 # Create test set: test_set
 test_set <- german_data[-index_train, ]
 
+# Creating matrices for model
+# Defining equation 
+# Everything is regressed onto Class with the intercept being removed (hence -1)
+eq <- as.formula("Class ~ . -1")
+
+x <- model.matrix(eq, data = training_set)
+y <- model.frame(eq, data = training_set)[, "Class"]
+
+xvals <- model.matrix(eq, data = test_set)
+yvals <- model.frame(eq, data = test_set)[, "Class"]
+
 # Training XGBoost model -------------------------------------------------------
 set.seed(112)
 
-# Preparing training matrix
-train_matrix <- xgb.DMatrix(data = as.matrix(training_set[, -1]),
-                            label = training_set$Class)
-
 # Set the XGBoost parameters
 params <- list(
-  objective = "binary:logistic", # Binary classification
-  eval_metric = "error"          # Metric to evaluate model performance
+  max_depth = 6,                               # Default
+  eta = 0.3,                                   # Default
+  gamma = 0,                                   # Default
+  min_child_weight = 1,                        # Default
+  subsample = 1,                               # Default
+  booster = "gbtree",
+  objective = "binary:logistic",               # Binary classification
+  eval_metric = "auc",                         # Metric to evaluate model performance
+  verbosity = 0
 )
 
-# Train the XGBoost model
-xgb_model <- xgboost(data = train_matrix, params = params, nrounds = 100)
+# Useing cross validation to find best number of rounds
+xgb_cv_model <- xgb.cv(data = x, 
+                       label = y, 
+                       params = params, 
+                       nrounds = 100, prediction = TRUE, showsd = TRUE, 
+                       early_stopping_rounds = 10,
+                       maximize = TRUE, nfold = 10, stratified = TRUE)
 
-# Preparing test matrix
-test_matrix <- xgb.DMatrix(data = as.matrix(test_set[, -1]), 
-                           label = test_set$Class)
+# Optimal number of rounds
+numrounds <- min(which(
+  xgb_cv_model$evaluation_log$test_auc_mean == max(xgb_cv_model$evaluation_log$test_auc_mean)))
 
-predictions <- predict(xgb_model, test_matrix)
+xgb_model <- xgboost(data = x, 
+                     label = y,
+                     params = params, 
+                     nrounds = numrounds)
 
-# Evaluating and tuning --------------------------------------------------------
-set.seed(113)
+# We can now see model performance in terms of AUC
+predictions <- predict(xgb_model, xvals, type = "response")
+ROC_predictions <- prediction(as.numeric(predictions), as.numeric(yvals))
+auc <- performance(ROC_predictions, measure = "auc")
+auc@y.values[[1]] # Default AUC = 0.7782851
 
-# Setting initial threshold of 0.5
-predictions_binary <- as.factor(ifelse(predictions > 0.5, 1, 0))
+# Plotting ROC Curve
+ROC_performance <- performance(ROC_predictions, "tpr", "fpr")
+ROC_performance_df <- data.frame(False_pos = c(ROC_performance@x.values[[1]]),
+                                 True_pos = c(ROC_performance@y.values[[1]]))
 
-# Creating confusion matrix
-confusion_matrix <- caret::confusionMatrix(predictions_binary, as.factor(test_set$Class))
+ggplot(data = ROC_performance_df, 
+       aes(x = False_pos, y = True_pos, colour = "XGBoost: 0.78")) +
+  geom_line() +
+  geom_abline(slope = 1) +
+  theme_bw() +
+  ggtitle("ROC Curve with Default Hyperparameter Values")
 
-# Plotting ROC Curve to find optimal cut off
-pred_1 <- prediction(predictions, test_set$Class)
-perf_1 <- performance(pred_1, "tpr", "fpr")
+# Optimizing using Bayesian Optimization ---------------------------------------
+# Function will take the tuning parameters as an input and return the best
+# cross validation results
+scoring_function <- function(
+    eta, gamma, max_depth, min_child_weight, subsample, nfold) {
+  
+  dtrain <- xgb.DMatrix(x, label = y, missing = NA)
+  
+  pars <- list(
+    eta = eta,
+    gamma = gamma,
+    max_depth = max_depth,
+    min_child_weight = min_child_weight,
+    subsample = subsample,
+    
+    booster = "gbtree",
+    objective = "binary:logistic",
+    eval_metric = "auc",
+    verbosity = 0
+  )
+  
+  xgbcv <- xgb.cv(
+    params = pars,
+    data = dtrain,
+    
+    nfold = nfold,
+    
+    nrounds = 100,
+    prediction = TRUE,
+    showsd = TRUE,
+    early_stopping_rounds = 10,
+    maximize = TRUE,
+    stratified = TRUE
+  )
+  
+  # required by the package, the output must be a list
+  # with at least one element of "Score", the measure to optimize
+  # Score must start with capital S
+  # For this case, we also report the best num of iteration
+  return(
+    list(
+      Score = max(xgbcv$evaluation_log$test_auc_mean),
+      nrounds = xgbcv$best_iteration
+    )
+  )
+}
 
-plot(perf_1, colorize = TRUE, 
-     main = "ROC Curve for full model (XGBoost)",
-     print.cutoffs.at = seq(0, 1, by = 0.1), 
-     text.adj = c(0.2, 1.7))
+# Setting tuning boundaries
+bounds <- list(
+  eta = c(0, 1),
+  gamma =c(0, 100),
+  max_depth = c(2L, 10L), # L means integers
+  min_child_weight = c(1, 25),
+  subsample = c(0.25, 1),
+  nfold = c(3L, 10L)
+)
 
-# New threshold of 0.6
-predictions_binary_new <- as.factor(ifelse(predictions > 0.6, 1, 0))
+# Running the optimization with a time counter
+set.seed(201)
 
-# Creating confusion matrix
-confusion_matrix_new <- caret::confusionMatrix(predictions_binary_new, as.factor(test_set$Class))
+overall_time <- system.time(
+  output <- bayesOpt(
+    FUN = scoring_function, 
+    bounds = bounds, 
+    initPoints = 7, 
+    iters.n = 10
+  ))
+
+# outputting best parameters
+best_parameters <- getBestPars(output)
+
+# Fitting a tuned model --------------------------------------------------------
+params <- list(eta = best_parameters[1],
+               gamma = best_parameters[2],
+               max_depth = best_parameters[3],
+               min_child_weight = best_parameters[4],
+               subsample = best_parameters[5],
+               nfold = best_parameters[6],
+               objective = "binary:logistic")
+
+numrounds <- output$scoreSummary$nrounds[
+  which(output$scoreSummary$Score == max(output$scoreSummary$Score))]
+
+xgb_model_tuned <- xgboost(data = x, 
+                           label = y, 
+                           params = params, 
+                           nrounds = numrounds, 
+                           eval_metric = "auc")
+
+# We can now see tuned model performance in terms of AUC
+predictions_tuned <- predict(xgb_model_tuned, xvals, type = "response")
+ROC_predictions_tuned <- prediction(as.numeric(predictions_tuned), as.numeric(yvals))
+auc_tuned <- performance(ROC_predictions_tuned, measure = "auc")
+auc_tuned@y.values[[1]] # Tuned AUC: 0.7541011
+
+# Plotting both model curves
+ROC_performance_tuned <- performance(ROC_predictions_tuned, "tpr", "fpr")
+ROC_performance_tuned_df <- data.frame(
+  False_pos = c(ROC_performance_tuned@x.values[[1]]),
+  True_pos = c(ROC_performance_tuned@y.values[[1]]))
+
+roc_curves <- ggplot() +
+  geom_line(data = ROC_performance_df, 
+            aes(x = False_pos, y = True_pos, colour = "XGBoost: 0.78")) +
+  geom_line(data = ROC_performance_tuned_df,
+            aes(x = False_pos, y = True_pos, colour = "Tuned XGBoost: 0.75")) +
+  geom_abline(slope = 1) +
+  theme_bw() +
+  ggtitle("ROC Curves across models")
+
+# Evaluating both models -------------------------------------------------------
+# Default Model
+confusion_matrix_default <- caret::confusionMatrix(
+  table(round(predictions), yvals))
+
+# Tuned Model
+confusion_matrix_tuned <- caret::confusionMatrix(
+  table(round(predictions_tuned), yvals))
 
 # Exporting & Printing --------------------------------------------------------
 export_path <- "./02__Models/01__German-Credit-Data/results"
 
-matrix_1 <- capture.output(caret::confusionMatrix(predictions_binary, as.factor(test_set$Class)))
-matrix_2 <- capture.output(caret::confusionMatrix(predictions_binary_new, as.factor(test_set$Class)))
+matrix_1 <- capture.output(caret::confusionMatrix(
+  table(round(predictions), yvals)))
 
-writeLines(text = matrix_1, file.path(export_path, "03__XGBoost/01__Model_(0.5).txt"))
-writeLines(text = matrix_2, file.path(export_path, "03__XGBoost/02__Model_(0.6).txt"))
+matrix_2 <- capture.output(caret::confusionMatrix(
+  table(round(predictions_tuned), yvals)))
+
+writeLines(text = matrix_1, file.path(export_path, "03__XGBoost/01__Default_Model.txt"))
+writeLines(text = matrix_2, file.path(export_path, "03__XGBoost/02__Tuned_Model.txt"))
+
+cowplot::save_plot(file.path(export_path, "03__XGBoost/03__ROC_Curves.png"), 
+                   plot = roc_curves, base_height = 10)
 
 # Comparing model performance
-print("Full Model with 0.5 cut off")
-confusion_matrix
+print("Default Model")
+confusion_matrix_default
 
-print("Full Model with 0.6 cut off")
-confusion_matrix_new
-
-
-
-
+print("Tuned Model")
+confusion_matrix_tuned
