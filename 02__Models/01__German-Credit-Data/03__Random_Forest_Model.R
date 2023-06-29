@@ -4,7 +4,6 @@ rm(list = ls())
 library(dplyr)
 library(caTools)
 library(randomForest)
-library(caret)
 library(Boruta) # for feature selection
 
 # Reading in data --------------------------------------------------------------
@@ -17,8 +16,8 @@ german_data <- german_data %>%
   mutate(Class = recode(Class, "Bad" = 0, "Good" = 1)) %>%
   mutate(Class = as.factor(Class))
 
-# Feature Selection ------------------------------------------------------------
-set.seed(123)
+# Feature selection ------------------------------------------------------------
+set.seed(110)
 
 # Performing feature selection to select most important variables
 f_selection <- Boruta(Class ~ ., data = german_data, doTrace = 2, maxRuns = 500)
@@ -26,15 +25,10 @@ f_selection <- Boruta(Class ~ ., data = german_data, doTrace = 2, maxRuns = 500)
 # Assessing what to do with the "Tentative" labelled variables
 f_selection_final <- TentativeRoughFix(f_selection)
 
-# Viewing output and the selected variables
-# print(f_selection_final)
-# getSelectedAttributes(f_selection_final)
-
 # Splitting data ---------------------------------------------------------------
-set.seed(147)
-
+set.seed(111)
 # Store row numbers for training set: index_train
-index_train <- sample(1:nrow(german_data), 2 / 3 * nrow(german_data))
+index_train <- caret::createDataPartition(german_data$Class, p = 0.7, list = FALSE)
 
 # Create training set: training_set
 training_set <- german_data[index_train, ]
@@ -80,14 +74,17 @@ predictions <- predict(best_model, newdata = test_set)
 confusion_matrix <- confusionMatrix(table(predictions, test_set$Class))
 
 # Outputting and exporting -----------------------------------------------------
-export_path <- "./02__Models/01__German-Credit-Data/"
+export_path <- "./02__Models/01__German-Credit-Data/results"
 
 model_output <- capture.output(best_model)
 matrix_output <- capture.output(confusion_matrix)
 
-writeLines(model_output, file.path(export_path, "results/01__Model_output.txt"))
-writeLines(matrix_output, file.path(export_path, "results/02__Confusion_matrix.txt"))
+writeLines(model_output, file.path(export_path, "02__Random_Forest/01__Model_output.txt"))
+writeLines(matrix_output, file.path(export_path, "02__Random_Forest/02__Confusion_matrix.txt"))
 
+print("Best Model Details:")
 best_model
+
+print("Best Model Performance")
 confusion_matrix
 
