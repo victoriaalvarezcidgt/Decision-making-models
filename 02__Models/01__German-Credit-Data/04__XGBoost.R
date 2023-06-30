@@ -130,7 +130,7 @@ scoring_function <- function(
   # required by the package, the output must be a list
   # with at least one element of "Score", the measure to optimize
   # Score must start with capital S
-  # For this case, we also report the best num of iteration
+  # For this case, we also report the best number of iterations
   return(
     list(
       Score = max(xgbcv$evaluation_log$test_auc_mean),
@@ -156,8 +156,9 @@ overall_time <- system.time(
   output <- bayesOpt(
     FUN = scoring_function, 
     bounds = bounds, 
-    initPoints = 7, 
-    iters.n = 100
+    initPoints = 7, # Must be higher than out function inputs
+    iters.n = 25, # Can be set to any iteration value
+    plotProgress = TRUE # Plot the progress
   ))
 
 # outputting best parameters
@@ -185,7 +186,7 @@ xgb_model_tuned <- xgboost(data = x,
 predictions_tuned <- predict(xgb_model_tuned, xvals, type = "response")
 ROC_predictions_tuned <- prediction(as.numeric(predictions_tuned), as.numeric(yvals))
 auc_tuned <- performance(ROC_predictions_tuned, measure = "auc")
-auc_tuned@y.values[[1]] # Tuned AUC: 0.7541011
+auc_tuned@y.values[[1]] # Tuned AUC: 0.7710412
 
 # Plotting both model curves
 ROC_performance_tuned <- performance(ROC_predictions_tuned, "tpr", "fpr")
@@ -197,7 +198,7 @@ roc_curves <- ggplot() +
   geom_line(data = ROC_performance_df, 
             aes(x = False_pos, y = True_pos, colour = "XGBoost: 0.78")) +
   geom_line(data = ROC_performance_tuned_df,
-            aes(x = False_pos, y = True_pos, colour = "Tuned XGBoost: 0.75")) +
+            aes(x = False_pos, y = True_pos, colour = "Tuned XGBoost: 0.77")) +
   geom_abline(slope = 1) +
   theme_bw() +
   ggtitle("ROC Curves across models")
