@@ -157,7 +157,7 @@ overall_time <- system.time(
     FUN = scoring_function, 
     bounds = bounds, 
     initPoints = 7, 
-    iters.n = 10
+    iters.n = 100
   ))
 
 # outputting best parameters
