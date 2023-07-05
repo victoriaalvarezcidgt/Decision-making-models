@@ -47,7 +47,7 @@ dim(credit_data)
 ### Change column names
 credit_data <- credit_data %>%
   clean_names()
-### View the dataset after changing column names
+### Viewing the dataset after changing column names
 head(credit_data)
 ```
 ### Variable type conversion
@@ -135,9 +135,9 @@ df <- cdata %>% select(-all_of(vars_to_remove))
 ```
 
 
-### Check if there's any predictor variable with only one level in the data frame
+### Check if there's any predictor variable with only one level in the dataframe
 ```{r}
-## To check if there's any predictor variable with one level in the data frame
+## To check if there's any predictor variable with one level in the dataframe
 count <- 0
 for (j in names(df)) {
   if (length(unique(df[[j]])) == 1) {
@@ -149,7 +149,7 @@ if (count == 0) {
   print("No categorical variable has ONE level. Hell yeah, ride on!!!")
 }
 ```
-### Checking the structure of the data frame
+### Checking the structure of the dataframe
 
 ```{r}
 str(df)
@@ -182,7 +182,7 @@ head(ndf)
 dim(ndf)
 ```
 
-### Splitting the data frame into training and testing sets
+### Splitting the dataframe into training and testing sets
 ```{r}
 set.seed(111)
 ## Creating the Index Matrix
