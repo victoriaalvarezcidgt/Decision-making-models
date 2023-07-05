@@ -38,7 +38,7 @@ This section involves loading the initial dataset and examining it at a glance.
 credit_data = read.csv("01__GCD-Binary.csv")
 ###View Dataset before changing column names
 View(credit_data)
-## Dimension of the original dataset: row and column
+## Dimension of the original dataset: row and column numbers
 dim(credit_data)
 ```
 ## Preprocessing
