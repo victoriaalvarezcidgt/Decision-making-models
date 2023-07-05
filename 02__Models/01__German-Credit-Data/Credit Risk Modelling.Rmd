@@ -1,6 +1,6 @@
 ---
 title: "Credit Risk Modelling"
-author: "Toheeb Jimoh"
+author: "GT Interns"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -11,11 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Decision-Making Models
 
-These are framework or models for assessing the credit risks associated with lending or extending credits to individuals or businesses.
+These are frameworks or models for assessing the credit risks associated with lending or extending credits to individuals or businesses.
 
 ### Credit Risk Decision-Making
 
-These involves analyzing the various factors and information to assess the likelihood of default or delinquency by the borrower. \
+This involves analyzing the various factors and information to assess the borrower's likelihood of default or delinquency. \
 
 # R Data Analysis
 
@@ -47,11 +47,11 @@ dim(credit_data)
 ### Change column names
 credit_data <- credit_data %>%
   clean_names()
-### View dataset after changing column names
+### View the dataset after changing column names
 head(credit_data)
 ```
 ### Variable type conversion
-The response variable ia converted into factor from character. Other categorical variables are also converted into factors.
+The response variable is converted into a factor from character. Other categorical variables are also converted into factors.
 ```{r}
 ### Convert the response variable into categorical
 cdata <- dummy_cols(credit_data, select_columns = "class", remove_selected_columns = T, remove_first_dummy = T)
@@ -120,7 +120,7 @@ table(cdata$purpose_vacation)
 table(cdata$personal_female_single)
 ```
 ### Removing categorical variables with only one level
-This is necessary because having a categorical variable with a single level does not make any sense.
+This is necessary because having a categorical variable with a single level makes no sense.
 ```{r}
 
 vars_to_remove <- c()
@@ -135,9 +135,9 @@ df <- cdata %>% select(-all_of(vars_to_remove))
 ```
 
 
-### Check if there's any predictor variable with only one level in the dataframe
+### Check if there's any predictor variable with only one level in the data frame
 ```{r}
-## To check if there's any predictor variable with one level in the dataframe
+## To check if there's any predictor variable with one level in the data frame
 count <- 0
 for (j in names(df)) {
   if (length(unique(df[[j]])) == 1) {
@@ -149,7 +149,7 @@ if (count == 0) {
   print("No categorical variable has ONE level. Hell yeah, ride on!!!")
 }
 ```
-### Checking the structure of the dataframe
+### Checking the structure of the data frame
 
 ```{r}
 str(df)
@@ -182,7 +182,7 @@ head(ndf)
 dim(ndf)
 ```
 
-### Splitting the dataframe into training and testing sets
+### Splitting the data frame into training and testing sets
 ```{r}
 set.seed(111)
 ## Creating the Index Matrix
