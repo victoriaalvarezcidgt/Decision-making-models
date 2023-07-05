@@ -2,7 +2,6 @@
 rm(list = ls())
 
 library(dplyr)
-library(caTools)
 library(randomForest)
 library(Boruta) # for feature selection
 
@@ -41,7 +40,7 @@ set.seed(148)
 
 # Assessing the accuracy of different tree sizes and splits
 ntree_values <- seq(100, 1000, by = 100) # Number of trees
-mtry_values <- seq(1, 10, by = 1) # Number of variables to consider at each split
+mtry_values <- seq(1, 25, by = 1) # Number of variables to consider at each split
 
 # Creating all possible combinations of the above values
 combinations <- expand.grid(ntree = ntree_values, mtry = mtry_values)
@@ -71,7 +70,7 @@ for (i in 1:nrow(combinations)) {
 
 # Performing predictions and evaluating ----------------------------------------
 predictions <- predict(best_model, newdata = test_set)
-confusion_matrix <- confusionMatrix(table(predictions, test_set$Class))
+confusion_matrix <- caret::confusionMatrix(table(predictions, test_set$Class))
 
 # Outputting and exporting -----------------------------------------------------
 export_path <- "./02__Models/01__German-Credit-Data/results"
