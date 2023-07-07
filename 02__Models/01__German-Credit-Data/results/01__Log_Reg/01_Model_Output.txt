@@ -1,0 +1,13 @@
+Generalized Linear Model 
+
+800 samples
+ 53 predictor
+  2 classes: 'Bad', 'Good' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 720, 720, 720, 720, 720, 720, ... 
+Resampling results:
+
+  Accuracy  Kappa    
+  0.75      0.3686727
