@@ -1,0 +1,251 @@
+---
+title: "Credit Risk Modelling"
+author: "GT Interns"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Decision-Making Models
+
+These are frameworks or models for assessing the credit risks associated with lending or extending credits to individuals or businesses.
+
+### Credit Risk Decision-Making
+
+This involves analyzing the various factors and information to assess the borrower's likelihood of default or delinquency. \
+
+# R Data Analysis
+
+## Importing the needed libraries.
+
+```{r}
+library(tidyverse)
+library(fastDummies)
+library(dplyr)
+library(caret)
+library(ggplot2)
+library(glmnet)
+library(psych)
+library(randomForest)
+library(janitor)
+```
+## Loading the dataset and getting the summary
+This section involves loading the initial dataset and examining it at a glance.
+```{r}
+credit_data = read.csv("01__GCD-Binary.csv")
+###View Dataset before changing column names
+View(credit_data)
+## Dimension of the original dataset: row and column numbers
+dim(credit_data)
+```
+## Preprocessing
+### Cleaning the variable names.
+```{r}
+### Change column names
+credit_data <- credit_data %>%
+  clean_names()
+### Viewing the dataset after changing column names
+head(credit_data)
+```
+### Variable type conversion
+The response variable is converted into a factor from character. Other categorical variables are also converted into factors.
+```{r}
+### Convert the response variable into categorical
+cdata <- dummy_cols(credit_data, select_columns = "class", remove_selected_columns = T, remove_first_dummy = T)
+colnames(cdata)[ncol(cdata)] <- "class"
+cdata$class<- as.numeric(cdata$class)
+factoring <- c(3:4, 6:61)
+cdata[factoring] <- lapply(cdata[factoring], factor)
+head(cdata)
+
+## Check for any missing value in case of the manipulation
+any(is.na(cdata))
+## Check the structure of the dataset to confirm the types of each column
+str(cdata)
+
+
+#Relabelling values of the outcome
+cdata$class[cdata$class == 1] <- "Good"
+cdata$class[cdata$class == 0] <- "Bad"
+
+cdata$class <- as.factor(cdata$class)
+
+## Is the response variable categorical?
+is.factor(cdata$class)
+class(cdata$class)
+```
+
+### Checking the category of the credit scores
+```{r}
+ggplot(data = cdata, mapping = aes(x = class)) +
+        geom_bar(color='black', fill = "#CA1420") +
+        xlab("Credit Score Category") +
+        ylab("Frequency") + 
+		ggtitle("Category of Credit Score")+ 
+		theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Getting an extensive summary of the Age variable
+```{r}
+## Get an extensive summary of the "Age" Feature
+describe(cdata$age)
+```
+### Visualizing the Distribution of the Age Variable
+```{r}
+ggplot(data = cdata, mapping = aes(x = age)) +
+        geom_histogram(binwidth=1, color='black', fill = "#DE1567") +
+        scale_x_continuous(limits=c(20,90), breaks=seq(20,90,5)) +
+        xlab("Customers' Age") +
+        ylab("Frequency by Age") + ggtitle("Age Distribution of Clients") + 
+        theme(plot.title = element_text(hjust = 0.5))
+```
+### Checking which categorical variable has only one level
+```{r}
+### Which predictor variable has only one level?
+## We need to remove these as they do not count.
+for (j in names(cdata)){
+	if (length(unique(cdata[[j]])) == 1){
+		print(j)
+	}
+}
+```
+
+
+```{r}
+## Showing the levels of the predictor variables with the single unique level
+table(cdata$purpose_vacation)
+table(cdata$personal_female_single)
+```
+### Removing categorical variables with only one level
+This is necessary because having a categorical variable with a single level makes no sense.
+```{r}
+
+vars_to_remove <- c()
+
+for (k in names(cdata)) {
+  if (length(unique(cdata[[k]])) == 1) {
+    vars_to_remove <- c(vars_to_remove, k)
+  }
+}
+
+df <- cdata %>% select(-all_of(vars_to_remove))
+```
+
+
+### Check if there's any predictor variable with only one level in the dataframe
+```{r}
+## To check if there's any predictor variable with one level in the dataframe
+count <- 0
+for (j in names(df)) {
+  if (length(unique(df[[j]])) == 1) {
+    print(j)
+    count <- count + 1
+  }
+}
+if (count == 0) {
+  print("No categorical variable has ONE level. Hell yeah, ride on!!!")
+}
+```
+### Checking the structure of the dataframe
+
+```{r}
+str(df)
+```
+
+### Performing Recursive Feature Selection
+
+```{r}
+## Perform Recursive Feature Selection
+set.seed(111)
+ctrl <- rfeControl(functions = rfFuncs, method = "cv", number = 5)
+result <- rfe(df[, -which(names(df) == "class")], df[["class"]], sizes = c(1:ncol(df)-1), rfeControl = ctrl)
+# summarize the results
+print(result)
+```
+
+```{r}
+# list the chosen features
+predictors(result)
+# plot the results
+plot(result, type=c("g", "o"))
+df2 <- df[, result$optVariables]
+```
+
+### Merging the response variable with the reduced features
+```{r}
+ndf <- cbind(df2, df[, "class"])
+colnames(ndf)[ncol(ndf)] <- "class"
+head(ndf)
+dim(ndf)
+```
+
+### Splitting the dataframe into training and testing sets
+```{r}
+set.seed(111)
+## Creating the Index Matrix
+train_index <- createDataPartition(ndf$class, p = 0.8, list = F, times = 1)
+class(ndf)
+train_set <- ndf[train_index, ]
+test_set <- ndf[-train_index, ]
+
+# Separate labels and features
+# train_labels <- train_set[["class"]]
+# train_features <- train_set[, -ncol(train_set)]
+# 
+# test_labels <- test_set[["class"]]
+# test_features <- test_set[, -ncol(test_set)]
+
+# Dimension of training and testing sets
+dim(train_set)
+dim(test_set)
+```
+ ### Specifying the Type of Training Methods used and the Number of Folds
+```{r}
+ctrlspec = trainControl(method = "cv", number = 10, savePredictions = "all",
+                        classProbs = T)
+```
+### Specify the model to be Used
+```{r}
+set.seed(113)
+# Logistic Regression Model: Generalized Linear Model
+log_model <- train(class~., data = train_set, method = "glm", 
+                   family = binomial, trControl = ctrlspec)
+print(log_model)
+```
+#### Interpretation
+
+About $75\%$ of the clients are correctly classified as either having a good or bad credit score.
+
+
+### Generating the variable importance
+```{r}
+varImp(log_model)
+```
+### Making Prediction on the Testing Set and getting the Confusion Matrix
+```{r}
+predictions <- predict(log_model, newdata = test_set)
+
+confusion_matrix<- confusionMatrix(data = predictions, test_set$class, positive = "Good")
+confusion_matrix
+```
+### Plotting the Confusion Matrix
+
+```{r}
+table <- as.data.frame(confusion_matrix$table)
+plotTable <- table %>%
+  mutate(goodbad = ifelse(table$Prediction == table$Reference, "Good", "Bad")) %>%
+  group_by(Reference) %>%
+  mutate(prop = Freq/sum(Freq))
+
+ggplot(data = plotTable, mapping = aes(x = Reference, y = Prediction, fill = goodbad, alpha = prop)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), vjust = .5, fontface  = "bold", alpha = 1) +
+  scale_fill_manual(values = c(good = "#ad0156", bad = "#c6D004")) +
+  theme_bw() +
+  xlim(rev(levels(table$Reference)))
+
+```
+
