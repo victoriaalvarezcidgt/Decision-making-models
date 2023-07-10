@@ -1,8 +1,14 @@
+rm(list = ls())
+
+# Required packages ------------------------------------------------------------
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
+library(DT)
+library(dplyr)
+# ------------------------------------------------------------------------------
 
-# Image pathway
+# So we can use the image pathway and not the default "www" pathway
 addResourcePath("new_path", "./03__Shiny/01__Logo/")
 
 # Defining UI
@@ -15,13 +21,12 @@ ui <- dashboardPage(
   
   # Defining sideboard menu
   dashboardSidebar(
-    # Adding clickable contents to the sidebar
+    # Adding pages to the sideboard
     sidebarMenu(
       menuItem("Home Page", tabName = "Home", icon = icon("home")),
       menuItem("Data Input", tabName = "Input", icon = icon("upload")),
       menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs"))
-    ) # End of sidebarMenu()
-  ), # End of dashboardSidebar()
+    )), # End of sidebarMenu() & dashboardSidebar()
   
   # Defining the dashboard body
   dashboardBody(
@@ -30,7 +35,7 @@ ui <- dashboardPage(
       # Creating home page ----------------------------------------------------
       tabItem(tabName = "Home",
       tags$body(
-      h1(strong("Machine Learning Credit Risk Models"), align = "center"),
+      h1(strong("Machine Learning Credit Risk Models"), align = "center", style = "30px"),
       p("The following shiny app provides decision making tools for 
         assessing loan defaults.", align = "center", style = "font-size: 20px"),
       p("Our tool utilizes three models to analyze borrower data and predict 
@@ -47,7 +52,8 @@ ui <- dashboardPage(
         tags$li("XGBoost is another ensemble learning technique that uses a gradient
         boosting framework. It sequentially builds multiple weak models,
         such as decision trees, to create a strong predictive model. XGBoost
-        is known for its scalability and performance.", style = "font-size: 20px")),
+        is known for its scalability and performance.", style = "font-size: 20px"
+        )), # End of tags$ol() & tags$li()
       
       # Logos ------------------------------------------------------------------
       # Grant Thornton logo
@@ -67,8 +73,7 @@ ui <- dashboardPage(
         #image-container.move-up {
         left: 0;
         }"
-        )) # End of tags$style() & HTML()
-        ), # End of tags$head()
+        ))), # End of tags$style() & HTML() & tags$head()
       
       div(
         id = "image-container",
@@ -80,43 +85,67 @@ ui <- dashboardPage(
       $('#image-container').toggleClass('move-up');
       });
       });"
-      ))
-      ),
+      ))), # End of tags$script() & HTML() & tags$body()
       ), # End of tabItem() {Home Page}
       
       # Creating data input page -----------------------------------------------
       tabItem(tabName = "Input",
-      tags$h1(strong("Upload a dataset"), align = "center", style = "font-size: 20px"),
+      tags$body(
+        h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
+        p(strong("NOTE"), ": Please call the binary loan default column \"Class\"
+          and have the data coded as \"Good / Bad\" or \"Yes / No \" or \"0 / 1\"",
+          style = "font-size: 20px")),
       fileInput("dataset", "Upload a dataset (CSV format)"),
       actionButton("submit", "Submit"),
-      tags$h4("Upload Dataset:"),
-      tableOutput("data_table")
+      tags$h4("Uploaded Dataset:"),
+      dataTableOutput("data_table")
       ), # End of tabItem() {Data input}
     
       # Feature Selection ------------------------------------------------------
-      tabItem(tabName = "Feature Selection",
-      h2("This is where we will do feature selection"),
-      p("This is the contents of the feature selection page")
+      tabItem(tabName = "Selection",
+      tags$body(
+        h1(strong("Feature Selection"), align = "center", style = "font-size: 30px"),
+        p("Please select feature selection method")),
+      
       ) # End of tabItem() {Feature Selection}
     
     ) # End of tabItems()
     ) # End of dashboardBody()
   ) # End of dashboardPage()
 
+# Creating server logic --------------------------------------------------------
 server <- function(input, output) {
   
-  # Allows for a dataset to be uploaded
+  # Data uploading -------------------------------------------------------------
   dataset <- reactive({
     req(input$submit)
     if(!is.null(input$dataset)){
+      
+      # Reading in data
       df <- read.csv(input$dataset$datapath)
+      
+      # Re-coding class column based on different scenarios
+      if("Class" %in% colnames(df) && ("Bad" %in% df$Class | "Good" %in% df$Class)){
+      df <- df %>%
+        mutate(Class = recode(Class, "Bad" = 0, "Good" = 1)) %>%
+        mutate(Class = as.factor(Class))
+      } else if("Class" %in% colnames(df) && ("No" %in% df$Class | "Yes" %in% df$Class)){
+        df <- df %>%
+          mutate(Class = recode(Class, "No" = 0, "Yes" = 1)) %>%
+          mutate(Class = as.factor(Class))
+      } else{
+        df <- df %>%
+          mutate(Class = as.factor(Class))
+      }
+      
       return(df)
     }
   })
-  
-  # Outputs dataset
-  output$data_table <- renderTable({
-    dataset()
+
+  # Outputting dataset
+  output$data_table <- renderDataTable({
+    datatable(dataset(), options = list(scrollX = TRUE, paginate = TRUE))
+    
   })
 }
 
