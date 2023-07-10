@@ -251,3 +251,9 @@ plot_confusion_matrix <- function(confusion_matrix) {
 }
 plot_confusion_matrix(confusion_matrix)```
 
+### Plotting the Receiver Operating Characteristic (ROC)
+```{r}
+test_roc = roc(as.numeric(test_set$class) ~ as.numeric(predictions), plot = TRUE, print.auc = TRUE, 
+              col = "maroon", xlab = "False Positive Rate",
+              ylab = "True Positive Rate (Sensitivity)")
+```
