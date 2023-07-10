@@ -2,10 +2,11 @@ library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 
-logo_path <- "./03__Shiny/01__Logos/"
-
+addResourcePath("new_path", "./03__Shiny/01__Logo/")
 # Defining UI
 ui <- dashboardPage(
+  
+  skin = "purple",
   
   # Title
   dashboardHeader(title = "Credit Risk Models"),
@@ -14,9 +15,9 @@ ui <- dashboardPage(
   dashboardSidebar(
     # Adding clickable contents to the sidebar
     sidebarMenu(
-      menuItem("Home Page", tabName = "Home"),
-      menuItem("Data Input", tabName = "Data Input"),
-      menuItem("Feaure Selection", tabName = "Feature Selection")
+      menuItem("Home Page", tabName = "Home", icon = icon("home")),
+      menuItem("Data Input", tabName = "Data Input", icon = icon("pencil")),
+      menuItem("Feaure Selection", tabName = "Feature Selection", icon = icon("cogs"))
     ) # End of sidebarMenu()
   ), # End of dashboardSidebar()
   
@@ -24,10 +25,66 @@ ui <- dashboardPage(
   dashboardBody(
     # Adding body contents
     tabItems(
-      # Home page with placeholder text
+      # Creating home page
       tabItem(tabName = "Home",
-      h2("This is the home page"),
-      p("This is the content of the home page")
+      tags$h1(strong("Machine Learning Credit Risk Models"), align = "center"),
+      p("The following shiny app provides decision making tools for 
+        assessing loan defaults.", align = "center", style = "font-size: 20px"),
+      p("Our tool utilizes three models to analyze borrower data and predict 
+        the likelihood of loan defaults.", style = "font-size: 20px"),
+      
+      tags$ol(
+        tags$li(" Logistic regression is a statistical model used to predict 
+        the probability of a binary outcome or event occurring (such as a 
+        whether or not a loan will default. It considers various input variables 
+        and calculates the odds of default.", style = "font-size: 20px"),
+        tags$li("Random forest is an ensemble learning method that combines multiple 
+        decision trees to make predictions. It leverages the power of many 
+        individual trees to improve accuracy and handle complex interactions 
+        between variables.", style = "font-size: 20px"),
+        tags$li("XGBoost is another ensemble learning technique that uses a gradient
+        boosting framework. It sequentially builds multiple weak models,
+        such as decision trees, to create a strong predictive model. XGBoost
+        is known for its scalability and performance.", style = "font-size: 20px")
+      ),
+      p("By leveraging these models, our tool provides lenders with reliable 
+        predictions and insights to make informed decisions, identify high-risk 
+        borrowers, and implement appropriate risk mitigation strategies.", 
+        style = "font-size: 20px"),
+      p("Explore the other tabs to access various features and analyses.", 
+        style = "font-size: 20px"),
+      
+      # Logos ------------------------------------------------------------------
+      # Grant Thornton Logo
+      div(style = "text-align: center;",
+          img(src = "new_path/01__GT_Logo.png", height = "150px", width = "auto")),
+      
+      # Dynamically moving uni + funding logo
+      tags$head( 
+        tags$style(HTML("
+        #image-container {
+        position: absolute;
+        bottom: 0;
+        left: 210px;
+        transition: all 0.3s ease;
+        }
+
+        #image-container.move-up {
+          left: 0;
+        }
+      ")) # End of tags$style() & HTML()
+      ), # End of tags$head()
+      tags$div(
+        id = "image-container",
+        tags$img(src = "new_path/04__Uni_Logos.png", alt = "Image", height = "150px")
+      ),
+      tags$script(HTML("
+      $(document).ready(function() {
+        $('.sidebar-toggle').on('click', function() {
+          $('#image-container').toggleClass('move-up');
+        });
+      });
+    "))
       ), # End of tabItem() {Home Page}
       
       # Data Input
