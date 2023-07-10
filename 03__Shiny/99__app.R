@@ -76,7 +76,7 @@ ui <- dashboardPage(
       ), # End of tags$head()
       tags$div(
         id = "image-container",
-        tags$img(src = "new_path/04__Uni_Logos.png", alt = "Image", height = "150px")
+        tags$img(src = "new_path/02__Uni_Logos.png", alt = "Image", height = "150px")
       ),
       tags$script(HTML("
       $(document).ready(function() {
