@@ -107,14 +107,14 @@ ui <- dashboardPage(
                 multiple = FALSE, placeholder = "Enter your data here", 
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
-      # Submitting
-      actionButton("submit", "Submit"),
-      
-      # Target variable selection
+      # Uploading dataset, selecting target varibale and processing
+      actionButton("upload", "Upload"),
+      hr(),
       selectInput("targetVariable", "Select Target Variable", choices = NULL),
+      hr(),
+      actionButton("processing", "Process Data"),
       
-      # Outputting of data
-      textOutput("data_text"),
+      # Outputting data
       dataTableOutput("data_table")
       
       ), # End of tabItem() {Data input}
@@ -149,43 +149,53 @@ server <- function(input, output, session) {
   
   # Data uploading -------------------------------------------------------------
   dataset <- reactive({
-    req(input$submit)
+    req(input$upload)
     if(!is.null(input$dataset)){
       
       # Reading in data
       df <- read.csv(input$dataset$datapath)
-      
-       # Re-coding class column based on different scenarios
-      if("Class" %in% colnames(df) && ("Bad" %in% df$Class | "Good" %in% df$Class)){
-      df <- df %>%
-        mutate(Class = recode(Class, "Bad" = 0, "Good" = 1)) %>%
-        mutate(Class = as.factor(Class))
-      } else if("Class" %in% colnames(df) && ("No" %in% df$Class | "Yes" %in% df$Class)){
-        df <- df %>%
-          mutate(Class = recode(Class, "No" = 0, "Yes" = 1)) %>%
-          mutate(Class = as.factor(Class))
-      } else{
-        df <- df %>%
-          mutate(Class = as.factor(Class))
-      } # End of if statements
       
       return(df)
     } # End of if statement
   }) # End of dataset()
   
   # Getting target variable ----------------------------------------------------
-  observeEvent(input$submit, {
+  observeEvent(input$upload, {
     updateSelectInput(session, "targetVariable", 
                       choices = as.character(colnames(dataset())))
   })
-
-  # Outputting text and dataset
-  output$data_text <- renderText({
-    "Uploaded Dataset:"
+  
+  # Processing Data ------------------------------------------------------------
+  data_processing <- reactive({
+    req(input$processing)
+    
+    # Reading in dataset and target selection
+    df <- dataset()
+    target <- toString(input$targetVariable)
+    
+    # Processing Data (recoding to ensure binary outcome)
+    if("Bad" %in% df[, target] | "Good" %in% df[, target]){
+      df <- df %>%
+        mutate(!!sym(target) := recode(!!sym(target), "Bad" = 0, "Good" = 1)) %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    else if("No" %in% df[, target] | "Yes" %in% df[, target]){
+      df <- df %>%
+        mutate(!!sym(target) := recode(!!sym(target), "No" = 0, "Yes" = 1)) %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    else{
+      df <- df %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    
+    return(df)
   })
   
+  # Outputting processed dataset
   output$data_table <- renderDataTable({
-    datatable(dataset(), options = list(scrollX = TRUE, paginate = TRUE))
+    datatable(data_processing(), options = list(scrollX = TRUE, paginate = TRUE,
+                                                pageLength = 5))
   })
   
   # Feature Selection ----------------------------------------------------------
@@ -196,7 +206,7 @@ server <- function(input, output, session) {
     progress$set(message = "Preparing Data", value = 0.1)
     
     # Getting the data
-    df <- dataset()
+    df <- data_processing()
     
     progress$set(message = "Getting selection method", value = 0.2)
     Sys.sleep(0.75)
