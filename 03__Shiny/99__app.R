@@ -4,6 +4,7 @@ rm(list = ls())
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
+library(shinyBS)
 library(DT)
 library(dplyr)
 # ------------------------------------------------------------------------------
@@ -91,22 +92,33 @@ ui <- dashboardPage(
       # Creating data input page -----------------------------------------------
       tabItem(tabName = "Input",
       tags$body(
+        # Text 
         h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
         p(strong("NOTE"), ": Please call the binary loan default column \"Class\"
           and have the data coded as \"Good / Bad\" or \"Yes / No \" or \"0 / 1\"",
           style = "font-size: 20px")),
-      fileInput("dataset", "Upload a dataset (CSV format)"),
+      
+      # Inputting of data
+      fileInput("dataset", h4("Upload a dataset (CSV format)"),
+                multiple = FALSE, placeholder = "Enter your data here"),
       actionButton("submit", "Submit"),
+      
+      # Outputting of data
       tags$h4("Uploaded Dataset:"),
       dataTableOutput("data_table")
+      
       ), # End of tabItem() {Data input}
     
       # Feature Selection ------------------------------------------------------
       tabItem(tabName = "Selection",
       tags$body(
         h1(strong("Feature Selection"), align = "center", style = "font-size: 30px"),
-        p("Please select feature selection method")),
+        ), # End of tags$body()
       
+      # Allows user to select a feature selection method
+      radioButtons("selection", h4("Select a Feature Selection Method"),
+                   choices = list("Boruta", "Recursive Feature Selection", "None"),
+                   selected = "Boruta")
       ) # End of tabItem() {Feature Selection}
     
     ) # End of tabItems()
