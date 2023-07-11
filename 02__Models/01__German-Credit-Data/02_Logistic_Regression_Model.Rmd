@@ -252,8 +252,10 @@ plot_confusion_matrix <- function(confusion_matrix) {
 plot_confusion_matrix(confusion_matrix)```
 
 ### Plotting the Receiver Operating Characteristic (ROC)
+The best accuracy will be seen near $c = 0.5$, and instead of manually checking cutoffs, we would create an ROC curve (receiver operating characteristic curve) that will sweep through all possible cutoffs, and plot the sensitivity and specificity.
+
 ```{r}
 test_roc = roc(as.numeric(test_set$class) ~ as.numeric(predictions), plot = TRUE, print.auc = TRUE, 
-              col = "maroon", xlab = "False Positive Rate",
-              ylab = "True Positive Rate (Sensitivity)")
+              col = "maroon")
+as.numeric(test_roc$auc)
 ```
