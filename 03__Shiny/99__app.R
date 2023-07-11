@@ -4,9 +4,10 @@ rm(list = ls())
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
-library(shinyBS)
+library(shinyjs)
 library(DT)
 library(dplyr)
+library(Boruta)
 # ------------------------------------------------------------------------------
 
 # So we can use the image pathway and not the default "www" pathway
@@ -31,6 +32,7 @@ ui <- dashboardPage(
   
   # Defining the dashboard body
   dashboardBody(
+    useShinyjs(),
     # Adding body contents
     tabItems(
       # Creating home page ----------------------------------------------------
@@ -118,12 +120,14 @@ ui <- dashboardPage(
       # Allows user to select a feature selection method
       radioButtons("selection", h4("Select a Feature Selection Method"),
                    choices = list("Boruta", "Recursive Feature Selection", "None"),
-                   selected = "Boruta")
+                   selected = "Boruta"),
+      actionButton("runSelection", "Run Feature Selection"),
+      
+      # Downloading of dataset
+      hidden(downloadButton("downloadReducedDataset", "Download Reduced Dataset"))
+      
       ) # End of tabItem() {Feature Selection}
-    
-    ) # End of tabItems()
-    ) # End of dashboardBody()
-  ) # End of dashboardPage()
+    ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
 # Creating server logic --------------------------------------------------------
 server <- function(input, output) {
@@ -136,7 +140,7 @@ server <- function(input, output) {
       # Reading in data
       df <- read.csv(input$dataset$datapath)
       
-      # Re-coding class column based on different scenarios
+       # Re-coding class column based on different scenarios
       if("Class" %in% colnames(df) && ("Bad" %in% df$Class | "Good" %in% df$Class)){
       df <- df %>%
         mutate(Class = recode(Class, "Bad" = 0, "Good" = 1)) %>%
@@ -148,17 +152,56 @@ server <- function(input, output) {
       } else{
         df <- df %>%
           mutate(Class = as.factor(Class))
-      }
+      } # End of if statements
       
       return(df)
-    }
-  })
+    } # End of if statement
+  }) # End of reactive()
 
   # Outputting dataset
   output$data_table <- renderDataTable({
     datatable(dataset(), options = list(scrollX = TRUE, paginate = TRUE))
-    
   })
-}
+  
+  # Feature Selection ----------------------------------------------------------
+  observeEvent(input$runSelection, {
+    req(input$dataset)
+    
+    # Keeping the class column for later integration
+    class_col <- df[, "Class"]
+    
+    if(input$selection == "Boruta"){
+      set.seed(110)
+      
+      # Running boruta selection method
+      boruta_obj <- Boruta(Class ~ ., data = df, doTrace = 2, maxRuns = 500)
+      boruta_obj <- TentativeRoughFix(boruta_obj)
+      
+      # Reducing the dataset
+      df <- df[, getSelectedAttributes(boruta_obj)]
+      df <- cbind(class_col, df)
+    }
+  })
+  
+  # Shows the download button after the methods have been run
+  show("downloadReducedDataset")
+  
+  # Downloading reduced dataset
+  observeEvent(input$downloadReducedDataset, {
+    req(input$dataset)
+    
+    write.csv(x = df, file = "selected_dataset.csv", row.names = FALSE)
+  })
+  
+  # Serving the dataset
+  output$downloadReducedDataset <- downloadHandler(
+    filename = function(){
+      "selected_dataset.csv"
+    },
+    content = function(){
+      file.copy("selected_dataset.csv", file)
+    }
+  )
+  } # End of Server()
 
 shinyApp(ui = ui, server = server)
