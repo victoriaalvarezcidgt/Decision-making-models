@@ -8,6 +8,8 @@ library(shinyjs)
 library(DT)
 library(dplyr)
 library(Boruta)
+
+options(shiny.maxRequestSize = 1024 ^ 2)
 # ------------------------------------------------------------------------------
 
 # So we can use the image pathway and not the default "www" pathway
@@ -102,11 +104,17 @@ ui <- dashboardPage(
       
       # Inputting of data
       fileInput("dataset", h4("Upload a dataset (CSV format)"),
-                multiple = FALSE, placeholder = "Enter your data here"),
+                multiple = FALSE, placeholder = "Enter your data here", 
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
+      
+      # Submitting
       actionButton("submit", "Submit"),
       
+      # Target variable selection
+      selectInput("targetVariable", "Select Target Variable", choices = NULL),
+      
       # Outputting of data
-      tags$h4("Uploaded Dataset:"),
+      textOutput("data_text"),
       dataTableOutput("data_table")
       
       ), # End of tabItem() {Data input}
@@ -124,13 +132,15 @@ ui <- dashboardPage(
       actionButton("runSelection", "Run Feature Selection"),
       
       # Downloading of dataset
-      hidden(downloadButton("downloadReducedDataset", "Download Reduced Dataset"))
+      downloadButton("downloadReducedDataset", "Download Reduced Dataset"),
+      
+      dataTableOutput("data_table_reduced")
       
       ) # End of tabItem() {Feature Selection}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
 # Creating server logic --------------------------------------------------------
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # Data uploading -------------------------------------------------------------
   dataset <- reactive({
@@ -156,22 +166,43 @@ server <- function(input, output) {
       
       return(df)
     } # End of if statement
-  }) # End of reactive()
+  }) # End of dataset()
+  
+  # Getting target variable ----------------------------------------------------
+  observeEvent(input$submit, {
+    updateSelectInput(session, "targetVariable", 
+                      choices = as.character(colnames(dataset())))
+  })
 
-  # Outputting dataset
+  # Outputting text and dataset
+  output$data_text <- renderText({
+    "Uploaded Dataset:"
+  })
+  
   output$data_table <- renderDataTable({
     datatable(dataset(), options = list(scrollX = TRUE, paginate = TRUE))
   })
   
   # Feature Selection ----------------------------------------------------------
-  observeEvent(input$runSelection, {
-    req(input$dataset)
+  dataset_reduce <- eventReactive(input$runSelection, {
+    
+    # Starting progress message
+    progress <- Progress$new()
+    progress$set(message = "Preparing Data", value = 0.1)
+    
+    # Getting the data
+    df <- dataset()
     
     # Keeping the class column for later integration
     class_col <- df[, "Class"]
     
+    progress$set(message = "Getting selection method", value = 0.2)
+    Sys.sleep(0.75)
+    
     if(input$selection == "Boruta"){
       set.seed(110)
+      
+      progress$set(message = "Preparing Boruta", value = 0.3)
       
       # Running boruta selection method
       boruta_obj <- Boruta(Class ~ ., data = df, doTrace = 2, maxRuns = 500)
@@ -181,27 +212,32 @@ server <- function(input, output) {
       df <- df[, getSelectedAttributes(boruta_obj)]
       df <- cbind(class_col, df)
     }
-  })
+    else if(input$selection == "None"){
+      df <- df
+    }
+    
+    return(df)
+    
+  }) # End of dataset_reduce()
   
-  # Shows the download button after the methods have been run
-  show("downloadReducedDataset")
+  # Outputting the reduced dataset
+  output$data_table_reduced <- renderDataTable({
+    datatable(dataset_reduce(), options = list(scrollX = TRUE, paginate = TRUE))
+  })
   
   # Downloading reduced dataset
-  observeEvent(input$downloadReducedDataset, {
-    req(input$dataset)
-    
-    write.csv(x = df, file = "selected_dataset.csv", row.names = FALSE)
-  })
-  
-  # Serving the dataset
   output$downloadReducedDataset <- downloadHandler(
     filename = function(){
-      "selected_dataset.csv"
+      paste("reduced_dataset.csv", sep = "")
     },
-    content = function(){
-      file.copy("selected_dataset.csv", file)
-    }
-  )
+    content = function(file){
+      
+      df_reduced <- dataset_reduce()
+      write.csv(df_reduced, file, row.names = FALSE)
+    })
+  
+  # ---------------------------------------------------------------------------
+  
   } # End of Server()
 
 shinyApp(ui = ui, server = server)
