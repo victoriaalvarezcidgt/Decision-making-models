@@ -134,7 +134,12 @@ ui <- dashboardPage(
       # Downloading of dataset
       downloadButton("downloadReducedDataset", "Download Reduced Dataset"),
       
-      dataTableOutput("data_table_reduced")
+      tags$h4("Feature Importance Plots"),
+      plotOutput("plots", width = "100%", height = "500"),
+      
+      tags$h4("Boruta Output"),
+      textOutput("info", container = pre)
+      
       
       ) # End of tabItem() {Feature Selection}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
@@ -184,7 +189,7 @@ server <- function(input, output, session) {
   })
   
   # Feature Selection ----------------------------------------------------------
-  dataset_reduce <- eventReactive(input$runSelection, {
+  model <- eventReactive(input$runSelection, {
     
     # Starting progress message
     progress <- Progress$new()
@@ -192,9 +197,6 @@ server <- function(input, output, session) {
     
     # Getting the data
     df <- dataset()
-    
-    # Keeping the class column for later integration
-    class_col <- df[, "Class"]
     
     progress$set(message = "Getting selection method", value = 0.2)
     Sys.sleep(0.75)
@@ -204,25 +206,39 @@ server <- function(input, output, session) {
       
       progress$set(message = "Preparing Boruta", value = 0.3)
       
-      # Running boruta selection method
-      boruta_obj <- Boruta(Class ~ ., data = df, doTrace = 2, maxRuns = 500)
-      boruta_obj <- TentativeRoughFix(boruta_obj)
+      # Keeping the target column
+      target <- toString(input$targetVariable)
       
-      # Reducing the dataset
-      df <- df[, getSelectedAttributes(boruta_obj)]
-      df <- cbind(class_col, df)
-    }
-    else if(input$selection == "None"){
-      df <- df
+      # Creating formula
+      formula <- as.formula(paste(target, "~ ."))
+      
+      progress$set(message = "Running Boruta", value = 0.4)
+      
+      # Running boruta selection method
+      model <- Boruta(formula, data = df, doTrace = 2, maxRuns = 500)
+      model <- TentativeRoughFix(model)
+      
+      progress$set(message = "Finishing Boruta", value = 0.7)
+      progress$close()
+      
     }
     
-    return(df)
+    return(model)
     
-  }) # End of dataset_reduce()
+  }) # End of model()
   
-  # Outputting the reduced dataset
-  output$data_table_reduced <- renderDataTable({
-    datatable(dataset_reduce(), options = list(scrollX = TRUE, paginate = TRUE))
+  output$info <- renderText({
+    model <- model()
+    return(paste(capture.output(print(model)), collapse = '\n'))
+  })
+  
+  output$plots <- renderPlot({
+    model = model()
+    
+    par(mar=c(10,5,2,2))
+    
+    return(plot(model, las = 2, xlab = '', cex.lab = 1, cex.axis = 1, 
+                colCode = c("#4AEA0E", "#FFB807", "#FF0040", "#BCBCBC")))
   })
   
   # Downloading reduced dataset
