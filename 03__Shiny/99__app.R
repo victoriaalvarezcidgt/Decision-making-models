@@ -8,6 +8,7 @@ library(shinyjs)
 library(DT)
 library(dplyr)
 library(Boruta)
+library(caret)
 
 options(shiny.maxRequestSize = 1024 ^ 2)
 # ------------------------------------------------------------------------------
@@ -134,13 +135,18 @@ ui <- dashboardPage(
       # Downloading of dataset
       downloadButton("downloadReducedDataset", "Download Reduced Dataset"),
       
-      tags$h4("Feature Importance Plots"),
-      plotOutput("plots", width = "100%", height = "500"),
-      
-      tags$h4("Boruta Output"),
-      textOutput("info", container = pre),
+      conditionalPanel(
+        condition = "input.selection == 'Boruta'",
+        # Plots
+        tags$h4("Feature Importance Plots"),
+        plotOutput("plots", width = "100%", height = "500"),
+        # Model Information
+        tags$h4("Boruta Output"),
+        textOutput("info", container = pre)
+      ),
       
       # Outputting data
+      hr(),
       dataTableOutput("data_table_reduced")
       
       
@@ -206,10 +212,11 @@ server <- function(input, output, session) {
     progress <- Progress$new()
     progress$set(message = "Preparing Data", value = 0.1)
     
-    # Getting the processed data
-    df <- data_processing()
-    
-    df_reduced <- NULL
+    # Variables to be used
+    df <- data_processing() # Processed data
+    df_reduced <- NULL # Reduced dataset to be filled
+    target <- toString(input$targetVariable) # Target variable
+    formula <- as.formula(paste(target, "~ .")) # Formula
     
     progress$set(message = "Getting selection method", value = 0.2)
     Sys.sleep(0.75)
@@ -219,25 +226,49 @@ server <- function(input, output, session) {
       set.seed(110)
       
       progress$set(message = "Preparing Boruta", value = 0.3)
-      
-      # Keeping the target column
-      target <- toString(input$targetVariable)
-      
-      # Creating formula
-      formula <- as.formula(paste(target, "~ ."))
-      
       progress$set(message = "Running Boruta", value = 0.5)
       
-      # Running boruta selection method
+      # Running Boruta selection method
       model <- Boruta(formula, data = df, doTrace = 2, maxRuns = 500)
       model <- TentativeRoughFix(model)
       
       progress$set(message = "Creating reduced dataset", value = 0.8)
       
+      # Creating reduced dataset
       df_reduced <- df[, c(input$targetVariable, getSelectedAttributes(model))]
       
       progress$set(message = "Outputting Information", value = 1)
       progress$close()
+    } # End of Boruta
+    else if(input$selection == "Recursive Feature Selection"){
+      set.seed(110)
+      
+      progress$set(message = "Preparing Recursive Feature Selection", value = 0.3)
+      progress$set(message = "Running Recursive Feature Selection", value = 0.5)
+      
+      # Creating cross validation controls
+      ctrl <- rfeControl(functions = rfFuncs, method = "cv", number = 5)
+      
+      # Running model
+      model <- rfe(df[, -which(names(df) == input$targetVariable)], df[[input$targetVariable]], 
+                    sizes = c(1:ncol(df)-1), 
+                    rfeControl = ctrl)
+      
+      progress$set(message = "Creating reduced dataset", value = 0.8)
+      
+      # Creating reduced dataset
+      df_reduced <- df[, c(input$targetVariable, model$optVariables)]
+      
+      progress$set(message = "Outputting Information", value = 1)
+      progress$close()
+    } # End of Recursive Feature Selection
+    else if(input$selection == "None"){
+      
+      progress$set(message = "Outputting Information", value = 1)
+      progress$close()
+      
+      model <- NULL
+      df_reduced <- data_processing()
     }
     
     return(list(model, df_reduced))
@@ -252,7 +283,7 @@ server <- function(input, output, session) {
   
   # Outputting feature importance plot
   output$plots <- renderPlot({
-    model = model()
+    model = model()[[1]]
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     
@@ -273,7 +304,7 @@ server <- function(input, output, session) {
     },
     content = function(file){
       
-      df_reduced <- dataset_reduce()
+      df_reduced <- model()[[2]]
       write.csv(df_reduced, file, row.names = FALSE)
     })
   
