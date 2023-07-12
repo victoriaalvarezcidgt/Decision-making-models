@@ -30,7 +30,8 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Home Page", tabName = "Home", icon = icon("home")),
       menuItem("Data Input", tabName = "Input", icon = icon("upload")),
-      menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs"))
+      menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs")),
+      menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart"))
     )), # End of sidebarMenu() & dashboardSidebar()
   
   # Defining the dashboard body
@@ -135,14 +136,23 @@ ui <- dashboardPage(
       # Downloading of dataset
       downloadButton("downloadReducedDataset", "Download Reduced Dataset"),
       
+      # Conditional text for Boruta
       conditionalPanel(
-        condition = "input.selection == 'Boruta'",
+        condition = "input.selection == 'Boruta' & input.runSelection",
         # Plots
         tags$h4("Feature Importance Plots"),
-        plotOutput("plots", width = "100%", height = "500"),
+        plotOutput("borutaPlots", width = "100%", height = "500"),
         # Model Information
         tags$h4("Boruta Output"),
-        textOutput("info", container = pre)
+        textOutput("borutaInfo", container = pre)
+      ),
+      
+      # Conditional Panel for Recursive Feature Selection
+      conditionalPanel(
+        condition = "input.selection == 'Recursive Feature Selection' & input.runSelection",
+        # Model Information
+        tags$h4("Recursive Feature Selection Output"),
+        textOutput("rfsInfo", container = pre)
       ),
       
       # Outputting data
@@ -150,7 +160,30 @@ ui <- dashboardPage(
       dataTableOutput("data_table_reduced")
       
       
-      ) # End of tabItem() {Feature Selection}
+      ), # End of tabItem() {Feature Selection}
+      
+      # Decision Making Models -------------------------------------------------
+      tabItem(tabName = "Modelling",
+      tags$body(
+        h1(strong("Data Modelling"), align = "center", style = "font-size: 30px"),
+        ), # End of tags$body()
+      # Allows user to select a modelling method
+      radioButtons("modelSelection", h4("Select a Decision Making Method"),
+                   choices = list("Logistic Regression", 
+                                  "Random Forest", 
+                                  "XGBoost"),
+                   selected = "Logistic Regression"),
+      actionButton("runModel", "Run Modelling"),
+      
+      # Conditional Panel for Logistic Regression
+      conditionalPanel(
+        condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
+        # Printing Confusion Matrix
+        tags$h4("Confusion Matrix"),
+        textOutput("logMatrix", container = pre)
+      )
+      
+      ) # End of tabItem() {Modelling}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
 # Creating server logic --------------------------------------------------------
@@ -206,7 +239,7 @@ server <- function(input, output, session) {
   })
   
   # Feature Selection ----------------------------------------------------------
-  model <- eventReactive(input$runSelection, {
+  selection <- eventReactive(input$runSelection, {
     
     # Starting progress message
     progress <- Progress$new()
@@ -273,17 +306,23 @@ server <- function(input, output, session) {
     
     return(list(model, df_reduced))
     
-  }) # End of model()
+  }) # End of selection()
   
-  # Outputting model information
-  output$info <- renderText({
-    model <- model()[[1]]
+  # Outputting Boruta model information
+  output$borutaInfo <- renderText({
+    model <- selection()[[1]]
+    return(paste(capture.output(print(model)), collapse = '\n'))
+  })
+  
+  # Outputting RFS model information
+  output$rfsInfo <- renderText({
+    model <- selection()[[1]]
     return(paste(capture.output(print(model)), collapse = '\n'))
   })
   
   # Outputting feature importance plot
-  output$plots <- renderPlot({
-    model = model()[[1]]
+  output$borutaPlots <- renderPlot({
+    model = selection()[[1]]
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     
@@ -293,8 +332,8 @@ server <- function(input, output, session) {
   
   # Outputting processed dataset
   output$data_table_reduced <- renderDataTable({
-    datatable(model()[[2]], options = list(scrollX = TRUE, paginate = TRUE,
-                                                pageLength = 3))
+    datatable(selection()[[2]], options = list(scrollX = TRUE, paginate = TRUE,
+                                               pageLength = 3))
   })
   
   # Downloading reduced dataset ------------------------------------------------
@@ -304,11 +343,76 @@ server <- function(input, output, session) {
     },
     content = function(file){
       
-      df_reduced <- model()[[2]]
+      df_reduced <- selection()[[2]]
       write.csv(df_reduced, file, row.names = FALSE)
     })
   
-  # ---------------------------------------------------------------------------
+  # Decision Making Models -------------------------------------------------
+  model <- eventReactive(input$runModel,{
+    
+    # Starting progress message
+    progress <- Progress$new()
+    progress$set(message = "Preparing Data", value = 0.1)
+    
+    # Variables to be used
+    df <- data_processing() # Processed data
+    target <- toString(input$targetVariable) # Target variable
+    formula <- as.formula(paste(target, "~ .")) # Formula
+    
+    # Creating training and test data
+    set.seed(111)
+    index <- createDataPartition(df[, target], p = 0.7, list = FALSE)
+    
+    training_set <- df[index, ]
+    test_set <- df[-index, ]
+    
+    # Ensure target variable has the same levels in training and test set
+    levels(training_set[, target]) <- levels(df[, target])
+    levels(test_set[, target]) <- levels(df[, target])
+    
+    progress$set(message = "Getting modelling method", value = 0.3)
+    Sys.sleep(0.75)
+    
+    # Logistic Regression Method
+    if(input$modelSelection == "Logistic Regression") {
+      progress$set(message = "Running Logistic Regression", value = 0.4)
+      Sys.sleep(0.75)
+      progress$set(message = "Training Model", value = 0.5)
+      Sys.sleep(0.75)
+      
+      set.seed(112)
+      
+      # Specifying the Type of Training Methods used and the Number of Folds
+      ctrlspec <- trainControl(
+        method = "cv", number = 10, savePredictions = "all", classProbs = FALSE
+        )
+      
+      # Training Logistic Regression Model
+      model_train <- train(formula, data = training_set, method = "glm",
+                           family = binomial, trControl = ctrlspec)
+      
+      progress$set(message = "Generating Predictions", value = 0.7)
+      Sys.sleep(0.75)
+      
+      # Testing Logistic Regression Model and generating confusion matrix
+      model_test <- predict(object = model_train, newdata = test_set)
+      confusion_matrix <- confusionMatrix(data = model_test, 
+                                          as.factor(test_set[, target]))
+      
+      progress$set(message = "Outputting Information", value = 0.9)
+      Sys.sleep(0.75)
+      progress$close()
+    } # End of Logistic Regression
+    
+    return(list(model_train, model_test, confusion_matrix, training_set, 
+                test_set, df, target, formula, ctrlspec))
+  }) # End of model()
+  
+  # Outputting Confusion Matrix
+  output$logMatrix <- renderText({
+    confusion_matrix <- model()[[3]]
+    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  })
   
   } # End of Server()
 
