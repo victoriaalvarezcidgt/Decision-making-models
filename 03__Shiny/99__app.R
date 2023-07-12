@@ -98,16 +98,16 @@ ui <- dashboardPage(
       tags$body(
         # Text 
         h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
-        p(strong("NOTE"), ": Please call the binary loan default column \"Class\"
-          and have the data coded as \"Good / Bad\" or \"Yes / No \" or \"0 / 1\"",
-          style = "font-size: 20px")),
+        p(strong("NOTE"), ": Please upload your dataset and select the binary loan
+        default column. Accepted variable coding: (\"Good / Bad\") or (\"Yes / No \")
+        or (\"0 / 1\")", style = "font-size: 20px")),
       
       # Inputting of data
       fileInput("dataset", h4("Upload a dataset (CSV format)"),
                 multiple = FALSE, placeholder = "Enter your data here", 
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
-      # Uploading dataset, selecting target varibale and processing
+      # Uploading dataset, selecting target variable and processing
       actionButton("upload", "Upload"),
       hr(),
       selectInput("targetVariable", "Select Target Variable", choices = NULL),
@@ -138,7 +138,10 @@ ui <- dashboardPage(
       plotOutput("plots", width = "100%", height = "500"),
       
       tags$h4("Boruta Output"),
-      textOutput("info", container = pre)
+      textOutput("info", container = pre),
+      
+      # Outputting data
+      dataTableOutput("data_table_reduced")
       
       
       ) # End of tabItem() {Feature Selection}
@@ -151,15 +154,13 @@ server <- function(input, output, session) {
   dataset <- reactive({
     req(input$upload)
     if(!is.null(input$dataset)){
-      
       # Reading in data
       df <- read.csv(input$dataset$datapath)
-      
       return(df)
-    } # End of if statement
+    }
   }) # End of dataset()
   
-  # Getting target variable ----------------------------------------------------
+  # Selecting target variable --------------------------------------------------
   observeEvent(input$upload, {
     updateSelectInput(session, "targetVariable", 
                       choices = as.character(colnames(dataset())))
@@ -173,7 +174,7 @@ server <- function(input, output, session) {
     df <- dataset()
     target <- toString(input$targetVariable)
     
-    # Processing Data (recoding to ensure binary outcome)
+    # Processing Data (recoding to 0 & 1)
     if("Bad" %in% df[, target] | "Good" %in% df[, target]){
       df <- df %>%
         mutate(!!sym(target) := recode(!!sym(target), "Bad" = 0, "Good" = 1)) %>%
@@ -205,12 +206,15 @@ server <- function(input, output, session) {
     progress <- Progress$new()
     progress$set(message = "Preparing Data", value = 0.1)
     
-    # Getting the data
+    # Getting the processed data
     df <- data_processing()
+    
+    df_reduced <- NULL
     
     progress$set(message = "Getting selection method", value = 0.2)
     Sys.sleep(0.75)
     
+    # Boruta Model
     if(input$selection == "Boruta"){
       set.seed(110)
       
@@ -222,36 +226,47 @@ server <- function(input, output, session) {
       # Creating formula
       formula <- as.formula(paste(target, "~ ."))
       
-      progress$set(message = "Running Boruta", value = 0.4)
+      progress$set(message = "Running Boruta", value = 0.5)
       
       # Running boruta selection method
       model <- Boruta(formula, data = df, doTrace = 2, maxRuns = 500)
       model <- TentativeRoughFix(model)
       
-      progress$set(message = "Finishing Boruta", value = 0.7)
-      progress$close()
+      progress$set(message = "Creating reduced dataset", value = 0.8)
       
+      df_reduced <- df[, c(input$targetVariable, getSelectedAttributes(model))]
+      
+      progress$set(message = "Outputting Information", value = 1)
+      progress$close()
     }
     
-    return(model)
+    return(list(model, df_reduced))
     
   }) # End of model()
   
+  # Outputting model information
   output$info <- renderText({
-    model <- model()
+    model <- model()[[1]]
     return(paste(capture.output(print(model)), collapse = '\n'))
   })
   
+  # Outputting feature importance plot
   output$plots <- renderPlot({
     model = model()
     
-    par(mar=c(10,5,2,2))
+    par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     
     return(plot(model, las = 2, xlab = '', cex.lab = 1, cex.axis = 1, 
                 colCode = c("#4AEA0E", "#FFB807", "#FF0040", "#BCBCBC")))
   })
   
-  # Downloading reduced dataset
+  # Outputting processed dataset
+  output$data_table_reduced <- renderDataTable({
+    datatable(model()[[2]], options = list(scrollX = TRUE, paginate = TRUE,
+                                                pageLength = 3))
+  })
+  
+  # Downloading reduced dataset ------------------------------------------------
   output$downloadReducedDataset <- downloadHandler(
     filename = function(){
       paste("reduced_dataset.csv", sep = "")
