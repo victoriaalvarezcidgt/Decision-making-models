@@ -119,6 +119,7 @@ ui <- dashboardPage(
       actionButton("processing", "Process Data"),
       
       # Outputting data
+      hr(),
       dataTableOutput("data_table")
       
       ), # End of tabItem() {Data input}
@@ -169,6 +170,7 @@ ui <- dashboardPage(
       tags$body(
         h1(strong("Data Modelling"), align = "center", style = "font-size: 30px"),
         ), # End of tags$body()
+      
       # Allows user to select a modelling method
       radioButtons("modelSelection", h4("Select a Decision Making Method"),
                    choices = list("Logistic Regression", 
@@ -178,11 +180,26 @@ ui <- dashboardPage(
       actionButton("runModel", "Run Modelling"),
       
       # Conditional Panel for Logistic Regression
-      conditionalPanel(
+      conditionalPanel( # Output conditions
         condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
-        # Printing Confusion Matrix
-        tags$h4("Confusion Matrix"),
-        textOutput("logMatrix", container = pre)
+        
+        radioButtons("logOutput", h4("Select what output to view"), 
+                     choices = list("Model Information", 
+                                    "Model Accuracy",
+                                    "Training & Test Data")),
+        
+        conditionalPanel(
+          condition = "input.logOutput == 'Model Information' | input.logOutput == 'Model Accuracy' ",
+          
+          tags$h4("Logistic Regression Model"),
+          textOutput("logModelInfo", container = pre)
+        ), 
+        conditionalPanel(
+          condition = "input.logOutput == 'Training & Test Data'",
+          
+          tags$h4("Training and Test Data Used"),
+          dataTableOutput("training_test")
+        )
       ),
       
       # Conditional Panel for Random Forest
@@ -253,7 +270,7 @@ server <- function(input, output, session) {
   # Outputting processed dataset
   output$data_table <- renderDataTable({
     datatable(data_processing(), options = list(scrollX = TRUE, paginate = TRUE,
-                                                pageLength = 5))
+                                                pageLength = 7))
   })
   
   # Feature Selection ----------------------------------------------------------
@@ -426,6 +443,12 @@ server <- function(input, output, session) {
       
       progress$set(message = "Outputting Information", value = 0.9)
       Sys.sleep(0.75)
+      
+      return_list <- list(model_train = model_train, model_test = model_test,
+                          confusion_matrix = confusion_matrix, training_data = training_set,
+                          test_data = test_set, full_data = df, loan_default = target,
+                          formula = formula, ctrlspec = ctrlspec)
+      
       progress$close()
     } # End of Logistic Regression
     
@@ -479,8 +502,13 @@ server <- function(input, output, session) {
       model_test <- predict(best_model, newdata = test_set)
       confusion_matrix <- confusionMatrix(table(model_test, test_set$Class))
       
-      progress$close()
+      return_list <- list(model_train = model_train, model_test = model_test,
+                          confusion_matrix = confusion_matrix, training_data = training_set,
+                          test_data = test_set, full_data = df, loan_default = target,
+                          formula = formula, accuracy = best_accuracy, model = best_model,
+                          ntree = best_ntree, mtry = best_mtry)
       
+      progress$close()
     } # End of Random Forest
     else if(input$modelSelection == "XGBoost"){
       progress$set(message = "Running XGBoost", value = 0.4)
@@ -546,19 +574,40 @@ server <- function(input, output, session) {
       
       progress$set(message = "Outputting Information", value = 0.9)
       Sys.sleep(0.75)
+      
+      
+      return_list <- list(model_train = model_train, model_test = model_test,
+                          confusion_matrix = confusion_matrix, training_data = training_set,
+                          test_data = test_set, full_data = df, loan_default = target,
+                          formula = formula, x = x, y = y, xvals = xvals, yvals = yvals,
+                          model_cv = model_cv)
+      
       progress$close()
       
-      ctrlspec <- NULL
     } # End of XGBoost
     
-    return(list(model_train, model_test, confusion_matrix, training_set, 
-                test_set, df, target, formula, ctrlspec))
+    return(return_list)
   }) # End of model()
   
-  # Outputting Confusion Matrix
-  output$logMatrix <- renderText({
-    confusion_matrix <- model()[[3]]
-    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  # Logistic Regression Output -------------------------------------------------
+  # Model Information
+  output$logModelInfo <- renderText({
+    infomation <- NULL
+    if(input$logOutput == "Model Information"){
+      information <- model()[[1]]
+    }
+    else if(input$logOutput == "Model Accuracy") {
+      information <- model()[[3]]
+    }
+    return(paste(capture.output(print(information)), collapse = '\n'))
+  })
+  
+  # Training and Test Data
+  output$training_test <- renderDataTable({
+    datatable(model()[[4]], options = list(scrollX = TRUE, paginate = TRUE, 
+                                           pageLength = 5))
+    datatable(model()[[5]], options = list(scrollX = TRUE, paginate = TRUE, 
+                                           pageLength = 5))
   })
   
   output$forestMatrix <- renderText({
@@ -573,6 +622,3 @@ server <- function(input, output, session) {
   } # End of Server()
 
 shinyApp(ui = ui, server = server)
-
-
-# Test Code --------------------------------------------------------------------
