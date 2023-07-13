@@ -180,7 +180,7 @@ ui <- dashboardPage(
       actionButton("runModel", "Run Modelling"),
       
       # Conditional Panel for Logistic Regression
-      conditionalPanel( # Output conditions
+      conditionalPanel(
         condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
         
         radioButtons("logOutput", h4("Select what output to view"), 
@@ -197,10 +197,13 @@ ui <- dashboardPage(
         conditionalPanel(
           condition = "input.logOutput == 'Training & Test Data'",
           
-          tags$h4("Training and Test Data Used"),
-          dataTableOutput("training_test")
-        )
-      ),
+          mainPanel(
+            tabsetPanel(
+              id = "dataset",
+              tabPanel("Training Data", dataTableOutput("training_set")),
+              tabPanel("Test Data", dataTableOutput("test_set"))
+            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+      ), # End of conditionalPanel(Logistic Regression)
       
       # Conditional Panel for Random Forest
       conditionalPanel(
@@ -603,11 +606,13 @@ server <- function(input, output, session) {
   })
   
   # Training and Test Data
-  output$training_test <- renderDataTable({
+  output$training_set <- renderDataTable({
     datatable(model()[[4]], options = list(scrollX = TRUE, paginate = TRUE, 
-                                           pageLength = 5))
+                                           pageLength = 10))
+  })
+  output$test_set <- renderDataTable({
     datatable(model()[[5]], options = list(scrollX = TRUE, paginate = TRUE, 
-                                           pageLength = 5))
+                                           pageLength = 10))
   })
   
   output$forestMatrix <- renderText({
