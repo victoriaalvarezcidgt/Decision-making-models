@@ -9,6 +9,7 @@ library(DT)
 library(dplyr)
 library(Boruta)
 library(caret)
+library(randomForest)
 
 options(shiny.maxRequestSize = 1024 ^ 2)
 # ------------------------------------------------------------------------------
@@ -181,6 +182,14 @@ ui <- dashboardPage(
         # Printing Confusion Matrix
         tags$h4("Confusion Matrix"),
         textOutput("logMatrix", container = pre)
+      ),
+      
+      # Conditional Panel for Random Forest
+      conditionalPanel(
+        condition = "input.modelSelection == 'Random Forest' & input.runModel",
+        # Printing Confusion Matrix
+        tags$h4("Confusion Matrix"),
+        textOutput("forestMatrix", container = pre)
       )
       
       ) # End of tabItem() {Modelling}
@@ -355,7 +364,14 @@ server <- function(input, output, session) {
     progress$set(message = "Preparing Data", value = 0.1)
     
     # Variables to be used
-    df <- data_processing() # Processed data
+    # Selecting dataset to use
+    if(c(input$selection == "Boruta" & input$runSelection)| c(input$selection == "Recursive Feature Selection"& input$runSelection)){
+      
+      df <- selection()[[2]] # Use the reduced dataset
+    }
+    else{
+      df <- data_processing() # Use the full dataset
+    }
     target <- toString(input$targetVariable) # Target variable
     formula <- as.formula(paste(target, "~ .")) # Formula
     
@@ -404,6 +420,60 @@ server <- function(input, output, session) {
       progress$close()
     } # End of Logistic Regression
     
+    else if(input$modelSelection == "Random Forest"){
+      progress$set(message = "Running Random Forest", value = 0.4)
+      Sys.sleep(0.75)
+      
+      # Implementing Random Search Optimization
+      # Initialize variables for tracking the best model
+      num_iterations <- 50 # Number of iterations to perform
+      ntree_values <- seq(100, 1000, by = 100) # Number of trees
+      mtry_values <- seq(1, ncol(training_set), by = 1) # Number of variables to consider at each split
+      best_accuracy <- 0
+      best_model <- NULL
+      best_ntree <- NULL
+      best_mtry <- NULL
+      
+      ctrlspec <- NULL # We aren't using this variable so it can be set to null
+      
+      progress$set(message = "Training Model", value = 0.5)
+      Sys.sleep(0.75)
+      
+      set.seed(112)
+      
+      for(i in 1:num_iterations){
+        # Randomly selecting hyper parameters
+        ntree <- sample(ntree_values, 1)
+        mtry <- sample(mtry_values, 1)
+        
+        # Training model
+        model_train <- randomForest(formula = formula, data = training_set, 
+                                    ntree = ntree, mtry = mtry)
+        
+        # Evaluating model
+        model_test <- predict(model_train, newdata = test_set)
+        confusion_matrix <- table(model_test, test_set[, target])
+        accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+        
+        # Update the best model if necessary
+        if (accuracy > best_accuracy) {
+          best_accuracy <- accuracy
+          best_model <- model_train
+          best_ntree <- ntree
+          best_mtry <- mtry
+        }
+      } # End of for loop
+      
+      progress$set(message = "Outputting Model", value = 0.9)
+      Sys.sleep(0.75)
+      
+      model_test <- predict(best_model, newdata = test_set)
+      confusion_matrix <- confusionMatrix(table(model_test, test_set$Class))
+      
+      progress$close()
+      
+    } # End of Random Forest
+    
     return(list(model_train, model_test, confusion_matrix, training_set, 
                 test_set, df, target, formula, ctrlspec))
   }) # End of model()
@@ -414,6 +484,49 @@ server <- function(input, output, session) {
     return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
   })
   
+  output$forestMatrix <- renderText({
+    confusion_matrix <- model()[[3]]
+    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  })
+  
   } # End of Server()
 
 shinyApp(ui = ui, server = server)
+
+
+# Test Code --------------------------------------------------------------------
+# Random Forest Grid Search Code -----------------------------------------------
+# Assessing the accuracy of different tree sizes and splits
+# ntree_values <- seq(100, 1000, by = 100) # Number of trees
+# mtry_values <- seq(1, ncol(df), by = 1) # Number of variables to consider at each split
+# 
+# # Creating all possible combinations of the above values
+# combinations <- expand.grid(ntree = ntree_values, mtry = mtry_values)
+# 
+# # For storing output
+# model_train <- NULL
+# model_test <- NULL
+# confusion_matrix <- NULL
+# accuracy <- NULL
+# best_accuracy <- 0
+# best_model <- NULL
+# 
+# # The below loop with iterate through all possible combinations of the tree/split
+# # values and find the best performing model
+# for (i in 1:nrow(combinations)) {
+#   ntree <- combinations$ntree[i]
+#   mtry <- combinations$mtry[i]
+#   
+#   
+#   model_train <- randomForest(formula = formula, data = training_set,
+#                               ntree = ntree, mtry = mtry)
+#   model_test <- predict(model_train, newdata = test_set)
+#   confusion_matrix <- table(model_test, test_set[, target])
+#   accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+#   
+#   # If a model has better accuracy it is saved
+#   if (accuracy > best_accuracy) {
+#     best_accuracy <- accuracy
+#     best_model <- model_train
+#   }
+# } # End of for loop
