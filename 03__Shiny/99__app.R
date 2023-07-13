@@ -10,6 +10,7 @@ library(dplyr)
 library(Boruta)
 library(caret)
 library(randomForest)
+library(xgboost)
 
 options(shiny.maxRequestSize = 1024 ^ 2)
 # ------------------------------------------------------------------------------
@@ -190,6 +191,14 @@ ui <- dashboardPage(
         # Printing Confusion Matrix
         tags$h4("Confusion Matrix"),
         textOutput("forestMatrix", container = pre)
+      ),
+      
+      # Conditional Panel for Random Forest
+      conditionalPanel(
+        condition = "input.modelSelection == 'XGBoost' & input.runModel",
+        # Printing Confusion Matrix
+        tags$h4("Confusion Matrix"),
+        textOutput("boostMatrix", container = pre)
       )
       
       ) # End of tabItem() {Modelling}
@@ -373,7 +382,7 @@ server <- function(input, output, session) {
       df <- data_processing() # Use the full dataset
     }
     target <- toString(input$targetVariable) # Target variable
-    formula <- as.formula(paste(target, "~ .")) # Formula
+    formula <- as.formula(paste(target, "~ . - 1")) # Formula
     
     # Creating training and test data
     set.seed(111)
@@ -473,6 +482,74 @@ server <- function(input, output, session) {
       progress$close()
       
     } # End of Random Forest
+    else if(input$modelSelection == "XGBoost"){
+      progress$set(message = "Running XGBoost", value = 0.4)
+      Sys.sleep(0.75)
+      
+      # Small data processing to create correct y & yvals reference levels
+      training_set <- training_set %>%
+        mutate(!!sym(target) := as.numeric(as.factor(!!sym(target)))) %>%
+        mutate(!!sym(target) := !!sym(target) - 1)
+      
+      test_set <- test_set %>%
+        mutate(!!sym(target) := as.numeric(as.factor(!!sym(target)))) %>%
+        mutate(!!sym(target) := !!sym(target) - 1)
+      
+      # Creating model matrices
+      x <- model.matrix(formula, data = training_set)
+      y <- model.frame(formula, data = training_set)[, target]
+      
+      xvals <- model.matrix(formula, data = test_set)
+      yvals <- model.frame(formula, data = test_set)[, target]
+      
+      progress$set(message = "Training Model", value = 0.5)
+      Sys.sleep(0.75)
+      
+      set.seed(112)
+      # Set the XGBoost parameters
+      params <- list(
+        max_depth = 6,                               # Default
+        eta = 0.3,                                   # Default
+        gamma = 0,                                   # Default
+        min_child_weight = 1,                        # Default
+        subsample = 1,                               # Default
+        booster = "gbtree",                          # Default
+        objective = "binary:logistic",               # Binary classification
+        eval_metric = "auc",                         # Metric to evaluate model performance
+        verbosity = 0                                # Verbosity of printing messages
+      )
+      
+      # Using cross validation to find best number of rounds
+      model_cv <- xgb.cv(data = x,
+                         label = y,
+                         params = params,
+                         nrounds = 100, prediction = TRUE, showsd = TRUE,
+                         early_stopping_rounds = 10,
+                         maximize = TRUE, nfold = 10, stratified = TRUE)
+      
+      # Optimal number of rounds
+      numrounds <- min(which(
+        model_cv$evaluation_log$test_auc_mean == max(model_cv$evaluation_log$test_auc_mean)))
+      
+      # Running model with default parameters
+      model_train <- xgboost(data = x,
+                             label = y,
+                             params = params,
+                             nrounds = numrounds)
+      
+      # Evaluating model
+      progress$set(message = "Generating Predictions", value = 0.7)
+      Sys.sleep(0.75)
+      
+      model_test <- predict(model_train, xvals, type = "response")
+      confusion_matrix <- confusionMatrix(table(round(model_test), yvals))
+      
+      progress$set(message = "Outputting Information", value = 0.9)
+      Sys.sleep(0.75)
+      progress$close()
+      
+      ctrlspec <- NULL
+    } # End of XGBoost
     
     return(list(model_train, model_test, confusion_matrix, training_set, 
                 test_set, df, target, formula, ctrlspec))
@@ -489,44 +566,13 @@ server <- function(input, output, session) {
     return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
   })
   
+  output$boostMatrix <- renderText({
+    confusion_matrix <- model()[[3]]
+    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  })
   } # End of Server()
 
 shinyApp(ui = ui, server = server)
 
 
 # Test Code --------------------------------------------------------------------
-# Random Forest Grid Search Code -----------------------------------------------
-# Assessing the accuracy of different tree sizes and splits
-# ntree_values <- seq(100, 1000, by = 100) # Number of trees
-# mtry_values <- seq(1, ncol(df), by = 1) # Number of variables to consider at each split
-# 
-# # Creating all possible combinations of the above values
-# combinations <- expand.grid(ntree = ntree_values, mtry = mtry_values)
-# 
-# # For storing output
-# model_train <- NULL
-# model_test <- NULL
-# confusion_matrix <- NULL
-# accuracy <- NULL
-# best_accuracy <- 0
-# best_model <- NULL
-# 
-# # The below loop with iterate through all possible combinations of the tree/split
-# # values and find the best performing model
-# for (i in 1:nrow(combinations)) {
-#   ntree <- combinations$ntree[i]
-#   mtry <- combinations$mtry[i]
-#   
-#   
-#   model_train <- randomForest(formula = formula, data = training_set,
-#                               ntree = ntree, mtry = mtry)
-#   model_test <- predict(model_train, newdata = test_set)
-#   confusion_matrix <- table(model_test, test_set[, target])
-#   accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
-#   
-#   # If a model has better accuracy it is saved
-#   if (accuracy > best_accuracy) {
-#     best_accuracy <- accuracy
-#     best_model <- model_train
-#   }
-# } # End of for loop
