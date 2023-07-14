@@ -184,19 +184,22 @@ ui <- dashboardPage(
         condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
         
         radioButtons("logOutput", h4("Select what output to view"), 
-                     choices = list("Model Information", 
-                                    "Model Accuracy",
+                     choices = list("Model Information",
                                     "Training & Test Data")),
         
         conditionalPanel(
-          condition = "input.logOutput == 'Model Information' | input.logOutput == 'Model Accuracy' ",
-          
+          condition = "input.logOutput == 'Model Information'",
           tags$h4("Logistic Regression Model"),
-          textOutput("logModelInfo", container = pre)
-        ), 
+
+          mainPanel(
+            tabsetPanel(
+              id = "information",
+              tabPanel("Model Info", textOutput("logModelInfo", container = pre)),
+              tabPanel("Model Accuracy", textOutput("logModelAccuracy", container = pre))
+            ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
+
         conditionalPanel(
           condition = "input.logOutput == 'Training & Test Data'",
-          
           mainPanel(
             tabsetPanel(
               id = "dataset",
@@ -595,26 +598,27 @@ server <- function(input, output, session) {
   # Logistic Regression Output -------------------------------------------------
   # Model Information
   output$logModelInfo <- renderText({
-    infomation <- NULL
-    if(input$logOutput == "Model Information"){
-      information <- model()[[1]]
-    }
-    else if(input$logOutput == "Model Accuracy") {
-      information <- model()[[3]]
-    }
+    information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
   })
+  # Model Accuracy
+  output$logModelAccuracy <- renderText({
+    accuracy <- model()$confusion_matrix
+    return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  })
   
-  # Training and Test Data
+  # Training Data
   output$training_set <- renderDataTable({
-    datatable(model()[[4]], options = list(scrollX = TRUE, paginate = TRUE, 
-                                           pageLength = 10))
+    datatable(model()$training_set, options = list(scrollX = TRUE, paginate = TRUE,
+                                                   pageLength = 10))
   })
+  # Test Data
   output$test_set <- renderDataTable({
-    datatable(model()[[5]], options = list(scrollX = TRUE, paginate = TRUE, 
-                                           pageLength = 10))
+    datatable(model()$test_set, options = list(scrollX = TRUE, paginate = TRUE,
+                                               pageLength = 10))
   })
   
+  # Random Forest Output -------------------------------------------------
   output$forestMatrix <- renderText({
     confusion_matrix <- model()[[3]]
     return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
