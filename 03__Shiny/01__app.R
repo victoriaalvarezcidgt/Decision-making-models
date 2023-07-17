@@ -55,18 +55,27 @@ ui <- dashboardPage(
       p("Our tool utilizes three models to analyze borrower data and predict 
         the likelihood of loan defaults.", style = "font-size: 20px"),
       tags$ol(
-        tags$li("Logistic regression is a statistical model used to predict 
-        the probability of a binary outcome or event occurring (such as a 
-        whether or not a loan will default. It considers various input variables 
-        and calculates the odds of default.", style = "font-size: 20px"),
-        tags$li("Random forest is an ensemble learning method that combines multiple 
-        decision trees to make predictions. It leverages the power of many 
-        individual trees to improve accuracy and handle complex interactions 
-        between variables.", style = "font-size: 20px"),
-        tags$li("XGBoost is another ensemble learning technique that uses a gradient
-        boosting framework. It sequentially builds multiple weak models,
-        such as decision trees, to create a strong predictive model. XGBoost
-        is known for its scalability and performance.", style = "font-size: 20px"
+        tags$li("Logistic regression is a statistical model used to predict the 
+        probability of a binary outcome or event occurring. In terms of assessing 
+        credit risk, the logistic regression model uses historical data to 
+        assign scores to factors influencing default probability. It then
+        calculates the probability of default based on these scores using a 
+        logistic function. The model is trained to optimize the weights assigned 
+        to each factor and can be used to predict default probabilities for new
+        borrowers.", style = "font-size: 20px"),
+        tags$li("Random forest is an ensemble learning method that combines 
+        multiple decision trees to make predictions. It leverages the power of 
+        many individual trees to improve accuracy and handle complex 
+        interactions between variables. Each decision tree ”votes” for a 
+        prediction, and the most common prediction across all the trees is 
+        chosen as the final prediction. This voting process helps to reduce the 
+        impact of individual decision trees that might be prone to overfitting 
+        or making incorrect predictions.", style = "font-size: 20px"),
+        tags$li("Similar to Random Forest, XGBoost also combines multiple models 
+        to make predictions. However, instead of using decision trees independently, 
+        XGBoost employs a technique called gradient boosting. More importance 
+        is given to models that contribute the most to reducing prediction errors", 
+        style = "font-size: 20px"
         )), # End of tags$ol() & tags$li()
       
       # Logos ------------------------------------------------------------------
