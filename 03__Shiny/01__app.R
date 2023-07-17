@@ -184,7 +184,7 @@ ui <- dashboardPage(
                    selected = "Logistic Regression"),
       actionButton("runModel", "Run Modelling"),
       
-      # Conditional Panel for Logistic Regression
+      # Conditional Panel for Logistic Regression ------------------------------
       conditionalPanel(
         condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
         
@@ -201,11 +201,11 @@ ui <- dashboardPage(
               id = "information",
               tabPanel("Model Info", textOutput("logModelInfo", container = pre)),
               tabPanel("Model Accuracy", textOutput("logModelAccuracy", container = pre)),
-              tabPanel("Variable Importance", textOutput("varImportance", container = pre)),
+              tabPanel("Variable Importance", textOutput("logVarImportance", container = pre)),
               tabPanel("Metrics", 
                        fluidRow(
-                         column(width = 6, plotOutput("MatrixPlot")),
-                         column(width = 6, plotOutput("rocPlot"))))
+                         column(width = 6, plotOutput("logMatrixPlot")),
+                         column(width = 6, plotOutput("logRocPlot")))) # End of fluidRow() & TabPanel()
             ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
 
         conditionalPanel(
@@ -214,28 +214,77 @@ ui <- dashboardPage(
           mainPanel(
             tabsetPanel(
               id = "dataset",
-              tabPanel("Training Data", dataTableOutput("training_set")),
-              tabPanel("Test Data", dataTableOutput("test_set"))
+              tabPanel("Training Data", dataTableOutput("logTrainingData")),
+              tabPanel("Test Data", dataTableOutput("logTestData"))
             ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
       ), # End of conditionalPanel(Logistic Regression)
       
-      # Conditional Panel for Random Forest
+      # Conditional Panel for Random Forest ------------------------------------
       conditionalPanel(
         condition = "input.modelSelection == 'Random Forest' & input.runModel",
-        # Printing Confusion Matrix
-        tags$h4("Confusion Matrix"),
-        textOutput("forestMatrix", container = pre)
-      ),
+        radioButtons("forestOutput", h4("Select what output to view"),
+                     choices = list("Model Information",
+                                    "Training & Test Data")),
+        
+        conditionalPanel(
+          condition = "input.forestOutput == 'Model Information'",
+          tags$h4("Random Forest Model"),
+          
+          mainPanel(width = 24,
+                    tabsetPanel(
+                      id = "information",
+                      tabPanel("Model Info", textOutput("forestModelInfo", container = pre)),
+                      tabPanel("Model Accuracy", textOutput("forestModelAccuracy", container = pre)),
+                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
+                      tabPanel("Metrics", 
+                               fluidRow(
+                                 column(width = 6, plotOutput("forestMatrixPlot")),
+                                 column(width = 6, plotOutput("forestRocPlot")))) # End of fluidRow() & TabPanel()
+                    ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
+        
+        conditionalPanel(
+          condition = "input.forestOutput == 'Training & Test Data'",
+          tags$h4("Taining and Test Data Used"),
+          mainPanel(
+            tabsetPanel(
+              id = "dataset",
+              tabPanel("Training Data", dataTableOutput("forestTrainingData")),
+              tabPanel("Test Data", dataTableOutput("forestTestData"))
+            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+      ), # End of conditionalPanel(Random Forest)
       
-      # Conditional Panel for Random Forest
+      # Conditional Panel for XGBoost -----------------------------------------
       conditionalPanel(
         condition = "input.modelSelection == 'XGBoost' & input.runModel",
-        # Printing Confusion Matrix
-        tags$h4("Confusion Matrix"),
-        textOutput("boostMatrix", container = pre)
-      )
-      
-      ) # End of tabItem() {Modelling}
+        radioButtons("boostOutput", h4("Select what output to view"),
+                     choices = list("Model Information",
+                                    "Training & Test Data")),
+        
+        conditionalPanel(
+          condition = "input.boostOutput == 'Model Information'",
+          tags$h4("XGBoost Model"),
+          
+          mainPanel(width = 24,
+                    tabsetPanel(
+                      id = "information",
+                      tabPanel("Model Info", textOutput("boostModelInfo", container = pre)),
+                      tabPanel("Model Accuracy", textOutput("boostModelAccuracy", container = pre)),
+                      tabPanel("Metrics", 
+                               fluidRow(
+                                 column(width = 6, plotOutput("boostMatrixPlot")),
+                                 column(width = 6, plotOutput("boostRocPlot")))) # End of fluidRow() & TabPanel()
+                    ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
+        
+        conditionalPanel(
+          condition = "input.boostOutput == 'Training & Test Data'",
+          tags$h4("Taining and Test Data Used"),
+          mainPanel(
+            tabsetPanel(
+              id = "dataset",
+              tabPanel("Training Data", dataTableOutput("boostTrainingData")),
+              tabPanel("Test Data", dataTableOutput("boostTestData"))
+            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+      )) # End of conditionalPanel(XGBoost) & tabItem() {Modelling}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
 # Creating server logic --------------------------------------------------------
@@ -617,17 +666,17 @@ server <- function(input, output, session) {
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
   })
   # Variable Importance
-  output$varImportance <- renderText({
+  output$logVarImportance <- renderText({
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
   })
   # Matrix Plot
-  output$MatrixPlot <- renderPlot({
+  output$logMatrixPlot <- renderPlot({
     # Using custom function script
     return(plot_confusion_matrix(model()$confusion_matrix))
   }, res = 100)
   # ROC Plot
-  output$rocPlot <- renderPlot({
+  output$logRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
@@ -635,25 +684,88 @@ server <- function(input, output, session) {
     return(plot_roc_curve(predicted, actual))
   }, res = 100)
   # Training Data
-  output$training_set <- renderDataTable({
+  output$logTrainingData <- renderDataTable({
     datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                    pageLength = 10))
   })
   # Test Data
-  output$test_set <- renderDataTable({
+  output$logTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                pageLength = 10))
   })
   
-  # Random Forest Output -------------------------------------------------
-  output$forestMatrix <- renderText({
-    confusion_matrix <- model()[[3]]
-    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  # Random Forest Output -------------------------------------------------------
+  # Model Information
+  output$forestModelInfo <- renderText({
+    information <- model()$model_train
+    return(paste(capture.output(print(information)), collapse = '\n'))
   })
-  
-  output$boostMatrix <- renderText({
-    confusion_matrix <- model()[[3]]
-    return(paste(capture.output(print(confusion_matrix)), collapse = '\n'))
+  # Model Accuracy
+  output$forestModelAccuracy <- renderText({
+    accuracy <- model()$confusion_matrix
+    return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  })
+  # Variable Importance
+  output$forestVarImportance <- renderText({
+    varImportance <- varImp(model()$model_train)
+    return(paste(capture.output(print(varImportance)), collapse = '\n'))
+  })
+  # Matrix Plot
+  output$forestMatrixPlot <- renderPlot({
+    # Using custom function script
+    return(plot_confusion_matrix(model()$confusion_matrix))
+  }, res = 100)
+  # ROC Plot
+  output$forestRocPlot <- renderPlot({
+    predicted <- model()$model_test
+    actual <- model()$test_data[, model()$loan_default]
+    
+    # Using custom function script
+    return(plot_roc_curve(predicted, actual))
+  }, res = 100)
+  # Training Data
+  output$forestTrainingData <- renderDataTable({
+    datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
+                                                    pageLength = 10))
+  })
+  # Test Data
+  output$forestTestData <- renderDataTable({
+    datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
+                                                pageLength = 10))
+  })
+  # XGboost Output -------------------------------------------------------
+  # Model Information
+  output$boostModelInfo <- renderText({
+    information <- model()$model_train
+    return(paste(capture.output(print(information)), collapse = '\n'))
+  })
+  # Model Accuracy
+  output$boostModelAccuracy <- renderText({
+    accuracy <- model()$confusion_matrix
+    return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  })
+  # Matrix Plot
+  output$boostMatrixPlot <- renderPlot({
+    # Using custom function script
+    return(plot_confusion_matrix(model()$confusion_matrix))
+  }, res = 100)
+  # ROC Plot
+  output$boostRocPlot <- renderPlot({
+    predicted <- model()$model_test
+    actual <- model()$test_data[, model()$loan_default]
+    
+    # Using custom function script
+    return(plot_roc_curve(predicted, actual))
+  }, res = 100)
+  # Training Data
+  output$boostTrainingData <- renderDataTable({
+    datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
+                                                    pageLength = 10))
+  })
+  # Test Data
+  output$boostTestData <- renderDataTable({
+    datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
+                                                pageLength = 10))
   })
   } # End of Server()
 
