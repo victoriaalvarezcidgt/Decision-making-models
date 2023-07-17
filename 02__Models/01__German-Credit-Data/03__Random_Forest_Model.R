@@ -36,37 +36,40 @@ training_set <- german_data[index_train, ]
 test_set <- german_data[-index_train, ]
 
 # Performing random forest -----------------------------------------------------
-set.seed(148)
-
-# Assessing the accuracy of different tree sizes and splits
+# Implementing Random Search Optimization
+# Initialize variables for tracking the best model
+num_iterations <- 50 # Number of iterations to perform
 ntree_values <- seq(100, 1000, by = 100) # Number of trees
-mtry_values <- seq(1, 25, by = 1) # Number of variables to consider at each split
-
-# Creating all possible combinations of the above values
-combinations <- expand.grid(ntree = ntree_values, mtry = mtry_values)
-
-# For storing output
+mtry_values <- seq(1, ncol(training_set), by = 1) # Number of variables to consider at each split
 best_accuracy <- 0
 best_model <- NULL
+best_ntree <- NULL
+best_mtry <- NULL
 
-# The below loop with iterate through all possible combinations of the tree/split
-# values and find the best performing model
-for (i in 1:nrow(combinations)) {
-  ntree <- combinations$ntree[i]
-  mtry <- combinations$mtry[i]
+set.seed(112)
+
+for(i in 1:num_iterations){
+  # Randomly selecting hyper parameters
+  ntree <- sample(ntree_values, 1)
+  mtry <- sample(mtry_values, 1)
   
-  model <- randomForest(formula = getNonRejectedFormula(f_selection_final), 
-                        data = training_set, ntree = ntree, mtry = mtry)
-  predicted <- predict(model, newdata = test_set)
-  confusion_matrix <- table(predicted, test_set$Class)
+  # Training model
+  model_train <- randomForest(formula = getNonRejectedFormula(f_selection_final), 
+                              data = training_set, ntree = ntree, mtry = mtry)
+  
+  # Evaluating model
+  model_test <- predict(model_train, newdata = test_set)
+  confusion_matrix <- table(model_test, test_set$Class)
   accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
   
-  # If a model has better accuracy it is saved
+  # Update the best model if necessary
   if (accuracy > best_accuracy) {
     best_accuracy <- accuracy
-    best_model <- model
+    best_model <- model_train
+    best_ntree <- ntree
+    best_mtry <- mtry
   }
-}
+} # End of for loop
 
 # Performing predictions and evaluating ----------------------------------------
 predictions <- predict(best_model, newdata = test_set)
