@@ -13,6 +13,7 @@ library(randomForest)
 library(xgboost)
 
 options(shiny.maxRequestSize = 1024 ^ 2)
+source(file.path("03__Shiny/00__Custom_Functions.R"))
 # ------------------------------------------------------------------------------
 
 # So we can use the image pathway and not the default "www" pathway
@@ -39,6 +40,10 @@ ui <- dashboardPage(
   # Defining the dashboard body
   dashboardBody(
     useShinyjs(),
+    # Adaptive Sizing
+    tags$head(tags$style(
+      HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}')
+    )),
     # Adding body contents
     tabItems(
       # Creating home page ----------------------------------------------------
@@ -191,15 +196,21 @@ ui <- dashboardPage(
           condition = "input.logOutput == 'Model Information'",
           tags$h4("Logistic Regression Model"),
 
-          mainPanel(
+          mainPanel(width = 24,
             tabsetPanel(
               id = "information",
               tabPanel("Model Info", textOutput("logModelInfo", container = pre)),
-              tabPanel("Model Accuracy", textOutput("logModelAccuracy", container = pre))
+              tabPanel("Model Accuracy", textOutput("logModelAccuracy", container = pre)),
+              tabPanel("Variable Importance", textOutput("varImportance", container = pre)),
+              tabPanel("Metrics", 
+                       fluidRow(
+                         column(width = 6, plotOutput("MatrixPlot")),
+                         column(width = 6, plotOutput("rocPlot"))))
             ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
 
         conditionalPanel(
           condition = "input.logOutput == 'Training & Test Data'",
+          tags$h4("Taining and Test Data Used"),
           mainPanel(
             tabsetPanel(
               id = "dataset",
@@ -472,8 +483,7 @@ server <- function(input, output, session) {
       best_ntree <- NULL
       best_mtry <- NULL
       
-      ctrlspec <- NULL # We aren't using this variable so it can be set to null
-      
+
       progress$set(message = "Training Model", value = 0.5)
       Sys.sleep(0.75)
       
@@ -606,15 +616,32 @@ server <- function(input, output, session) {
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
   })
-  
+  # Variable Importance
+  output$varImportance <- renderText({
+    varImportance <- varImp(model()$model_train)
+    return(paste(capture.output(print(varImportance)), collapse = '\n'))
+  })
+  # Matrix Plot
+  output$MatrixPlot <- renderPlot({
+    # Using custom function script
+    return(plot_confusion_matrix(model()$confusion_matrix))
+  }, res = 100)
+  # ROC Plot
+  output$rocPlot <- renderPlot({
+    predicted <- model()$model_test
+    actual <- model()$test_data[, model()$loan_default]
+    
+    # Using custom function script
+    return(plot_roc_curve(predicted, actual))
+  }, res = 100)
   # Training Data
   output$training_set <- renderDataTable({
-    datatable(model()$training_set, options = list(scrollX = TRUE, paginate = TRUE,
+    datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                    pageLength = 10))
   })
   # Test Data
   output$test_set <- renderDataTable({
-    datatable(model()$test_set, options = list(scrollX = TRUE, paginate = TRUE,
+    datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                pageLength = 10))
   })
   
