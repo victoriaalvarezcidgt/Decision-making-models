@@ -3,7 +3,7 @@
 <h4 align="left"> Logistic Regression </h4>
 <ul>
   <li>
-    Logistic Regression is  one of the ML algorithms that is used typically for supervised machine learning that involves binary classification – the categories of the label or response variable are usually two such as yes/no, true/false, \textbf{good/bad}, and benign/malignant, etc.
+    Logistic Regression is  one of the machine learning algorithms that is used typically for supervised learning that involves binary categorical outcome; that is, the categories of the label or response variable are usually two such as yes/no, true/false, \textbf{good/bad}, and benign/malignant, etc.
   </li>
 </ul>
 
