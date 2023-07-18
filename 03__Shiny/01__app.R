@@ -11,6 +11,7 @@ library(Boruta)
 library(caret)
 library(randomForest)
 library(xgboost)
+library(ParBayesianOptimization)
 
 options(shiny.maxRequestSize = 1024 ^ 2)
 source(file.path("03__Shiny/00__Custom_Functions.R"))
@@ -191,6 +192,13 @@ ui <- dashboardPage(
                                   "Random Forest", 
                                   "XGBoost"),
                    selected = "Logistic Regression"),
+      
+      # Bayesian Optimization option
+      conditionalPanel(
+        condition = "input.modelSelection == 'XGBoost'",
+          checkboxInput("bayes", "Apply Bayesian Optimisation (Takes time)")),
+      conditionalPanel(condition = "input.bayes == true",
+                       sliderInput("iterations", "Number of iterations", min = 1, max = 50, value = 10)),
       actionButton("runModel", "Run Modelling"),
       
       # Conditional Panel for Logistic Regression ------------------------------
@@ -260,7 +268,8 @@ ui <- dashboardPage(
                       tabPanel("Model Accuracy", 
                                fluidRow(
                                  column(width = 6, textOutput("forestModelAccuracy", container = pre)),
-                                 column(width = 6, plotOutput("forestModelMatrix")))),                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
+                                 column(width = 6, plotOutput("forestModelMatrix")))),                      
+                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
                       tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("forestMatrixPlot")),
@@ -289,7 +298,7 @@ ui <- dashboardPage(
           )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
       ), # End of conditionalPanel(Random Forest)
       
-      # Conditional Panel for XGBoost -----------------------------------------
+      # Conditional Panel for XGBoost ------------------------------------------    
       conditionalPanel(
         condition = "input.modelSelection == 'XGBoost' & input.runModel",
         radioButtons("boostOutput", h4("Select what output to view"),
@@ -680,6 +689,99 @@ server <- function(input, output, session) {
                              label = y,
                              params = params,
                              nrounds = numrounds)
+      
+      # Optimizing using Bayesian Optimization 
+      if(input$bayes == TRUE){
+        progress$set(message = "Applying Bayesian Optimisation", value = 0.6)
+        Sys.sleep(0.75)
+        # Function will take the tuning parameters as an input and return the best
+        # cross validation results
+        scoring_function <- function(
+    eta, gamma, max_depth, min_child_weight, subsample, nfold) {
+          
+          dtrain <- xgb.DMatrix(x, label = y, missing = NA)
+          
+          pars <- list(
+            eta = eta,
+            gamma = gamma,
+            max_depth = max_depth,
+            min_child_weight = min_child_weight,
+            subsample = subsample,
+            
+            booster = "gbtree",
+            objective = "binary:logistic",
+            eval_metric = "auc",
+            verbosity = 0
+          )
+          
+          xgbcv <- xgb.cv(
+            params = pars,
+            data = dtrain,
+            
+            nfold = nfold,
+            
+            nrounds = 100,
+            prediction = TRUE,
+            showsd = TRUE,
+            early_stopping_rounds = 10,
+            maximize = TRUE,
+            stratified = TRUE
+          )
+          
+          # required by the package, the output must be a list
+          # with at least one element of "Score", the measure to optimize
+          # Score must start with capital S
+          # For this case, we also report the best number of iterations
+          return(
+            list(
+              Score = max(xgbcv$evaluation_log$test_auc_mean),
+              nrounds = xgbcv$best_iteration
+            )
+          )
+        }
+        
+        # Setting tuning boundaries
+        bounds <- list(
+          eta = c(0, 1),
+          gamma =c(0, 100),
+          max_depth = c(2L, 10L), # L means integers
+          min_child_weight = c(1, 25),
+          subsample = c(0.25, 1),
+          nfold = c(3L, 10L)
+        )
+        
+        # Running the optimization with a time counter
+        set.seed(201)
+        
+        overall_time <- system.time(
+          output <- bayesOpt(
+            FUN = scoring_function, 
+            bounds = bounds, 
+            initPoints = 7, # Must be higher than out function inputs
+            iters.n = input$iterations, # Can be set to any iteration value
+          ))
+        
+        # outputting best parameters
+        best_parameters <- getBestPars(output)
+        
+        # Fitting a tuned model --------------------------------------------------------
+        params <- list(eta = best_parameters[1],
+                       gamma = best_parameters[2],
+                       max_depth = best_parameters[3],
+                       min_child_weight = best_parameters[4],
+                       subsample = best_parameters[5],
+                       nfold = best_parameters[6],
+                       objective = "binary:logistic")
+        
+        numrounds <- output$scoreSummary$nrounds[
+          which(output$scoreSummary$Score == max(output$scoreSummary$Score))]
+        
+        model_train <- xgboost(data = x,
+                               label = y,
+                               params = params,
+                               nrounds = numrounds,
+                               eval_metric = "auc")
+      }
       
       # Evaluating model
       progress$set(message = "Generating Predictions", value = 0.7)
