@@ -210,7 +210,10 @@ ui <- dashboardPage(
             tabsetPanel(
               id = "information",
               tabPanel("Model Info", textOutput("logModelInfo", container = pre)),
-              tabPanel("Model Accuracy", textOutput("logModelAccuracy", container = pre)),
+              tabPanel("Model Accuracy", 
+                       fluidRow(
+                         column(width = 6, textOutput("logModelAccuracy", container = pre)),
+                         column(width = 6, plotOutput("logModelMatrix")))),
               tabPanel("Variable Importance", textOutput("logVarImportance", container = pre)),
               tabPanel("Metrics", 
                        fluidRow(
@@ -253,8 +256,10 @@ ui <- dashboardPage(
                     tabsetPanel(
                       id = "information",
                       tabPanel("Model Info", textOutput("forestModelInfo", container = pre)),
-                      tabPanel("Model Accuracy", textOutput("forestModelAccuracy", container = pre)),
-                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
+                      tabPanel("Model Accuracy", 
+                               fluidRow(
+                                 column(width = 6, textOutput("forestModelAccuracy", container = pre)),
+                                 column(width = 6, plotOutput("forestModelMatrix")))),                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
                       tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("forestMatrixPlot")),
@@ -277,7 +282,8 @@ ui <- dashboardPage(
         condition = "input.modelSelection == 'XGBoost' & input.runModel",
         radioButtons("boostOutput", h4("Select what output to view"),
                      choices = list("Model Information",
-                                    "Training & Test Data")),
+                                    "Training & Test Data",
+                                    "Decision Tree")),
         
         conditionalPanel(
           condition = "input.boostOutput == 'Model Information'",
@@ -287,8 +293,10 @@ ui <- dashboardPage(
                     tabsetPanel(
                       id = "information",
                       tabPanel("Model Info", textOutput("boostModelInfo", container = pre)),
-                      tabPanel("Model Accuracy", textOutput("boostModelAccuracy", container = pre)),
-                      tabPanel("Metrics", 
+                      tabPanel("Model Accuracy", 
+                               fluidRow(
+                                 column(width = 6, textOutput("boostModelAccuracy", container = pre)),
+                                 column(width = 6, plotOutput("boostModelMatrix")))),                      tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("boostMatrixPlot")),
                                  column(width = 6, plotOutput("boostRocPlot")))) # End of fluidRow() & TabPanel()
@@ -302,7 +310,17 @@ ui <- dashboardPage(
               id = "dataset",
               tabPanel("Training Data", dataTableOutput("boostTrainingData")),
               tabPanel("Test Data", dataTableOutput("boostTestData"))
-            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+            ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+        
+        conditionalPanel(
+          condition = "input.boostOutput == 'Decision Tree'",
+          tags$h4("Decision Tree"),
+          tabsetPanel(
+            id = "tree",
+            tabPanel("Decision Tree",
+                     fluidRow(column(width = 12, plotOutput("boostTree"))))
+            
+          )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
       )) # End of conditionalPanel(XGBoost) & tabItem() {Modelling}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
@@ -545,7 +563,7 @@ server <- function(input, output, session) {
       # Initialize variables for tracking the best model
       num_iterations <- 50 # Number of iterations to perform
       ntree_values <- seq(100, 1000, by = 100) # Number of trees
-      mtry_values <- seq(1, ncol(training_set), by = 1) # Number of variables to consider at each split
+      mtry_values <- seq(1, (ncol(training_set) - 1), by = 1) # Number of variables to consider at each split
       best_accuracy <- 0
       best_model <- NULL
       best_ntree <- NULL
@@ -558,6 +576,7 @@ server <- function(input, output, session) {
       set.seed(112)
       
       for(i in 1:num_iterations){
+        progress$set(message = paste0("Training Model (", i, "/50)"), value = 0.5)
         # Randomly selecting hyper parameters
         ntree <- sample(ntree_values, 1)
         mtry <- sample(mtry_values, 1)
@@ -584,8 +603,9 @@ server <- function(input, output, session) {
       Sys.sleep(0.75)
       
       model_test <- predict(best_model, newdata = test_set)
-      confusion_matrix <- confusionMatrix(table(model_test, test_set$Class))
-      
+      confusion_matrix <- confusionMatrix(data = model_test, 
+                                          as.factor(test_set[, target]))
+
       return_list <- list(model_train = model_train, model_test = model_test,
                           confusion_matrix = confusion_matrix, training_data = training_set,
                           test_data = test_set, full_data = df, loan_default = target,
@@ -654,7 +674,7 @@ server <- function(input, output, session) {
       Sys.sleep(0.75)
       
       model_test <- predict(model_train, xvals, type = "response")
-      confusion_matrix <- confusionMatrix(table(round(model_test), yvals))
+      confusion_matrix <- confusionMatrix(as.factor(round(model_test)), as.factor(yvals))
       
       progress$set(message = "Outputting Information", value = 0.9)
       Sys.sleep(0.75)
@@ -679,39 +699,54 @@ server <- function(input, output, session) {
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
   })
-  # Model Accuracy
+  
+  # Model Accuracy (Text)
   output$logModelAccuracy <- renderText({
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
   })
+  
+  # Model Accuracy (Plot)
+  output$logModelMatrix <- renderPlot({
+    accuracy <- model()$confusion_matrix
+    accuracy <- as_tibble(accuracy$table)
+    cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
+                                prediction_col = "Prediction", counts_col = "n")
+    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  }, height = 600, res = 100)
+  
   # Variable Importance
   output$logVarImportance <- renderText({
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
   })
+  
   # Matrix Plot
   output$logMatrixPlot <- renderPlot({
-    # Using custom function script
-    return(plot_confusion_matrix(model()$confusion_matrix))
+    
+    return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
+  
   # ROC Plot
   output$logRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
-    # Using custom function script
-    return(plot_roc_curve(predicted, actual))
+    return(plot_roc_curve(predicted, actual)) # Using custom function script
   }, res = 100)
+  
   # Training Data
   output$logTrainingData <- renderDataTable({
     datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                    pageLength = 10))
   })
+  
   # Test Data
   output$logTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                pageLength = 10))
   })
+  
   # Decision Tree
   output$logTree <- renderPlot({
     formula <- model()$formula
@@ -726,73 +761,115 @@ server <- function(input, output, session) {
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
   })
-  # Model Accuracy
+  
+  # Model Accuracy (Text)
   output$forestModelAccuracy <- renderText({
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
   })
+  
+  # Model Accuracy (Plot)
+  output$forestModelMatrix <- renderPlot({
+    accuracy <- model()$confusion_matrix
+    accuracy <- as_tibble(accuracy$table)
+    cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
+                                prediction_col = "Prediction", counts_col = "n")
+    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  }, height = 600, res = 100)
+  
   # Variable Importance
   output$forestVarImportance <- renderText({
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
   })
+  
   # Matrix Plot
   output$forestMatrixPlot <- renderPlot({
-    # Using custom function script
-    return(plot_confusion_matrix(model()$confusion_matrix))
+
+    return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
+  
   # ROC Plot
   output$forestRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
-    # Using custom function script
-    return(plot_roc_curve(predicted, actual))
+    
+    return(plot_roc_curve(predicted, actual)) # Using custom function script
   }, res = 100)
+  
   # Training Data
   output$forestTrainingData <- renderDataTable({
     datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                     pageLength = 10))
   })
+  
   # Test Data
   output$forestTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                 pageLength = 10))
   })
-  # XGboost Output -------------------------------------------------------
+  
+  # XGboost Output -------------------------------------------------------------
   # Model Information
   output$boostModelInfo <- renderText({
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
   })
-  # Model Accuracy
+  
+  # Model Accuracy (Text)
   output$boostModelAccuracy <- renderText({
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
   })
+  
+  # Model Accuracy (Plot)
+  output$boostModelMatrix <- renderPlot({
+    accuracy <- model()$confusion_matrix
+    accuracy <- as_tibble(accuracy$table)
+    cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
+                                prediction_col = "Prediction", counts_col = "n")
+    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
+  }, height = 600, res = 100)
+  
   # Matrix Plot
   output$boostMatrixPlot <- renderPlot({
-    # Using custom function script
-    return(plot_confusion_matrix(model()$confusion_matrix))
+
+    return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
+  
   # ROC Plot
   output$boostRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
-    # Using custom function script
-    return(plot_roc_curve(predicted, actual))
+    
+    return(plot_roc_curve(predicted, actual)) # Using custom function script
+    
   }, res = 100)
+  
   # Training Data
   output$boostTrainingData <- renderDataTable({
     datatable(model()$training_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                     pageLength = 10))
   })
+  
   # Test Data
   output$boostTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                 pageLength = 10))
   })
+  
+  # Decision Tree
+  observe({
+    output$boostTree <- renderPlot({
+      boost_model <- model()$model_train
+      
+      return(xgb.plot.tree(model = boost_model, trees = 0))
+    })
+  })
+
+  
   } # End of Server()
 
 shinyApp(ui = ui, server = server)
