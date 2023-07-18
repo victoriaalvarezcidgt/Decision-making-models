@@ -15,7 +15,8 @@ packages <- c(
   "ParBayesianOptimization",
   "rpart.plot",
   "ggplot2",
-  "ROCR"
+  "ROCR",
+  "cvms"
 )
 
 # library(shiny)
