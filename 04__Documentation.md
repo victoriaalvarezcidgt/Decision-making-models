@@ -1,11 +1,9 @@
-<h1 align="center"> Decision Making Models </h1>
+<h1 align="center"> Machine Learning Algorithms Utilised </h1>
 <h4 align="center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
-<h4 align="left"> What is a decision making model </h4>
+<h4 align="left"> Logistic Regression </h4>
 <ul>
   <li>
-    A decision-making model is a systematic approach or framework that helps individuals or organizations make effective and informed decisions. It provides a structured
-    process to analyze a situation, consider alternatives, and choose the best course of action - in this case, these models help financial institutions and lenders 
-    informed decisions about whether to approve or deny credit applications, set appropriate credit limits, determine interest rates, and manage overall credit risk exposure.
+    Logistic Regression is  one of the ML algorithms that is used typically for supervised machine learning that involves binary classification – the categories of the label or response variable are usually two such as yes/no, true/false, \textbf{good/bad}, and benign/malignant, etc.
   </li>
 </ul>
 
@@ -47,3 +45,4 @@ necessary adjustments or improvements? </li>
   <li> Random Forest </li>
   <li> XGBoost </li>
 </ul>
+
