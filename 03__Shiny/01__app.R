@@ -199,7 +199,8 @@ ui <- dashboardPage(
         
         radioButtons("logOutput", h4("Select what output to view"), 
                      choices = list("Model Information",
-                                    "Training & Test Data")),
+                                    "Training & Test Data",
+                                    "Decision Tree")),
         
         conditionalPanel(
           condition = "input.logOutput == 'Model Information'",
@@ -225,7 +226,16 @@ ui <- dashboardPage(
               id = "dataset",
               tabPanel("Training Data", dataTableOutput("logTrainingData")),
               tabPanel("Test Data", dataTableOutput("logTestData"))
-            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+            ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+        
+        conditionalPanel(
+          condition = "input.logOutput == 'Decision Tree'",
+          tags$h4("Decision Tree"),
+          tabsetPanel(
+            id = "tree",
+            tabPanel("Decision Tree",
+                     fluidRow(column(width = 12, plotOutput("logTree", height = "800px"))))
+          )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
       ), # End of conditionalPanel(Logistic Regression)
       
       # Conditional Panel for Random Forest ------------------------------------
@@ -701,6 +711,13 @@ server <- function(input, output, session) {
   output$logTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                pageLength = 10))
+  })
+  # Decision Tree
+  output$logTree <- renderPlot({
+    formula <- model()$formula
+    trainingData <- model()$training_data
+    
+    decision_tree(formula, trainingData)
   })
   
   # Random Forest Output -------------------------------------------------------
