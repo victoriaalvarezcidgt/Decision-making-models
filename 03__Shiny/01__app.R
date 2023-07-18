@@ -246,7 +246,8 @@ ui <- dashboardPage(
         condition = "input.modelSelection == 'Random Forest' & input.runModel",
         radioButtons("forestOutput", h4("Select what output to view"),
                      choices = list("Model Information",
-                                    "Training & Test Data")),
+                                    "Training & Test Data",
+                                    "Decision Tree")),
         
         conditionalPanel(
           condition = "input.forestOutput == 'Model Information'",
@@ -274,7 +275,18 @@ ui <- dashboardPage(
               id = "dataset",
               tabPanel("Training Data", dataTableOutput("forestTrainingData")),
               tabPanel("Test Data", dataTableOutput("forestTestData"))
-            ))) # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+            ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Training/Test)
+        
+        conditionalPanel(
+          condition = "input.forestOutput == 'Decision Tree'",
+          tags$h4("Decision Tree"),
+          hr(),
+          sliderInput("treeNumber", "Decision Tree Number", min = 1, max = 1, value = 1),
+          tabsetPanel(
+            id = "tree",
+            tabPanel("Decision Tree",
+                     fluidRow(column(width = 12, plotOutput("forestTree", height = "800px"))))
+          )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
       ), # End of conditionalPanel(Random Forest)
       
       # Conditional Panel for XGBoost -----------------------------------------
@@ -606,10 +618,10 @@ server <- function(input, output, session) {
       confusion_matrix <- confusionMatrix(data = model_test, 
                                           as.factor(test_set[, target]))
 
-      return_list <- list(model_train = model_train, model_test = model_test,
+      return_list <- list(model_train = best_model, model_test = model_test,
                           confusion_matrix = confusion_matrix, training_data = training_set,
                           test_data = test_set, full_data = df, loan_default = target,
-                          formula = formula, accuracy = best_accuracy, model = best_model,
+                          formula = formula, accuracy = best_accuracy,
                           ntree = best_ntree, mtry = best_mtry)
       
       progress$close()
@@ -808,6 +820,26 @@ server <- function(input, output, session) {
   output$forestTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                 pageLength = 10))
+  })
+  
+  # Update the max value of the treeNumber slider
+  observe({
+    updateSliderInput(session, "treeNumber", max = model()$ntree)
+  })
+  
+  # Decision Tree
+  output$forestTree <- renderPlot({
+    decision_trees <- list()
+    model <- model()$model_train
+    ntree_num <- model()$ntree
+    
+    for(i in 1:ntree_num){
+      tree <- getTree(model, k = i, labelVar = TRUE)
+      tree <- rpart(tree)
+      decision_trees[[i]] <- tree
+    }
+    
+    rpart.plot(decision_trees[[input$treeNumber]], type = 3, clip.right.labs = FALSE)
   })
   
   # XGboost Output -------------------------------------------------------------
