@@ -198,13 +198,17 @@ ui <- dashboardPage(
         condition = "input.modelSelection == 'Random Forest'",
         checkboxInput("randomisation", "Apply Random Search Optimization")
       ),
+      conditionalPanel(
+        condition = "input.randomisation == true",
+        sliderInput("randomIter", "Number of iterations", min = 1, max = 100, value = 50)),
       
       # Bayesian Optimization option
       conditionalPanel(
         condition = "input.modelSelection == 'XGBoost'",
           checkboxInput("bayes", "Apply Bayesian Optimisation (Takes time)")),
-      conditionalPanel(condition = "input.bayes == true",
-                       sliderInput("iterations", "Number of iterations", min = 1, max = 50, value = 10)),
+      conditionalPanel(
+        condition = "input.bayes == true",
+        sliderInput("bayesIter", "Number of iterations", min = 1, max = 50, value = 10)),
       actionButton("runModel", "Run Modelling"),
       
       # Conditional Panel for Logistic Regression ------------------------------
@@ -588,7 +592,7 @@ server <- function(input, output, session) {
       
       # Implementing Random Search Optimization
       # Initialize variables for tracking the best model
-      num_iterations <- 50 # Number of iterations to perform
+      num_iterations <- input$randomIter # Number of iterations to perform
       ntree_values <- seq(100, 1000, by = 100) # Number of trees
       mtry_values <- seq(1, (ncol(training_set) - 1), by = 1) # Number of variables to consider at each split
       best_accuracy <- 0
@@ -604,7 +608,7 @@ server <- function(input, output, session) {
       
       if(input$randomisation == TRUE){
       for(i in 1:num_iterations){
-        progress$set(message = paste0("Training Model (", i, "/50)"), value = 0.5)
+        progress$set(message = paste0("Training Model (", i, "/", num_iterations, ")"), value = 0.5)
         # Randomly selecting hyper parameters
         ntree <- sample(ntree_values, 1)
         mtry <- sample(mtry_values, 1)
@@ -780,7 +784,7 @@ server <- function(input, output, session) {
             FUN = scoring_function, 
             bounds = bounds, 
             initPoints = 7, # Must be higher than out function inputs
-            iters.n = input$iterations, # Can be set to any iteration value
+            iters.n = input$bayesIter, # Can be set to any iteration value
           ))
         
         # outputting best parameters
