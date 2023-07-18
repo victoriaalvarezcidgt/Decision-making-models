@@ -193,6 +193,12 @@ ui <- dashboardPage(
                                   "XGBoost"),
                    selected = "Logistic Regression"),
       
+      # Random Search Optimization option
+      conditionalPanel(
+        condition = "input.modelSelection == 'Random Forest'",
+        checkboxInput("randomisation", "Apply Random Search Optimization")
+      ),
+      
       # Bayesian Optimization option
       conditionalPanel(
         condition = "input.modelSelection == 'XGBoost'",
@@ -596,6 +602,7 @@ server <- function(input, output, session) {
       
       set.seed(112)
       
+      if(input$randomisation == TRUE){
       for(i in 1:num_iterations){
         progress$set(message = paste0("Training Model (", i, "/50)"), value = 0.5)
         # Randomly selecting hyper parameters
@@ -619,19 +626,34 @@ server <- function(input, output, session) {
           best_mtry <- mtry
         }
       } # End of for loop
-      
+        progress$set(message = "Generating Predictions", value = 0.7)
+        
+        model_test <- predict(best_model, newdata = test_set)
+        confusion_matrix <- confusionMatrix(data = model_test, 
+                                            as.factor(test_set[, target]))
+        
+        return_list <- list(model_train = best_model, model_test = model_test,
+                            confusion_matrix = confusion_matrix, training_data = training_set,
+                            test_data = test_set, full_data = df, loan_default = target,
+                            formula = formula, accuracy = best_accuracy,
+                            ntree = best_ntree, mtry = best_mtry)
+        } # End of if statement
+      else{
+        model_train <- randomForest(formula = formula, data = training_set)
+        
+        progress$set(message = "Generating Predictions", value = 0.7)
+        
+        model_test <- predict(model_train, newdata = test_set)
+        confusion_matrix <- confusionMatrix(data = model_test, 
+                                            as.factor(test_set[, target]))
+        
+        return_list <- list(model_train = model_train, model_test = model_test,
+                            confusion_matrix = confusion_matrix, training_data = training_set,
+                            test_data = test_set, full_data = df, loan_default = target,
+                            formula = formula)
+      }
       progress$set(message = "Outputting Model", value = 0.9)
       Sys.sleep(0.75)
-      
-      model_test <- predict(best_model, newdata = test_set)
-      confusion_matrix <- confusionMatrix(data = model_test, 
-                                          as.factor(test_set[, target]))
-
-      return_list <- list(model_train = best_model, model_test = model_test,
-                          confusion_matrix = confusion_matrix, training_data = training_set,
-                          test_data = test_set, full_data = df, loan_default = target,
-                          formula = formula, accuracy = best_accuracy,
-                          ntree = best_ntree, mtry = best_mtry)
       
       progress$close()
     } # End of Random Forest
