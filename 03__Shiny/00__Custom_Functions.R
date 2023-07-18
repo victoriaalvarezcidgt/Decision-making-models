@@ -1,7 +1,13 @@
-# Custom Functions
-library(rpart.plot)
-library(ggplot2)
-library(ROCR)
+# Custom Functions 
+# Checks if a user has all the required packages ------------------------------
+check_install_package <- function(package_name) {
+  if (!requireNamespace(package_name, quietly = TRUE)) {
+    install.packages(package_name)
+    library(package_name, character.only = TRUE)
+  } else {
+    library(package_name, character.only = TRUE)
+  }
+}
 
 # Plots confusion matrix metrics -----------------------------------------------
 plot_confusion_matrix <- function(confusion_matrix){
@@ -71,4 +77,4 @@ decision_tree <- function(formula, trainingData){
                     control = controls)
   
   rpart.plot(tree_mod, type = 3, clip.right.labs = FALSE)
-  }
+}
