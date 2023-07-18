@@ -300,7 +300,7 @@ ui <- dashboardPage(
           condition = "input.forestOutput == 'Decision Tree'",
           tags$h4("Decision Tree"),
           hr(),
-          sliderInput("treeNumber", "Decision Tree Number", min = 1, max = 1, value = 1),
+          sliderInput("treeNumber", "Decision Tree Number", min = 1, max = 1, value = 1, step = 1),
           tabsetPanel(
             id = "tree",
             tabPanel("Decision Tree",
@@ -972,7 +972,8 @@ server <- function(input, output, session) {
       decision_trees[[i]] <- tree
     }
     
-    rpart.plot(decision_trees[[input$treeNumber]], type = 3, clip.right.labs = FALSE)
+    rpart.plot(decision_trees[[input$treeNumber]], type = 3, 
+               clip.right.labs = FALSE, roundint = FALSE)
   })
   
   # XGboost Output -------------------------------------------------------------
