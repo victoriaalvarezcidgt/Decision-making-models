@@ -1,6 +1,6 @@
 <h1 align="center"> Machine Learning Algorithms Utilised </h1>
 <h4 align="center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
-<h4 align="left"> What is a decision making model </h4>
+<h4 align="left"> Logistic Regression </h4>
 <ul>
   <li>
     Logistic Regression is  one of the ML algorithms that is used typically for supervised machine learning that involves binary classification – the categories of the label or response variable are usually two such as yes/no, true/false, \textbf{good/bad}, and benign/malignant, etc.
