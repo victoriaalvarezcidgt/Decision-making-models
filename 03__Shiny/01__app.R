@@ -208,7 +208,7 @@ ui <- dashboardPage(
           checkboxInput("bayes", "Apply Bayesian Optimisation (Takes time)")),
       conditionalPanel(
         condition = "input.bayes == true",
-        sliderInput("bayesIter", "Number of iterations", min = 1, max = 50, value = 10)),
+        sliderInput("bayesIter", "Number of iterations", min = 1, max = 50, value = 25)),
       actionButton("runModel", "Run Modelling"),
       
       # Conditional Panel for Logistic Regression ------------------------------
@@ -327,7 +327,8 @@ ui <- dashboardPage(
                       tabPanel("Model Accuracy", 
                                fluidRow(
                                  column(width = 6, textOutput("boostModelAccuracy", container = pre)),
-                                 column(width = 6, plotOutput("boostModelMatrix")))),                      tabPanel("Metrics", 
+                                 column(width = 6, plotOutput("boostModelMatrix")))),                      
+                      tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("boostMatrixPlot")),
                                  column(width = 6, plotOutput("boostRocPlot")))) # End of fluidRow() & TabPanel()
@@ -684,40 +685,9 @@ server <- function(input, output, session) {
       progress$set(message = "Training Model", value = 0.5)
       Sys.sleep(0.75)
       
-      set.seed(112)
-      # Set the XGBoost parameters
-      params <- list(
-        max_depth = 6,                               # Default
-        eta = 0.3,                                   # Default
-        gamma = 0,                                   # Default
-        min_child_weight = 1,                        # Default
-        subsample = 1,                               # Default
-        booster = "gbtree",                          # Default
-        objective = "binary:logistic",               # Binary classification
-        eval_metric = "auc",                         # Metric to evaluate model performance
-        verbosity = 0                                # Verbosity of printing messages
-      )
-      
-      # Using cross validation to find best number of rounds
-      model_cv <- xgb.cv(data = x,
-                         label = y,
-                         params = params,
-                         nrounds = 100, prediction = TRUE, showsd = TRUE,
-                         early_stopping_rounds = 10,
-                         maximize = TRUE, nfold = 10, stratified = TRUE)
-      
-      # Optimal number of rounds
-      numrounds <- min(which(
-        model_cv$evaluation_log$test_auc_mean == max(model_cv$evaluation_log$test_auc_mean)))
-      
-      # Running model with default parameters
-      model_train <- xgboost(data = x,
-                             label = y,
-                             params = params,
-                             nrounds = numrounds)
-      
       # Optimizing using Bayesian Optimization 
       if(input$bayes == TRUE){
+        set.seed(112)
         progress$set(message = "Applying Bayesian Optimisation", value = 0.6)
         Sys.sleep(0.75)
         # Function will take the tuning parameters as an input and return the best
@@ -807,6 +777,41 @@ server <- function(input, output, session) {
                                params = params,
                                nrounds = numrounds,
                                eval_metric = "auc")
+        
+        xgbcv <- NULL
+      }
+      else{
+        set.seed(112)
+        # Set the XGBoost parameters
+        params <- list(
+          max_depth = 6,                               # Default
+          eta = 0.3,                                   # Default
+          gamma = 0,                                   # Default
+          min_child_weight = 1,                        # Default
+          subsample = 1,                               # Default
+          booster = "gbtree",                          # Default
+          objective = "binary:logistic",               # Binary classification
+          eval_metric = "auc",                         # Metric to evaluate model performance
+          verbosity = 0                                # Verbosity of printing messages
+        )
+        
+        # Using cross validation to find best number of rounds
+        xgbcv <- xgb.cv(data = x,
+                           label = y,
+                           params = params,
+                           nrounds = 100, prediction = TRUE, showsd = TRUE,
+                           early_stopping_rounds = 10,
+                           maximize = TRUE, nfold = 10, stratified = TRUE)
+        
+        # Optimal number of rounds
+        numrounds <- min(which(
+          xgbcv$evaluation_log$test_auc_mean == max(xgbcv$evaluation_log$test_auc_mean)))
+        
+        # Running model with default parameters
+        model_train <- xgboost(data = x,
+                               label = y,
+                               params = params,
+                               nrounds = numrounds)
       }
       
       # Evaluating model
@@ -824,7 +829,7 @@ server <- function(input, output, session) {
                           confusion_matrix = confusion_matrix, training_data = training_set,
                           test_data = test_set, full_data = df, loan_default = target,
                           formula = formula, x = x, y = y, xvals = xvals, yvals = yvals,
-                          model_cv = model_cv)
+                          model_cv = xgbcv)
       
       progress$close()
       
