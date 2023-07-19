@@ -31,9 +31,8 @@ for (package_name in packages) {
 
 # So we can use the image pathway and not the default "www" pathway
 addResourcePath("new_path", "./03__Shiny/01__Logo/")
-# ------------------------------------------------------------------------------
 
-# Defining UI
+# Defining UI ------------------------------------------------------------------
 ui <- dashboardPage(
   
   skin = "purple", # Purple theme
