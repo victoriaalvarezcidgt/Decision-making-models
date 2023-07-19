@@ -1,5 +1,8 @@
 rm(list = ls())
 
+options(shiny.maxRequestSize = 1024 ^ 2)
+source(file.path("03__Shiny/00__Custom_Functions.R"))
+
 # Required packages ------------------------------------------------------------
 packages <- c(
   "shiny", 
@@ -19,21 +22,6 @@ packages <- c(
   "cvms"
 )
 
-# library(shiny)
-# library(shinydashboard)
-# library(shinyWidgets)
-# library(shinyjs)
-# library(DT)
-# library(dplyr)
-# library(Boruta)
-# library(caret)
-# library(randomForest)
-# library(xgboost)
-# library(ParBayesianOptimization)
-
-options(shiny.maxRequestSize = 1024 ^ 2)
-source(file.path("03__Shiny/00__Custom_Functions.R"))
-# ------------------------------------------------------------------------------
 # Installs and loads all required packages
 for (package_name in packages) {
   check_install_package(package_name)
@@ -41,6 +29,7 @@ for (package_name in packages) {
 
 # So we can use the image pathway and not the default "www" pathway
 addResourcePath("new_path", "./03__Shiny/01__Logo/")
+# ------------------------------------------------------------------------------
 
 # Defining UI
 ui <- dashboardPage(
