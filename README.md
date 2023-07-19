@@ -1,6 +1,6 @@
 <h1 align="center"> Decision Making Models </h1>
 <h4 align="center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
-<h4 align="left"> What is a decision making model </h4>
+<h4 align="left"> What are decision making models </h4>
 <ul>
   <li>
     A decision-making model is a systematic approach or framework that helps individuals or organizations make effective and informed decisions. It provides a structured
@@ -43,7 +43,7 @@ necessary adjustments or improvements? </li>
 ---
 <h4 align="left"> Utilized Models </h4>
 <ul>
-  <li> Logistic Regression </li>
-  <li> Random Forest </li>
-  <li> XGBoost </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/02__Logistic_Regression.md"> Logistic Regression </a> </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/03__Random_Forest.md"> Random Forest </a> </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/04__XGBoost.md"> XGBoost </a> </li>
 </ul>
