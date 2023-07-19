@@ -1,5 +1,5 @@
 # Custom Functions 
-# Checks if a user has all the required packages ------------------------------
+# Checks if a user has all the required packages -------------------------------
 check_install_package <- function(package_name) {
   if (!requireNamespace(package_name, quietly = TRUE)) {
     install.packages(package_name)
