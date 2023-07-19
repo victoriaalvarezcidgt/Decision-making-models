@@ -163,12 +163,23 @@ ui <- dashboardPage(
       radioButtons("selection", h4("Select a Feature Selection Method"),
                    choices = list("Boruta", "Recursive Feature Selection", "None"),
                    selected = "Boruta"),
+      
+      # Conditional Panel for Boruta (Number of Iterations)
+      conditionalPanel(
+        condition = "input.selection == 'Boruta'",
+        sliderInput("borutaIter", "Number of Iterations", min = 1, max = 1000, value = 500)),
+      
+      # Conditional Panel for Recursive Feature Selection (Number of Folds)
+      conditionalPanel(
+        condition = "input.selection == 'Recursive Feature Selection'",
+        sliderInput("recursiveIter", "Number of Folds", min = 1, max = 10, value = 5)),
+      
       actionButton("runSelection", "Run Feature Selection"),
       
       # Downloading of dataset
       downloadButton("downloadReducedDataset", "Download Reduced Dataset"),
       
-      # Conditional text for Boruta
+      # Conditional text for Boruta (Output)
       conditionalPanel(
         condition = "input.selection == 'Boruta' & input.runSelection",
         # Plots
@@ -179,7 +190,7 @@ ui <- dashboardPage(
         textOutput("borutaInfo", container = pre)
       ),
       
-      # Conditional Panel for Recursive Feature Selection
+      # Conditional Panel for Recursive Feature Selection (Output)
       conditionalPanel(
         condition = "input.selection == 'Recursive Feature Selection' & input.runSelection",
         # Model Information
@@ -207,11 +218,18 @@ ui <- dashboardPage(
                                   "XGBoost"),
                    selected = "Logistic Regression"),
       
+      # Conditional Input Panels -----------------------------------------------
+      # Regression Folds Option 
+      conditionalPanel(
+        condition = "input.modelSelection == 'Logistic Regression'",
+        sliderInput("regressionFolds", "Number of Folds", min = 1, max = 50, value = 10)),
+      
       # Random Search Optimization option
       conditionalPanel(
         condition = "input.modelSelection == 'Random Forest'",
-        checkboxInput("randomisation", "Apply Random Search Optimization")
-      ),
+        checkboxInput("randomisation", "Apply Random Search Optimization")),
+      
+      # If ticked user specifies max number of iterations
       conditionalPanel(
         condition = "input.randomisation == true",
         sliderInput("randomIter", "Number of iterations", min = 1, max = 100, value = 50)),
@@ -220,6 +238,8 @@ ui <- dashboardPage(
       conditionalPanel(
         condition = "input.modelSelection == 'XGBoost'",
           checkboxInput("bayes", "Apply Bayesian Optimisation (Takes time)")),
+      
+      # If ticked user specifies max number of iterations
       conditionalPanel(
         condition = "input.bayes == true",
         sliderInput("bayesIter", "Number of iterations", min = 1, max = 50, value = 25)),
@@ -228,16 +248,13 @@ ui <- dashboardPage(
       # Conditional Panel for Logistic Regression ------------------------------
       conditionalPanel(
         condition = "input.modelSelection == 'Logistic Regression' & input.runModel",
-        
         radioButtons("logOutput", h4("Select what output to view"), 
                      choices = list("Model Information",
                                     "Training & Test Data",
                                     "Decision Tree")),
-        
         conditionalPanel(
           condition = "input.logOutput == 'Model Information'",
           tags$h4("Logistic Regression Model"),
-
           mainPanel(width = 24,
             tabsetPanel(
               id = "information",
@@ -252,7 +269,7 @@ ui <- dashboardPage(
                          column(width = 6, plotOutput("logMatrixPlot")),
                          column(width = 6, plotOutput("logRocPlot")))) # End of fluidRow() & TabPanel()
             ))), # End of tabsetPanel() & mainPanel() & conditionalPanel(Model Information)
-
+        
         conditionalPanel(
           condition = "input.logOutput == 'Training & Test Data'",
           tags$h4("Taining and Test Data Used"),
@@ -284,7 +301,6 @@ ui <- dashboardPage(
         conditionalPanel(
           condition = "input.forestOutput == 'Model Information'",
           tags$h4("Random Forest Model"),
-          
           mainPanel(width = 24,
                     tabsetPanel(
                       id = "information",
@@ -333,7 +349,6 @@ ui <- dashboardPage(
         conditionalPanel(
           condition = "input.boostOutput == 'Model Information'",
           tags$h4("XGBoost Model"),
-          
           mainPanel(width = 24,
                     tabsetPanel(
                       id = "information",
@@ -386,6 +401,24 @@ ui <- dashboardPage(
 
 # Creating server logic --------------------------------------------------------
 server <- function(input, output, session) {
+  
+  # Observations ---------------------------------------------------------------
+  # Unticks Random Search Optimization button if Random Forest is no selected
+  observe({
+    if (input$modelSelection != "Random Forest") {
+      updateCheckboxInput(session, "randomisation", value = FALSE)
+    }
+  })
+  # Unticks Bayesian Optimization button if XGBoost is no selected
+  observe({
+    if (input$modelSelection != "XGBoost") {
+      updateCheckboxInput(session, "bayes", value = FALSE)
+    }
+  })
+  # Update the max value of the treeNumber slider
+  observe({
+    updateSliderInput(session, "treeNumber", max = model()$ntree)
+  })
   
   # Data uploading -------------------------------------------------------------
   dataset <- reactive({
@@ -460,7 +493,7 @@ server <- function(input, output, session) {
       progress$set(message = "Running Boruta", value = 0.5)
       
       # Running Boruta selection method
-      model <- Boruta(formula, data = df, doTrace = 2, maxRuns = 500)
+      model <- Boruta(formula, data = df, doTrace = 2, maxRuns = input$borutaIter)
       model <- TentativeRoughFix(model)
       
       progress$set(message = "Creating reduced dataset", value = 0.8)
@@ -478,7 +511,7 @@ server <- function(input, output, session) {
       progress$set(message = "Running Recursive Feature Selection", value = 0.5)
       
       # Creating cross validation controls
-      ctrl <- rfeControl(functions = rfFuncs, method = "cv", number = 5)
+      ctrl <- rfeControl(functions = rfFuncs, method = "cv", number = input$recursiveIter)
       
       # Running model
       model <- rfe(df[, -which(names(df) == input$targetVariable)], df[[input$targetVariable]], 
@@ -589,7 +622,7 @@ server <- function(input, output, session) {
       
       # Specifying the Type of Training Methods used and the Number of Folds
       ctrlspec <- trainControl(
-        method = "cv", number = 10, savePredictions = "all", classProbs = FALSE
+        method = "cv", number = input$regressionFolds, savePredictions = "all", classProbs = FALSE
         )
       
       # Training Logistic Regression Model
@@ -981,11 +1014,6 @@ server <- function(input, output, session) {
   output$forestTestData <- renderDataTable({
     datatable(model()$test_data, options = list(scrollX = TRUE, paginate = TRUE,
                                                 pageLength = 10))
-  })
-  
-  # Update the max value of the treeNumber slider
-  observe({
-    updateSliderInput(session, "treeNumber", max = model()$ntree)
   })
   
   # Decision Tree
