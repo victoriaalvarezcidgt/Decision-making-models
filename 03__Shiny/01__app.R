@@ -46,7 +46,8 @@ ui <- dashboardPage(
       menuItem("Home Page", tabName = "Home", icon = icon("home")),
       menuItem("Data Input", tabName = "Input", icon = icon("upload")),
       menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs")),
-      menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart"))
+      menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart")),
+      menuItem("Guides", tabName = "Guides", icon = icon("book"))
     )), # End of sidebarMenu() & dashboardSidebar()
   
   # Defining the dashboard body
@@ -364,7 +365,21 @@ ui <- dashboardPage(
                      fluidRow(column(width = 12, plotOutput("boostTree"))))
             
           )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
-      )) # End of conditionalPanel(XGBoost) & tabItem() {Modelling}
+      )), # End of conditionalPanel(XGBoost) & tabItem() {Modelling}
+      
+      # Guides Page ------------------------------------------------------------
+      tabItem(tabName = "Guides",
+      tags$body(
+      h1(strong("Guides"), align = "center", style = "font-size: 30px")),
+      
+      tabsetPanel(
+        id = "guides",
+        tabPanel("Feature Selection", includeMarkdown(path = "04__Documentation/01__Feature_Selection.md")),
+        tabPanel("Logistic Regression", includeMarkdown(path = "04__Documentation/02__Logistic_Regression.md")),
+        tabPanel("Random Forest", includeMarkdown(path = "04__Documentation/03__Random_Forest.md")),
+        tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md"))
+        )
+      ) # End of tabItem() {Guides}
     ))) # End of tabItems() & dashboardBody() & dashboardPage()
 
 # Creating server logic --------------------------------------------------------
