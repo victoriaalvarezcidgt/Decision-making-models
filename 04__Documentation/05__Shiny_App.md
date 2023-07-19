@@ -28,8 +28,8 @@ This section lists the packages that are required for running the code. These pa
 </details>
 
 <h3 align = "left"> Installation </h3>
-To ensure that all required packages are installed, the following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Shiny/00__Custom_Functions.R#L2-L10"> check_install_package </a> is used. 
-The code above iterates over the <code> packages </code> vector, checks if each package is installed, and installs and loads it if necessary.
+To ensure that all required packages are installed, the following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Shiny/00__Custom_Functions.R#L2-L10"> check_install_package </a> function is used. 
+The function iterates over the <br> <code> packages </code> vector, checks if each package is installed, and installs and loads it if necessary.
 
 ``` R
 # Installs and loads all required packages
