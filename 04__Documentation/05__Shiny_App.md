@@ -1,17 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-h1, h2, h3, h4 {
-  text-align: center;
-}
-
-h2, h3, h4 {
-  text-align: left;
-}
-</style>
-</head>
-<body>
 <h1 align = "center"> Credit Risk Models (Shiny app) </h1>
 <h4 align = "center"> The following shiny app provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
 <h2 align = "left"> Required Packages </h2>
@@ -42,12 +28,12 @@ This section lists the packages that are required for running the code. These pa
 </details>
 
 <h3 align = "left"> Installation </h3>
-<p> To ensure that all required packages are installed, the following code is used. The code above iterates over the <code>packages</code> vector, checks if each package is installed, and installs and loads it if necessary. </p>
+To ensure that all required packages are installed, the following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Shiny/00__Custom_Functions.R#L2-L10"> check_install_package </a> is used. 
+The code above iterates over the <code> packages </code> vector, checks if each package is installed, and installs and loads it if necessary.
 
-<pre> <code> # Installs and loads all required packages
+``` R
+# Installs and loads all required packages
 for (package_name in packages) {
   check_install_package(package_name)
 }
-</code> </pre>
-</body>
-</html>
+```
