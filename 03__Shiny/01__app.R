@@ -19,7 +19,9 @@ packages <- c(
   "rpart.plot",
   "ggplot2",
   "ROCR",
-  "cvms"
+  "cvms",
+  "markdown",
+  "DiagrammeR"
 )
 
 # Installs and loads all required packages
