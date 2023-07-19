@@ -1,4 +1,4 @@
-<h1 align = "center"> Credit Risk Models (Shiny app) </h1>
+<h1 align = "center"> Credit Risk Models (Shiny App) </h1>
 <h4 align = "left"> The following shiny app provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
 <h1 align = "center"> Required Packages </h1>
 This section lists the packages that are required for running the code. These packages provide additional functionality and are essential for the successful execution of the program.
