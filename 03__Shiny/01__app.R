@@ -207,9 +207,7 @@ ui <- dashboardPage(
       
       # Decision Making Models -------------------------------------------------
       tabItem(tabName = "Modelling",
-      tags$body(
-        h1(strong("Data Modelling"), align = "center", style = "font-size: 30px"),
-        ), # End of tags$body()
+      h1(strong("Data Modelling"), align = "center", style = "font-size: 30px"),
       
       # Allows user to select a modelling method
       radioButtons("modelSelection", h4("Select a Decision Making Method"),
@@ -243,7 +241,13 @@ ui <- dashboardPage(
       conditionalPanel(
         condition = "input.bayes == true",
         sliderInput("bayesIter", "Number of iterations", min = 1, max = 50, value = 25)),
+      
+      # Specifying training/test split
+      sliderInput("split", "Specifiy percentage training data to use", min = 10, max = 90, value = 70, step = 10),
+      hr(),
       actionButton("runModel", "Run Modelling"),
+      
+
       
       # Conditional Panel for Logistic Regression ------------------------------
       conditionalPanel(
@@ -466,12 +470,12 @@ server <- function(input, output, session) {
     # Processing Data (recoding to 0 & 1)
     if("Bad" %in% df[, target] | "Good" %in% df[, target]){
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non Default")) %>%
+        mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non_Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target)))
     }
     else if("No" %in% df[, target] | "Yes" %in% df[, target]){
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "No" = 0, "Yes" = 1)) %>%
+        mutate(!!sym(target) := recode(!!sym(target), "No" = "Default", "Yes" = "Non_Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target)))
     }
     else{
@@ -618,7 +622,7 @@ server <- function(input, output, session) {
     
     # Creating training and test data
     set.seed(111)
-    index <- createDataPartition(df[, target], p = 0.7, list = FALSE)
+    index <- createDataPartition(df[, target], p = (input$split / 100), list = FALSE)
     
     training_set <- df[index, ]
     test_set <- df[-index, ]
