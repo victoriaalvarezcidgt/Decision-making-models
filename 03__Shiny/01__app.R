@@ -48,6 +48,7 @@ ui <- dashboardPage(
       menuItem("Data Input", tabName = "Input", icon = icon("upload")),
       menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs")),
       menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart")),
+      menuItem("Predictions", tabName = "Predict", icon = icon("magic")),
       menuItem("Guides", tabName = "Guides", icon = icon("book"))
     )), # End of sidebarMenu() & dashboardSidebar()
   
@@ -383,6 +384,25 @@ ui <- dashboardPage(
           )) # End of tabsetPanel() & conditionalPanel(Decision Tree)
       )), # End of conditionalPanel(XGBoost) & tabItem() {Modelling}
       
+      # Predictions Page -------------------------------------------------------
+      tabItem(tabName = "Predict",
+      tags$body(
+      h1(strong("Probability of Default"), align = "center", style = "font-size: 30px")),  
+      
+      # Inputting new dataset
+      fileInput("probData", h4("Upload a dataset (CSV format)"),
+                multiple = FALSE, placeholder = "Enter your data here",
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
+      
+      actionButton("uploadProb", "Upload"),
+      hr(),
+      actionButton("predict", "Generate Predictions"),
+      hr(),
+      h4("Probability of Default"),
+      textOutput("probability", container = pre)
+             
+      ), # End of tabItem() {Predictions}
+      
       # Guides Page ------------------------------------------------------------
       tabItem(tabName = "Guides",
       tags$body(
@@ -446,7 +466,7 @@ server <- function(input, output, session) {
     # Processing Data (recoding to 0 & 1)
     if("Bad" %in% df[, target] | "Good" %in% df[, target]){
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "Bad" = 0, "Good" = 1)) %>%
+        mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target)))
     }
     else if("No" %in% df[, target] | "Yes" %in% df[, target]){
@@ -621,8 +641,7 @@ server <- function(input, output, session) {
       
       # Specifying the Type of Training Methods used and the Number of Folds
       ctrlspec <- trainControl(
-        method = "cv", number = input$regressionFolds, savePredictions = "all", classProbs = FALSE
-        )
+        method = "cv", number = input$regressionFolds, savePredictions = "all", classProbs = TRUE)
       
       # Training Logistic Regression Model
       model_train <- train(formula, data = training_set, method = "glm",
@@ -1088,6 +1107,49 @@ server <- function(input, output, session) {
       
       return(xgb.plot.tree(model = boost_model, trees = 0))
     })
+  })
+  
+  # Probability of default -----------------------------------------------------
+  # Reading in new dataset -----------------------------------------------------
+  dataset_new <- reactive({
+    req(input$uploadProb)
+    if(!is.null(input$probData)){
+      # Reading in data
+      df_prob <- read.csv(input$probData$datapath)
+      return(df_prob)
+    }
+  }) # End of dataset_new()
+  
+  # Generating predictions -----------------------------------------------------
+  predictions <- reactive({
+    req(input$predict)
+    
+    df_prob <- dataset_new() # Getting data
+    model <- model()$model_train
+    
+    # If logistic regression or random forest was run 
+    if(input$modelSelection != "XGBoost") {
+      prob_predict <- predict(model, newdata = df_prob, type = "prob")
+      
+    } else{
+      
+      # Changing to matrix format
+      df_prob <- as.matrix(df_prob)
+      
+      # Predicting raw scores
+      prob_predict <- predict(model, newdata = df_prob, type = "response")
+      
+      # Using sigmoid function to convert to probability
+      prob_predict <- 1 / (1 + exp(-prob_predict))
+    }
+    
+    return(prob_predict)
+  })
+  
+  # Outputting predictions
+  output$probability <- renderText({
+    
+    return(paste(capture.output(print(predictions())), collapse = '\n'))
   })
 
   
