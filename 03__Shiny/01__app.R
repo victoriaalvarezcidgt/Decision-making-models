@@ -128,15 +128,13 @@ ui <- dashboardPage(
       
       # Creating data input page -----------------------------------------------
       tabItem(tabName = "Input",
-      tags$body(
-        # Text 
-        h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
-        p(strong("NOTE"), ": Please upload your dataset and select the binary loan
-        default column. Accepted variable coding: (\"Good / Bad\") or (\"Yes / No \")
-        or (\"0 / 1\")", style = "font-size: 20px")),
-      
+      # Text 
+      h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
+      h4("Please upload your dataset and select the binary classification column"),
+      h4("Accepted variable coding: (\"Good / Bad\") or (\"Yes / No \") or (\"0 / 1\")"),
+    
       # Inputting of data
-      fileInput("dataset", h4("Upload a dataset (CSV format)"),
+      fileInput("dataset", h4(strong("Upload a dataset (CSV format)")),
                 multiple = FALSE, placeholder = "Enter your data here", 
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
@@ -246,8 +244,6 @@ ui <- dashboardPage(
       sliderInput("split", "Specifiy percentage training data to use", min = 10, max = 90, value = 70, step = 10),
       hr(),
       actionButton("runModel", "Run Modelling"),
-      
-
       
       # Conditional Panel for Logistic Regression ------------------------------
       conditionalPanel(
@@ -394,7 +390,7 @@ ui <- dashboardPage(
       h1(strong("Probability of Default"), align = "center", style = "font-size: 30px")),  
       
       # Inputting new dataset
-      fileInput("probData", h4("Upload a dataset (CSV format)"),
+      fileInput("probData", h4(strong("Upload a dataset (CSV format)")),
                 multiple = FALSE, placeholder = "Enter your data here",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
