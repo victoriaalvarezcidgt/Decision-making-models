@@ -14,7 +14,7 @@ When you click the Knit button a document will be generated that includes both c
 
 Why would we think this should work? Recall that,
 
-𝔼̂ [𝑌∣𝑋=𝑥]=𝑋𝛽̂ .
+𝔼̂[𝑌∣𝑋=𝑥]=𝑋𝛽̂ .
 
 Since 𝑌
  is limited to values of 0
