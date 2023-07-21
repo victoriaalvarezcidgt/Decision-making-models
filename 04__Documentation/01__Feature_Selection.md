@@ -1,21 +1,31 @@
 <h1 align = "center"> Feature Selection </h1>
-Feature selection aims to identify and select a subset of features that are most relevant to the problem you are trying to solve. By doing so, it helps in reducing the complexity of the dataset, improving the 
-model's performance, and making the analysis more interpretable.
+<h2 align = "left"> Table of Contents </h2>
+<ul>
+  <li> <a href = "#overview"> What is Feature Selection </a> </li>
+  <li> <a href = "#methods"> Feature Selection Techniques </a> </li>
+  <li> <a href = "#implemented"> Implemented Methods </a> </li>
+</ul>
 
-<h3 align = "left"> Feature Selection Methods </h3>
-<h4 align = "left"> Filter Methods </h4>
-These methods assess the relevance of features based on their statistical properties, such as correlation with the target variable or information gain. They are computationally efficient and can be applied before 
-training the model. Filter methods rank the features based on certain criteria and select the top-ranked features for further analysis.
+<div id = "overview">
+<h2 align = "left"> What is Feature Selection </h2>
+Feature selection is a crucial step in the process of preparing data for machine learning models. It involves selecting the most relevant and informative features from the original set of variables to improve model 
+performance and reduce overfitting. By eliminating irrelevant or redundant features, feature selection can lead to more efficient and interpretable models, faster training times, and better generalization to new, unseen 
+data.
+</div>
 
-<h4 align = "left"> Wrapper Methods </h4>
-These methods evaluate the performance of the model by iteratively selecting different subsets of features. They utilize the model's performance as a criterion for feature selection. Wrapper methods can be more 
-computationally expensive compared to filter methods as they involve training and evaluating the model multiple times. However, they tend to be more accurate in selecting features that work best for a specific 
-model.
+<div id = "methods">
+<h2 align = "left"> Feature Selection Methods </h2>
+<h3 align = "left"> Filter Methods </h3>
+Filter methods evaluate the relevance of features independently of the chosen machine learning algorithm. They use statistical measures or scores to rank the features based on their individual characteristics. Common filter 
+methods include Pearson correlation coefficient, mutual information, and chi-square test.
 
----
+<h3 align = "left"> Wrapper Methods </h3>
+Wrapper methods assess the feature subsets by training and evaluating the machine learning model on different combinations of features. They involve an iterative search process to find the best feature subset that maximizes the model's performance. Examples of wrapper methods are Recursive Feature Elimination (RFE) and Sequential Feature Selection (SFS).
+</div>
 
-<h3 align = "left"> Implemented Methods </h3>
-<h4 align ="left"> Boruta Algorithm </h4>
+<div id = "implemented">
+<h2 align = "left"> Implemented Methods </h2>
+<h3 align ="left"> Boruta Algorithm </h3>
 The Boruta algorithm is a feature selection method that uses random forests to determine the importance of features. It compares the importance of original features with randomly generated <strong> "shadow 
 features" </strong> to identify the most important ones. It iteratively evaluates the features and selects those consistently more important than their shadow counterparts. This helps to choose the most relevant 
 features for analysis or machine learning models, improving accuracy and interpretability.
@@ -42,7 +52,7 @@ features for analysis or machine learning models, improving accuracy and interpr
   </ul>
 </details>
 
-<h4 align ="left"> Recursive Feature Selection </h4>
+<h3 align ="left"> Recursive Feature Selection </h3>
 Recursive feature selection is a method that repeatedly removes less important features from a dataset based on a machine learning model's performance. It iteratively trains and evaluates the model with reduced 
 feature sets until a stopping criterion is met. The final subset of features is considered the selected set, improving efficiency without sacrificing accuracy.
 
@@ -63,3 +73,4 @@ feature sets until a stopping criterion is met. The final subset of features is 
     <li> <strong> Final Feature Selection: </strong> The process stops when the stopping criterion is met, and the remaining features are considered the selected subset. </li>
   </ul>
 </details>
+</div>
