@@ -2,11 +2,11 @@
 <h2 align = "left"> Table of Contents </h2>
 <ul>
   <li> <a href = "#introduction"> Introduction to Random Forest Models </a> </li>
-  <li> How Random Forests Work </li>
-  <li> Advantages of Random Forest Models </li>
-  <li> Limitations of Random Forest Models </li>
-  <li> Random Search Optimization in Random Forests </li>
-  <li> Conclusion </li>
+  <li> <a href = "#how-it-works"> How Random Forests Work </a> </li>
+  <li> <a href = "#advantages"> Advantages of Random Forest Models </a> </li>
+  <li> <a href = "#limitations"> Limitations of Random Forest Models </a> </li>
+  <li> <a href = "#optimization"> Random Search Optimization in Random Forests </a> </li>
+  <li> <a href = "conclusion"> Conclusion </a> </li>
 </ul>
 
 <div id = "introduction">
@@ -18,6 +18,7 @@ and ability to handle complex datasets.
 The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone. It was first introduced by Leo Breiman in 2001 
 and has since become one of the most widely used machine learning algorithms in various domains
 
+<div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
 Random Forest models can be summarized in the following steps:
 <ul>
@@ -28,7 +29,9 @@ Random Forest models can be summarized in the following steps:
   <li> <strong> Voting or Averaging: </strong> Once the individual trees are trained, they make predictions on new data points. For classification tasks, the final prediction is determined through majority voting, where each tree "votes" for a class, and the 
     class with the most votes is chosen. For regression tasks, the final prediction is typically the average of the predictions made by all the trees. </li>
 </ul>
+</div>
 
+<div id = "advantages">
 <h2 align = "left"> Advantages of Random Forest Models </h2>
 Random Forest models offer several advantages, some of which include:
 <ul>
@@ -38,7 +41,9 @@ Random Forest models offer several advantages, some of which include:
   <li> <strong> Handles Missing Data: </strong> Random Forests can handle missing data effectively by using surrogate splits during tree construction. </li>
   <li> <strong> Parallelization: </strong> Training of individual trees can be parallelized, making Random Forests scalable to large datasets. </li>
 </ul>
+</div>
 
+<div id = "limitations">
 <h2 align = "left"> Limitations of Random Forest Models </h2>
 Despite their strengths, Random Forest models have some limitations:
 <ul>
@@ -47,7 +52,9 @@ Despite their strengths, Random Forest models have some limitations:
   <li> <strong> Lack of Interpretability: </strong> The final prediction of a Random Forest is often challenging to interpret compared to individual decision trees. </li>
   <li> <strong> Extrapolation: </strong> Random Forests may not perform well on data that is significantly outside the range of the training data. </li>
 </ul>
+</div>
 
+<div id = "optimization">
 <h2 align = "left"> Random Search Optimization in Random Forests </h2>
 Random Search Optimization is a technique used to find the optimal hyperparameters for building a Random Forest model. Hyperparameters are parameters that are not learned during the training process but are set before training and can significantly influence the model's performance. Common hyperparameters for Random Forests include the number of trees (n_estimators), the maximum depth of each tree (max_depth), the number of features to consider for the best split at each node (max_features), and the minimum number of samples required to split an internal node (min_samples_split), among others.
 
@@ -64,6 +71,9 @@ The process of Random Search Optimization in Random Forests can be summarized as
 </ul>
 
 Once the Random Search Optimization process is complete, you will have identified the hyperparameters that yield the best-performing Random Forest model for your specific task. This optimized model can then be used for making predictions on new, unseen data.
+</div>
 
+<div id = "conclusion">
 <h2 align = "left"> Conclusion </h2>
 Random Forest Models are powerful and versatile ensemble learning techniques that offer high accuracy and robustness. They are widely used for both classification and regression tasks, providing valuable insights into feature importance. By understanding their strengths and limitations, and following best practices, you can effectively utilize Random Forests to make accurate predictions and gain valuable insights from your data.
+</div>
