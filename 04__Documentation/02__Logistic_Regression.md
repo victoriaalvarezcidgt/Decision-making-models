@@ -53,7 +53,7 @@ The table below gives the representation of the components of the evaluation met
 
 ```math
     \begin{align}
-\text{Accuracy} = \frac{$\widehat{\text{TP}}$ + $\widehat{\text{TN}}$}{$\widehat{\text{TP}}$ + $\widehat{\text{FP}}$ + $\widehat{\text{TN}}$ + $\widehat{\text{FN}}$}
+\text{Accuracy} = \frac{\widehat{\text{TP}} + \widehat{\text{TN}}}{\widehat{\text{TP}} + \widehat{\text{FP}} + \widehat{\text{TN}} + \widehat{\text{FN}}}
 \end{align}
 ```
 
@@ -61,14 +61,14 @@ The table below gives the representation of the components of the evaluation met
   
 ```math
       \begin{align}
-        \text{Precision} = \frac{TP}{TP + FP}
+        \text{Precision} = \frac{\widehat{\text{TP}}{\widehat{\text{TP} + \widehat{\text{FP}}
     \end{align}
 ```
 
 - Recall:
   ```math
       \begin{align}
-        \text{Recall} = \frac{TP}{TP+ FN}
+        \text{Recall} = \frac{\widehat{\text{TP}}{\widehat{\text{TP}+ \widehat{\text{FN}}
     \end{align}
    ```
     
