@@ -8,10 +8,7 @@ In linear regression, it is required to minimize the empirical risk, usually ref
 
 The logistic regression model is written as 
 ```math
-$$
 \log\left(\frac{f(x)}{1 - f(x)}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k.
-$$
-$$
 ```
 And the logistic regression model prediction discussed above is also represented mathematically as
 ```math
@@ -64,9 +61,12 @@ These are metrics used to access the model with respect to different considerati
     \end{align}
       ```
     \item F-Score:
-\begin{align}
-        \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
-    \end{align}
+
+      ```math
+      \begin{align}
+              \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
+          \end{align}
+      ```
 \end{itemize}
 
 
