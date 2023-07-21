@@ -20,7 +20,7 @@ Furthermore, the Logistic Regression model computes a weighted sum of the input 
 
 ```math
 \begin{align}
-\sigma(x) &= \frac{e^x}{1 + e^x}
+\sigma(x) &= \frac{e^x}{1 + e^x} \\
 & = \frac{1}{1 + e^{-x}}
 \end{align}
 ```
