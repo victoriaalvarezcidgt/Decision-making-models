@@ -6,7 +6,7 @@
   <li> <a href = "#advantages"> Advantages of Random Forest Models </a> </li>
   <li> <a href = "#limitations"> Limitations of Random Forest Models </a> </li>
   <li> <a href = "#optimization"> Random Search Optimization in Random Forests </a> </li>
-  <li> <a href = "conclusion"> Conclusion </a> </li>
+  <li> <a href = "#conclusion"> Conclusion </a> </li>
 </ul>
 
 <div id = "introduction">
