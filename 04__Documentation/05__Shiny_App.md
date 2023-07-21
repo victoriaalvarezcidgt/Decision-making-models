@@ -1,5 +1,5 @@
 <h1 align = "center"> Credit Risk Models (Shiny App) </h1>
-<h4 align = "left"> The following shiny app provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
+<h4 align = "center"> The following shiny app provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
 <h1 align = "left"> Required Packages </h1>
 This section lists the packages that are required for running the code. These packages provide additional functionality and are essential for the successful execution of the program.
 <details>
@@ -46,6 +46,7 @@ The sidebar menu includes the following items:
   <li> Data Input Page </li>
   <li> Feature Selection Page </li>
   <li> Modelling Page </li>
+  <li> Predictions Page </li>
   <li> Guides Page </li>
 </ul>
 
@@ -55,15 +56,17 @@ The sidebar menu includes the following items:
   </summary>
   
   ```R
-dashboardSidebar(
-  sidebarMenu(
-    menuItem("Home Page", tabName = "Home", icon = icon("home")),
-    menuItem("Data Input", tabName = "Input", icon = icon("upload")),
-    menuItem("Feature Selection", tabName = "Selection", icon = icon("cogs")),
-    menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart")),
-    menuItem("Guides", tabName = "Guides", icon = icon("book"))
-  )
-)
+ # Defining sideboard menu
+  dashboardSidebar(
+    # Adding pages to the sideboard
+    sidebarMenu(
+      menuItem("Home Page", tabName = "Home", icon = icon("home")),
+      menuItem("Data Input", tabName = "Input", icon = icon("upload")),
+      menuItem("Feaure Selection", tabName = "Selection", icon = icon("cogs")),
+      menuItem("Modelling", tabName = "Modelling", icon = icon("line-chart")),
+      menuItem("Predictions", tabName = "Predict", icon = icon("magic")),
+      menuItem("Guides", tabName = "Guides", icon = icon("book"))
+    )), # End of sidebarMenu() & dashboardSidebar()
 ```
 </details>
 
@@ -192,6 +195,7 @@ selection <- eventReactive(input$runSelection, {
   progress$set(message = "Getting selection method", value = 0.2)
   Sys.sleep(0.75)
 ```
+<h4 align = "left"> Feature Selection Options </h4>
 <details>
   <summary>
     Boruta Algorithm
@@ -318,7 +322,7 @@ model <- eventReactive(input$runModel,{
     progress$set(message = "Getting modelling method", value = 0.3)
     Sys.sleep(0.75)
 ```
-
+<h4 align = "left"> Model Options </h4>
 <details>
   <Summary>
     Logistic Regression
@@ -639,3 +643,4 @@ The model information, predictions, confusion matrix, and other relevant data ar
 return(return_list)
 ```
 
+<h3 align = "left"> Predictions </h3>
