@@ -61,7 +61,7 @@ The table below gives the representation of the components of the evaluation met
   
 ```math
       \begin{align}
-        \text{Precision} = \frac{\widehat{\text{TP}}{\widehat{\text{TP} + \widehat{\text{FP}}
+        \text{Precision} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}} + \widehat{\text{FP}}}
     \end{align}
 ```
 
