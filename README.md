@@ -1,49 +1,43 @@
-<h1 align="center"> Decision Making Models </h1>
-<h4 align="center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
-<h4 align="left"> What are decision making models </h4>
-<ul>
-  <li>
-    A decision-making model is a systematic approach or framework that helps individuals or organizations make effective and informed decisions. It provides a structured
-    process to analyze a situation, consider alternatives, and choose the best course of action - in this case, these models help financial institutions and lenders 
-    informed decisions about whether to approve or deny credit applications, set appropriate credit limits, determine interest rates, and manage overall credit risk exposure.
-  </li>
-</ul>
+<h1 align = "center"> Decision Making Models </h1>
+<h4 align = "center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
+<h2 align = "left"> Project Overview
+<h3 align = "left"> What are Decision Making Models </h3>
+  A decision-making model serves as a systematic framework, enabling individuals and organizations to navigate the complexities of making effective choices. By providing a structured process, it facilitates the analysis of various situations, careful 
+  consideration of alternatives, and the identification of the optimal course of action. In the realm of financial institutions and lenders, these models play a pivotal role in enabling informed decisions concerning credit applications, setting appropriate 
+  credit limits, determining interest rates, and managing overall credit risk exposure. 
 
 <details>
     <summary>
-        Decision-Making Model Steps
+        <h4> Decision-Making Model Steps </h4>
     </summary>
 <ul>
-  <li> Identify the decision: Clearly define the problem or the decision that needs to be made. This step involves understanding the context, the objectives, and the desired
+  <li> <strong> Identify the decision: </strong> Clearly define the problem or the decision that needs to be made. This step involves understanding the context, the objectives, and the desired
     outcomes. </li>
-  <li> Gather information: Collect relevant data, facts, and any other information necessary for evaluating the options and making an informed decision. This
+  <li> <strong> Gather information: </strong> Collect relevant data, facts, and any other information necessary for evaluating the options and making an informed decision. This
     could involve research, analysis, and seeking input from experts or stakeholders. </li>
-  <li> Generate alternatives: Brainstorm and generate a range of possible solutions or alternatives to address the decision at hand. Encourage creativity and explore
+  <li> <strong> Generate alternatives: </strong> Brainstorm and generate a range of possible solutions or alternatives to address the decision at hand. Encourage creativity and explore
     different perspectives to ensure a comprehensive set of options. </li>
-  <li> Evaluate alternatives: Assess and compare the pros and cons of each alternative against the defined objectives and criteria. This may involve considering feasibility, cost, risks, potential benefits, and ethical considerations. </li>
-  <li> Make a choice: Based on the evaluation, select the best alternative or combination of alternatives that align with the objectives and offers the most favourable
+  <li> <strong> Evaluate alternatives: </strong> Assess and compare the pros and cons of each alternative against the defined objectives and criteria. This may involve considering feasibility, cost, risks, potential benefits, and ethical considerations. </li>
+  <li> <strong> Make a choice: </strong> Based on the evaluation, select the best alternative or combination of alternatives that align with the objectives and offers the most favourable
     outcome. This step may involve prioritizing options, reaching a consensus, or making a judgment based on logical reasoning. </li>
-  <li> Implement the decision: Develop an action plan to execute the chosen alternative. Identify the required resources, assign responsibilities, and establish a timeline
+  <li> <strong> Implement the decision: </strong> Develop an action plan to execute the chosen alternative. Identify the required resources, assign responsibilities, and establish a timeline
     for implementation. </li>
-  <li> Review and learn: Monitor the implementation of the decision and evaluate its effectiveness. Could you assess whether the desired outcomes are being achieved and make any
-necessary adjustments or improvements? </li>
+  <li> <strong> Review and learn: </strong> Monitor the implementation of the decision and evaluate its effectiveness. Could you assess whether the desired outcomes are being achieved and make any
+    necessary adjustments or improvements? </li>
 </ul>
 </details>
 
-<h4 align="left"> Credit Risk Decision Making Models </h4>
-<ul>
-  <li>
-    A credit risk decision-making model is a method or framework that helps banks, financial institutions, or lenders assess the creditworthiness of borrowers and make
-    informed decisions regarding lending or extending credit. It involves analyzing various factors and assigning a level of risk associated with granting credit to an
-    individual or entity. These models use statistical techniques and predictive analytics to estimate the probability of default, evaluate the creditworthiness of
-    borrowers, and determine appropriate risk mitigation measures.
-  </li>
-</ul>
+<h3 align = "left"> Credit Risk Decision Making Models </h3>
+A credit risk decision-making model is an indispensable tool utilized by banks, financial institutions, and lenders to methodically assess the creditworthiness of borrowers and make well-informed lending decisions. By carefully analyzing a range of factors, 
+these models assign a level of risk associated with granting credit to individuals or entities. Through the use of statistical techniques and predictive analytics, they estimate the probability of default, evaluate the creditworthiness of potential borrowers, 
+and identify appropriate risk mitigation measures.
 
----
-<h4 align="left"> Utilized Models </h4>
+<h2 align="left"> Utilized Models </h2>
 <ul>
   <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/02__Logistic_Regression.md"> Logistic Regression </a> </li>
   <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/03__Random_Forest.md"> Random Forest </a> </li>
   <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/04__XGBoost.md"> XGBoost </a> </li>
 </ul>
+
+<h2 align="left"> Shiny App </h2>
+The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Shiny/01__app.R"> shiny app </a> provides decision making tools for classification problems (in this case <strong> loan defaults) </strong>
