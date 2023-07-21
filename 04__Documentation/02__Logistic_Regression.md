@@ -37,7 +37,7 @@ This is a technique for improving the accuracy of the model whilst ensuring that
 
 ## Performance Evaluation Metrics
 These are metrics used to access the model with respect to different considerations.
-The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the confusion matrix.
+The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the __confusion matrix__.
 
 |         |                 | Reference/Actual $(\text{y})$ |         |
 |---------|-----------------|-------------------------------|---------|
@@ -68,7 +68,7 @@ The table below gives the representation of the components of the evaluation met
 - Recall:
   ```math
       \begin{align}
-        \text{Recall} = \frac{\widehat{\text{TP}}{\widehat{\text{TP}+ \widehat{\text{FN}}
+        \text{Recall} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}}+ \widehat{\text{FN}}}
     \end{align}
    ```
     
