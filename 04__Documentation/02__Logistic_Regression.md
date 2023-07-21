@@ -1,2 +1,6 @@
-### Logistic Regression
-Logistic Regression is  one of the machine learning algorithms that is used typically for supervised learning that involves binary categorical outcome; that is, the categories of the label or response variable are usually two such as yes/no, true/false, __good/bad__, and benign/malignant, etc.
+## Logistic Regression: Brief Overview
+Logistic Regression is  one of the machine learning algorithms that is used typically for supervised learning that involves binary categorical outcome; that is, the categories of the label or response variable are usually two such as yes/no, true/false, __good/bad__, and benign/malignant, etc. Even though the mathematical formulation of the mathematical formulation of _logistic regression_ is similar to that of linear regression, it is better referred to as a classification learning algorithm, rather than a regression. That is, if we want to predict a categorical variable such as credit score (good/bad), breast cancer type (benign/malignant), `customer returning` (yes/no), then logistic regression is the appropriate algorithm to use.? Unlike linear regression, the dependent
+variable (y) is no longer a continuous variable but rather discrete categorical variable.
+
+## Task of Logistic Regression
+In linear regression, we were required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). Whereas, in Logistic regression, we minimize the impricial risk by maximizing the likelihood of training dataset.
