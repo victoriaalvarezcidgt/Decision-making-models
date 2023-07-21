@@ -43,23 +43,20 @@ These are metrics used to access the model with respect to different considerati
 \end{align}
 ```
 
-- Precision: Also known as \textbf{positive predictive value}. 
+- Precision: Also known as __positive predictive value__.
+  
 ```math
- $$
-     \begin{align}
+      \begin{align}
         \text{Precision} = \frac{TP}{TP + FP}
     \end{align}
-  $$
 ```
 
 - Recall:
   ```math
-    $$
-     \begin{align}
+      \begin{align}
         \text{Recall} = \frac{TP}{TP+ FN}
     \end{align}
-  $$
-  ```
+   ```
     
 - F-Score:
   ```math
