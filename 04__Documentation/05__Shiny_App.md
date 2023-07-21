@@ -201,8 +201,8 @@ selection <- eventReactive(input$runSelection, {
     Boruta Algorithm
   </summary>
   
-  If the user selects the <strong> Boruta feature selection </strong> method, the Boruta algorithm is applied to the dataset. The Boruta algorithm is run using the Boruta function, and the resulting model is further
-  processed using the <code>TentativeRoughFix</code> function. The reduced dataset is created by selecting the target variable and the attributes selected by the Boruta algorithm.
+  If the user selects the <strong> Boruta feature selection </strong> method, the Boruta algorithm is applied to the dataset. The Boruta algorithm is run using the <code>Boruta</code> function, and the resulting model is 
+  further processed using the <code>TentativeRoughFix</code> function. The reduced dataset is created by selecting the target variable and the attributes selected by the Boruta algorithm.
 
   ```R
 # Boruta Model
@@ -231,8 +231,8 @@ selection <- eventReactive(input$runSelection, {
     Recursive Feature Selection
   </summary>
   If the user selects the Recursive Feature Selection method, the Recursive Feature Elimination (RFE) algorithm is applied to the dataset. The RFE algorithm is run using the <code>rfe</code> function from the 
-  <code>caret</code>package. Cross-validation controls are created using the rfeControl function, and the model is trained on different feature subset sizes. The reduced dataset is created by selecting the target variable 
-  and the optimal variables identified by the RFE algorithm.
+  <code>caret</code>package. Cross-validation controls are created using the <code>rfeControl</code> function, and the model is trained on different feature subset sizes. The reduced dataset is created by selecting the 
+  target variable and the optimal variables identified by the RFE algorithm.
 
   ```R
 else if (input$selection == "Recursive Feature Selection") {
@@ -287,7 +287,7 @@ return(list(model, df_reduced))
 ```
 
 <h3 align = "left"> Modelling </h3>
-The <code>model()</code> function implements a decision making model based on user input. It checks if the <strong> runModel action button </strong> is been pressed. Within the expression intitally it checks to see if a feature selection option was carried out. If so the resulting reduced dataset is used in the analysis. If not, then the full dataset is used.  The target variable is obtained from the user's input, and a formula is created based on the target variable. Training and test data is then created based on a 70:30 split and a modelling method is implemented based on user input.
+The <code>model()</code> function implements a decision making model based on user input. It checks if the <strong> runModel action button </strong> is been pressed. Within the expression intitally it checks to see if a feature selection option was carried out. If so the resulting reduced dataset is used in the analysis. If not, then the full dataset is used.  The target variable is obtained from the user's input, and a formula is created based on the target variable. Training and test data is then created based on user input and a modelling method is also implemented based on user input.
 
 ```R
 model <- eventReactive(input$runModel,{
