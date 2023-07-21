@@ -60,11 +60,9 @@ These are metrics used to access the model with respect to different considerati
     
 - F-Score:
   ```math
-$$
       \begin{align}
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
-          \end{align}
-$$
+  \end{align}
 ```
 
 
