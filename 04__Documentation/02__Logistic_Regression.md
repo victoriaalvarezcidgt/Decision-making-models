@@ -49,7 +49,7 @@ The table below gives the representation of the components of the evaluation met
 
     
 
-- Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, `accuracy` measures the number of classifications correctly output as a `good` credit score.
+- Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, _accuracy_ measures the number of classifications correctly output as a `good` credit score.
 
 ```math
     \begin{align}
@@ -65,10 +65,16 @@ The table below gives the representation of the components of the evaluation met
     \end{align}
 ```
 
-- Recall:
+- Sensitivity or Recall: Also referred to as the __true positive rate__.
   ```math
       \begin{align}
         \text{Recall} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}}+ \widehat{\text{FN}}}
+    \end{align}
+   ```
+- Specificity: Also referred to as the __true negative rate__.
+  ```math
+      \begin{align}
+        \text{Recall} = \frac{\widehat{\text{TN}}}{\widehat{\text{TN}}+ \widehat{\text{FP}}}
     \end{align}
    ```
     
