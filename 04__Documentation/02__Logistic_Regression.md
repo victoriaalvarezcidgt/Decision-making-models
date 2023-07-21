@@ -37,6 +37,15 @@ This is a technique for improving the accuracy of the model whilst ensuring that
 
 ## Performance Evaluation Metrics
 These are metrics used to access the model with respect to different considerations.
+The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels.
+
+           | Reference/Actual                        |
+           | ----------------------------------------|
+Prediction | Positive          | Negative            |
+           | --------------------------------------- |
+Positive   |True Positive (TP) | False Positive (FP) |
+Negative   |False Negative (FN)| True Negative  (TN) |
+
 
 - Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, `accuracy` measures the number of classifications correctly output as a `good` credit score.
 
