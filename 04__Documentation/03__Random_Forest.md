@@ -77,5 +77,3 @@ Once the Random Search Optimization process is complete, you will have identifie
 <h2 align = "left"> Conclusion </h2>
 Random Forest Models are powerful and versatile ensemble learning techniques that offer high accuracy and robustness. They are widely used for both classification and regression tasks, providing valuable insights into feature importance. By understanding their strengths and limitations, and following best practices, you can effectively utilize Random Forests to make accurate predictions and gain valuable insights from your data.
 </div>
-
-<script scr = "https://github.com/C-Monaghan/DM_Models/blob/main/05__Other/scrolling.js"> </script>
