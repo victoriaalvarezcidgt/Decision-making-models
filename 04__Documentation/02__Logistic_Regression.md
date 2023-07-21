@@ -9,7 +9,7 @@ In linear regression, it is required to minimize the empirical risk, usually ref
 The logistic regression model is written as 
 ```math
 $$
-\log\left(\frac{f(x)}{1 - f(x)}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_p x_p.
+\log\left(\frac{f(x)}{1 - f(x)}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k.
 $$
 $$
 ```
