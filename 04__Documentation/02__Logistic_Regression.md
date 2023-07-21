@@ -41,7 +41,7 @@ These are metrics used to access the model with respect to different considerati
     \begin{align}
 \text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}
 \end{align}
-```math
+```
 
 - Precision: Also known as \textbf{positive predictive value}. 
 ```math
