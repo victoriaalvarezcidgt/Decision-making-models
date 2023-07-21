@@ -644,3 +644,48 @@ return(return_list)
 ```
 
 <h3 align = "left"> Predictions </h3>
+<h4 align = "left"> New Data Upload </h4>
+The <code>dataset_new()</code> function is run whne the user uploads a .csv file to the predictions page of the shiny app. It checks if the <strong> upload action button </strong> is pressed and if a dataset is selected. If both conditions are met, the selected dataset is read using the read.csv function and stored in the <code>df_prob</code> variable. 
+
+```R 
+# Reading in new dataset -----------------------------------------------------
+  dataset_new <- reactive({
+    req(input$uploadProb)
+    if(!is.null(input$probData)){
+      # Reading in data
+      df_prob <- read.csv(input$probData$datapath)
+      return(df_prob)
+    }
+  }) # End of dataset_new()
+```
+
+<h4 align = "left"> Generating Predictions </h4>
+The <code>predictions()</code> function is run when the user clicks the <strong> predictions action button </strong>. Within the reactive expression, the new uploaded dataset is accessed using the <code>dataset_new()</code> function and the previously utilised model is accessed using the <code>model()</code> function. If the previously used model was either a "logistic regression" or a "random forest" <code>type = "prob"</code> is used to generate probability predictions. However, if the selected model is "XGBoost," the input data is converted to a matrix, raw scores are predicted using XGBoost with <code>type = "response</code>, and then transformed to probabilities using the sigmoid function.
+
+```R
+ # Generating predictions -----------------------------------------------------
+  predictions <- reactive({
+    req(input$predict)
+    
+    df_prob <- dataset_new() # Getting data
+    model <- model()$model_train
+    
+    # If logistic regression or random forest was run 
+    if(input$modelSelection != "XGBoost") {
+      prob_predict <- predict(model, newdata = df_prob, type = "prob")
+      
+    } else{
+      
+      # Changing to matrix format
+      df_prob <- as.matrix(df_prob)
+      
+      # Predicting raw scores
+      prob_predict <- predict(model, newdata = df_prob, type = "response")
+      
+      # Using sigmoid function to convert to probability
+      prob_predict <- 1 / (1 + exp(-prob_predict))
+    }
+    
+    return(prob_predict)
+  })
+```
