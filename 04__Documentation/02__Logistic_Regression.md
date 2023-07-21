@@ -42,24 +42,26 @@ These are metrics used to access the model with respect to different considerati
 
 
 - Precision: Also known as \textbf{positive predictive value}. 
-    
+    $$
      \begin{align}
         \text{Precision} = \frac{TP}{TP + FP}
     \end{align}
+  $$
 
 
 - Recall: 
-    
+    $$
      \begin{align}
         \text{Recall} = \frac{TP}{TP+ FN}
     \end{align}
+  $$
     
 - F-Score:
-
+$$
       \begin{align}
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
           \end{align}
-\end{itemize}
+$$
 
 
 
