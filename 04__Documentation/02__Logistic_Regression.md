@@ -4,7 +4,21 @@ Logistic Regression represents a machine learning algorithm commonly employed in
 For context, continuous variables are obtained through measurements, often expressed as decimal values, encompassing attributes such as weight and height. On the other hand, categorical variables consist of distinct categories, such as skill levels (beginner, intermediate, and expert) and credit scores (good, bad). The former is seen as ordinal, as it involves a specific order, while the latter is nominal, signifying an absence of order.
 
 ## Task of Logistic Regression
-In linear regression, it is required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). Whereas, in Logistic regression, we minimize the empirical risk by maximizing the likelihood of training the dataset. We have the task of estimating the probability that an instance belongs to a particular class. If the estimated probability is greater than $0.5$ or $50$<span>%</span>, then the model predicts that the instance belongs to the positive class (labelled as $1$), and otherwise it belongs to the other class (labelled as $0$). Mathematically, the logistic regression model prediction is given as <br>
+In linear regression, it is required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). Whereas, in Logistic regression, we minimize the empirical risk by maximizing the likelihood of training the dataset. 
+We have the task of estimating the probability that an instance belongs to a particular class. If the estimated probability is greater than $0.5$ or $50$<span>%</span>, then the model predicts that the instance belongs to the positive class (labelled as $1$), and otherwise it belongs to the other class (labelled as $0$). This is simply represented as 
+```math
+$$
+p(x) = P(Y = 1 \mid {X = x})
+$$
+```
+
+The logistic regression model is written as 
+```math
+$$
+p(x) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_p x_p)}} = \sigma(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_p x_p)
+$$
+```
+Mathematically, the logistic regression model prediction is given as
 ```math
 \begin{align}
 \hat{y}(x) = 
