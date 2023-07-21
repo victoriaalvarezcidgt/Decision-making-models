@@ -32,6 +32,7 @@ $$
 $$
 ```
 ## Cross Validation
+This is a technique for improving the accuracy of the model whilst ensuring that possible discrepancies between the training and testing set are minimised. It typically helps to avoid overfitting in the model. Overfitting in a model is the scenario whereby the model does not generalise well on unseen data (test set) but performs better on the training data.  
 
 
 ## Performance Evaluation Metrics
