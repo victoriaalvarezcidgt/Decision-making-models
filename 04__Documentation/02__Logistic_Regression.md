@@ -16,7 +16,7 @@ In linear regression, it is required to minimize the empirical risk, usually ref
 ```
 Here, $\hat{f}(x)$ represents the computed weighted sum of input features, along with a bias term, producing the logistic output.\
 
-Furthermore, the Logistic Regression model utilizes a _sigmoid function_, also known as the _logistic function_, to map the aforementioned weighted sum to a value between $0$ and $1$. The sigmoid function is mathematically expressed as:
+Furthermore, the Logistic Regression model utilizes a _sigmoid function_, also known as the _logistic function_, to map the aforementioned weighted sum to a value between $0$ and $1$. The sigmoid function is mathematically expressed as: \\
 $$
 \begin{align}
 \sigma(t) &= \frac{e^t}{1 + e^t} \\
