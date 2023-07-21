@@ -5,7 +5,7 @@ For context, continuous variables are obtained through measurements, often expre
 
 ## Task of Logistic Regression
 In linear regression, we were required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). Whereas, in Logistic regression, we minimize the empirical risk by maximizing the likelihood of training the dataset. We have the task of estimating the probability that an instance belongs to a particular class. If the estimated probability is greater than $0.5$ or $50 \%$, then the model predicts that the instance belongs to the positive class (labelled as $1$), and otherwise it belongs to the other class (labelled as $0$). Mathematically, the logistic regression model prediction is given as <br>
-$$
+```math
 \begin{align}
 \hat{y}(x) = 
 \begin{cases} 
@@ -13,4 +13,4 @@ $$
       0 & \hat{p}(x) < 0.5 
 \end{cases}
 \end{align}
-$$
+```
