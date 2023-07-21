@@ -38,35 +38,29 @@ These are metrics used to access the model with respect to different considerati
 
 \begin{itemize}
     \item Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, `accuracy` measures the number of classifications correctly output as a `good` credit score.
-    ```math
     \begin{align}
-        \text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}
-    \end{align}
+\text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}
+\end{align}
 
-    ```
 
     \item Precision: Also known as \textbf{positive predictive value}. 
     
-    ```math
-    \begin{align}
+     \begin{align}
         \text{Precision} = \frac{TP}{TP + FP}
     \end{align}
-    ```
+
 
     \item Recall: 
     
-   ```math
-    \begin{align}
+     \begin{align}
         \text{Recall} = \frac{TP}{TP+ FN}
     \end{align}
-      ```
+    
     \item F-Score:
 
-      ```math
       \begin{align}
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
           \end{align}
-      ```
 \end{itemize}
 
 
