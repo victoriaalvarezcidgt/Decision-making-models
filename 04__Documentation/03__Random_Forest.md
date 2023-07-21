@@ -15,8 +15,7 @@ Random Forest is a popular ensemble learning method used for both classification
 and ability to handle complex datasets.
 </div>
 
-The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone. It was first introduced by Leo Breiman in 2001 
-and has since become one of the most widely used machine learning algorithms in various domains
+The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone.
 
 <div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
