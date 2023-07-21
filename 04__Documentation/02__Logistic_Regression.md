@@ -37,7 +37,7 @@ This is a technique for improving the accuracy of the model whilst ensuring that
 
 ## Performance Evaluation Metrics
 These are metrics used to access the model with respect to different considerations.
-The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels.
+The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the confusion matrix.
 
 |         |                 | Reference/Actual $(\text{y})$ |         |
 |---------|-----------------|-------------------------------|---------|
@@ -53,7 +53,7 @@ The table below gives the representation of the components of the evaluation met
 
 ```math
     \begin{align}
-\text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}
+\text{Accuracy} = \frac{$\widehat{\text{TP}}$ + $\widehat{\text{TN}}$}{$\widehat{\text{TP}}$ + $\widehat{\text{FP}}$ + $\widehat{\text{TN}}$ + $\widehat{\text{FN}}$}
 \end{align}
 ```
 
