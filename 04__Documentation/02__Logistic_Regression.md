@@ -18,11 +18,10 @@ where $\hat{f}(x)$ is the
 
 Furthermore, the Logistic Regression model computes a weighted sum of the input features alongside a bias term and outputs the _logistic_ of the result. The _logistic_ is a sigmoid function that takes in any real input and outputs a number between $0$ and $1$. The sigmoid function is expressed mathematically as
 
-```math
+
 $$
 \begin{align}
 \sigma(x) &= \frac{e^x}{1 + e^x} \\
 & = \frac{1}{1 + e^{-x}}
 \end{align}
 $$
-```
