@@ -1,7 +1,7 @@
 <h1 align = "center"> Random Forest </h1>
 <h2 align = "left"> Table of Contents </h2>
 <ul>
-  <li> <a href = "https://github.com/C-Monaghan/DM_Models/edit/main/04__Documentation/03__Random_Forest.md#L13-L30"> Introduction to Random Forest Models </a> </li>
+  <li> <a href = "#introduction"> Introduction to Random Forest Models </a> </li>
   <li> How Random Forests Work </li>
   <li> Advantages of Random Forest Models </li>
   <li> Limitations of Random Forest Models </li>
@@ -9,9 +9,11 @@
   <li> Conclusion </li>
 </ul>
 
+<div id = "introduction">
 <h2 align = "left"> Introduction to Random Forest Models </h2>
 Random Forest is a popular ensemble learning method used for both classification and regression tasks. It is a collection of decision trees that work together to make predictions, and it has gained widespread popularity due to its high accuracy, robustness, 
 and ability to handle complex datasets.
+</div>
 
 The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone. It was first introduced by Leo Breiman in 2001 
 and has since become one of the most widely used machine learning algorithms in various domains
