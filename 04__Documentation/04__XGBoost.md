@@ -11,7 +11,7 @@
 <div id = "introduction">
 <h2 align = "left"> Introduction to XGBoost </h2>
   XGBoost (Extreme Gradient Boosting) is a powerful and efficient machine learning algorithm known for its high performance and wide applicability. It belongs to the gradient boosting family and is designed to work with tabular data for both classification 
-  and regression tasks. Developed by Tianqi Chen, XGBoost has gained significant popularity and has been widely used in various machine learning competitions and real-world applications.
+  and regression tasks.
 </div>
 
 <div id = "how-it-works">
