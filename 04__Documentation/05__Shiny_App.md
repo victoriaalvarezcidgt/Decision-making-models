@@ -1,5 +1,5 @@
 <h1 align = "center"> Credit Risk Models (Shiny App) </h1>
-<h4 align = "center"> The following shiny app provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
+<h4 align = "center"> The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Shiny/01__app.R"> shiny app </a> provides decision making tools for classification problems (in this case <strong> loan defaults) </strong> </h4>
 <h1 align = "left"> Required Packages </h1>
 This section lists the packages that are required for running the code. These packages provide additional functionality and are essential for the successful execution of the program.
 <details>
