@@ -65,33 +65,17 @@ ui <- dashboardPage(
       tabItem(tabName = "Home",
       tags$body(
       h1(strong("Machine Learning Credit Risk Models"), align = "center", style = "30px"),
-      p("The following shiny app provides decision making tools for 
-        assessing classification problems.", align = "center", style = "font-size: 20px"),
-      p("Our tool utilizes three models to analyze borrower data and predict 
+      p(strong("The following shiny app provides decision making tools for 
+        assessing classification problems."), align = "center", style = "font-size: 20px"),
+      p("Three models can be used to analyse borrower data and predict 
         the likelihood of loan defaults.", style = "font-size: 20px"),
       tags$ol(
-        tags$li("Logistic regression is a statistical model used to predict the 
-        probability of a binary outcome or event occurring. In terms of assessing 
-        credit risk, the logistic regression model uses historical data to 
-        assign scores to factors influencing default probability. It then
-        calculates the probability of default based on these scores using a 
-        logistic function. The model is trained to optimize the weights assigned 
-        to each factor and can be used to predict default probabilities for new
-        borrowers.", style = "font-size: 20px"),
-        tags$li("Random forest is an ensemble learning method that combines 
-        multiple decision trees to make predictions. It leverages the power of 
-        many individual trees to improve accuracy and handle complex 
-        interactions between variables. Each decision tree ”votes” for a 
-        prediction, and the most common prediction across all the trees is 
-        chosen as the final prediction. This voting process helps to reduce the 
-        impact of individual decision trees that might be prone to overfitting 
-        or making incorrect predictions.", style = "font-size: 20px"),
-        tags$li("Similar to Random Forest, XGBoost also combines multiple models 
-        to make predictions. However, instead of using decision trees independently, 
-        XGBoost employs a technique called gradient boosting. More importance 
-        is given to models that contribute the most to reducing prediction errors", 
-        style = "font-size: 20px"
+        tags$li("Logistic regression.", style = "font-size: 20px"),
+        tags$li("Random forest.", style = "font-size: 20px"),
+        tags$li("eXtreme Gradient Boosting (XGBoost).", style = "font-size: 20px"
         )), # End of tags$ol() & tags$li()
+      p("For more information about each model check out the \"Guides\" tab", 
+        style = "font-size: 20px"),
       
       # Logos ------------------------------------------------------------------
       # Grant Thornton logo
@@ -131,7 +115,7 @@ ui <- dashboardPage(
       # Text 
       h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
       h4("Please upload your dataset and select the binary classification column"),
-      h4("Accepted variable coding: (\"Good / Bad\") or (\"Yes / No \") or (\"0 / 1\")"),
+      h4("Accepted variable coding: \"Good / Bad\" or \"Yes / No \" or \"Default / Non_Default\" "),
     
       # Inputting of data
       fileInput("dataset", h4(strong("Upload a dataset (CSV format)")),
@@ -191,6 +175,9 @@ ui <- dashboardPage(
       # Conditional Panel for Recursive Feature Selection (Output)
       conditionalPanel(
         condition = "input.selection == 'Recursive Feature Selection' & input.runSelection",
+        # Plots
+        tags$h4("Cross-Validation Accuracy"),
+        plotOutput("rfsPlot", width = "100%", height = "500"),
         # Model Information
         tags$h4("Recursive Feature Selection Output"),
         textOutput("rfsInfo", container = pre)
@@ -426,7 +413,6 @@ ui <- dashboardPage(
   }
   '
   ))) # End of custom CSS
-  
   ) # End of dashboardPage()
 
 # Creating server logic --------------------------------------------------------
@@ -565,25 +551,19 @@ server <- function(input, output, session) {
       df_reduced <- data_processing()
     }
     
-    return(list(model, df_reduced))
+    return(list(model = model, df_reduced = df_reduced))
     
   }) # End of selection()
   
   # Outputting Boruta model information
   output$borutaInfo <- renderText({
-    model <- selection()[[1]]
-    return(paste(capture.output(print(model)), collapse = '\n'))
-  })
-  
-  # Outputting RFS model information
-  output$rfsInfo <- renderText({
-    model <- selection()[[1]]
+    model <- selection()$model
     return(paste(capture.output(print(model)), collapse = '\n'))
   })
   
   # Outputting feature importance plot
   output$borutaPlots <- renderPlot({
-    model = selection()[[1]]
+    model = selection()$model
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     
@@ -591,10 +571,25 @@ server <- function(input, output, session) {
                 colCode = c("#4AEA0E", "#FFB807", "#FF0040", "#BCBCBC")))
   })
   
+  # Outputting RFS model information
+  output$rfsInfo <- renderText({
+    model <- selection()$model
+    return(paste(capture.output(print(model)), collapse = '\n'))
+  })
+  
+  # Outputting cross-validation plot
+  output$rfsPlot <- renderPlot({
+    model = selection()$model
+    
+    par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
+    
+    return(plot(model, type = c("g", "o")))
+  })
+  
   # Outputting processed dataset
   output$data_table_reduced <- renderDataTable({
-    datatable(selection()[[2]], options = list(scrollX = TRUE, paginate = TRUE,
-                                               pageLength = 3))
+    datatable(selection()$df_reduced, options = list(scrollX = TRUE, paginate = TRUE,
+                                                     pageLength = 3))
   })
   
   # Downloading reduced dataset ------------------------------------------------
@@ -604,7 +599,7 @@ server <- function(input, output, session) {
     },
     content = function(file){
       
-      df_reduced <- selection()[[2]]
+      df_reduced <- selection()$df_reduced
       write.csv(df_reduced, file, row.names = FALSE)
     })
   
@@ -619,7 +614,7 @@ server <- function(input, output, session) {
     # Selecting dataset to use
     if(c(input$selection == "Boruta" & input$runSelection)| c(input$selection == "Recursive Feature Selection"& input$runSelection)){
       
-      df <- selection()[[2]] # Use the reduced dataset
+      df <- selection()$df_reduced # Use the reduced dataset
     }
     else{
       df <- data_processing() # Use the full dataset
@@ -1112,12 +1107,10 @@ server <- function(input, output, session) {
   })
   
   # Decision Tree
-  observe({
     output$boostTree <- renderPlot({
       boost_model <- model()$model_train
       
       return(xgb.plot.tree(model = boost_model, trees = 0))
-    })
   })
   
   # Probability of default -----------------------------------------------------
@@ -1145,7 +1138,7 @@ server <- function(input, output, session) {
     } else{
       
       # Changing to matrix format
-      df_prob <- as.matrix(df_prob)
+      df_prob <- xgb.DMatrix(data = as.matrix(df_prob))
       
       # Predicting raw scores
       prob_predict <- predict(model, newdata = df_prob, type = "response")
@@ -1159,7 +1152,6 @@ server <- function(input, output, session) {
   
   # Outputting predictions
   output$probability <- renderText({
-    
     return(paste(capture.output(print(predictions())), collapse = '\n'))
   })
 
