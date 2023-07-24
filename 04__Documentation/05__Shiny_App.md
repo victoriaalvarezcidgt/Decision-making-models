@@ -147,33 +147,35 @@ dataset <- reactive({
 })
 ```
 <h3 align = "left"> Data Processing </h3>
-The <code>data_processing()</code> function is run when the user clicks the <strong> processing action button </strong>. Within the reactive expression, the uploaded dataset is accessed using the <code>dataset()</code> reactive expression. The target variable is selected based on the user's input. The data is then processed by recoding the target variable to 0 and 1 based on specific values ("Bad" and "Good", or "No" and "Yes"). Finally, the processed dataset is returned.
+The <code>data_processing()</code> function is run when the user clicks the <strong> processing action button </strong>. Within the reactive expression, the uploaded dataset is accessed using the <code>dataset()</code> reactive expression. The target variable is selected based on the user's input. The data is then processed by recoding the target variable to "Default" and "Non_Default" based on specific values ("Bad" and "Good", or "No" and "Yes"). Finally, the processed dataset is returned.
 
 ```R
-# Processing Data
-data_processing <- reactive({
-  req(input$processing)
-
-  # Reading in dataset and target selection
-  df <- dataset()
-  target <- toString(input$targetVariable)
-
-  # Processing Data (recoding to 0 & 1)
-  if ("Bad" %in% df[, target] || "Good" %in% df[, target]) {
-    df <- df %>%
-      mutate(!!sym(target) := recode(!!sym(target), "Bad" = 0, "Good" = 1)) %>%
-      mutate(!!sym(target) := as.factor(!!sym(target)))
-  } else if ("No" %in% df[, target] || "Yes" %in% df[, target]) {
-    df <- df %>%
-      mutate(!!sym(target) := recode(!!sym(target), "No" = 0, "Yes" = 1)) %>%
-      mutate(!!sym(target) := as.factor(!!sym(target)))
-  } else {
-    df <- df %>%
-      mutate(!!sym(target) := as.factor(!!sym(target)))
-  }
-
-  return(df)
-})
+ # Processing Data 
+  data_processing <- reactive({
+    req(input$processing)
+    
+    # Reading in dataset and target selection
+    df <- dataset()
+    target <- toString(input$targetVariable)
+    
+    # Processing Data (recoding to 0 & 1)
+    if("Bad" %in% df[, target] | "Good" %in% df[, target]){
+      df <- df %>%
+        mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non_Default")) %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    else if("No" %in% df[, target] | "Yes" %in% df[, target]){
+      df <- df %>%
+        mutate(!!sym(target) := recode(!!sym(target), "No" = "Default", "Yes" = "Non_Default")) %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    else{
+      df <- df %>%
+        mutate(!!sym(target) := as.factor(!!sym(target)))
+    }
+    
+    return(df)
+  })
 ```
 <h3 align = "left"> Feature Selection </h3>
 The <code>selection()</code> function is used to perform the feature selection based on the user's input.  It checks if the <strong> runSelection action button </strong> is pressed. Within the reactive expression, the processed dataset is accessed using the <code>data_processing()</code>reactive expression. The target variable is obtained from the user's input, and a formula is created based on the target variable. The feature selection method is determined based on the user's selection.
