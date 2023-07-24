@@ -50,10 +50,10 @@ These are metrics used to access the classification model with respect to differ
 |         | Negative        | False Negative ($\widehat{\text{FP}}$)    | True Negative ($\widehat{\text{TN}}$) |
 
 For each of the four representative cells, we have:
-- True Positive (TP): Positive observation, and predicted as positive.
-- True Negative (TN): Negative observation, and predicted as negative.
-- False Positive (FP): Negative observation, but predicted as positive.
-- False Negative (FN): Positive observation, but predicted as negative.
++ True Positive (TP): Positive observation, and predicted as positive.
++ True Negative (TN): Negative observation, and predicted as negative.
++ False Positive (FP): Negative observation, but predicted as positive.
++ False Negative (FN): Positive observation, but predicted as negative.
     
 
 - Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, _accuracy_ measures the number of classifications correctly output as a `good` credit score.
