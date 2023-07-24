@@ -64,7 +64,7 @@ For each of the four representative cells, we have:
 \end{align}
 ```
 
-- Precision: Also known as __positive predictive value__. The ratio of true positives to all the predicted positives by the model.
+- __Precision__: Also known as __positive predictive value__. The ratio of true positives to all the predicted positives by the model.
   
 ```math
       \begin{align}
@@ -78,7 +78,7 @@ In the context of predicting clients with good or bad credit scores, with **Good
     \end{align}
    ```
 
-- Sensitivity or Recall: Also referred to as the __true positive rate__; that is, the ratio of true positives to all the positives.
+- __Sensitivity or Recall__: Also referred to as the __true positive rate__; that is, the ratio of true positives to all the positives.
   ```math
       \begin{align}
         \text{Recall} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}}+ \widehat{\text{FN}}}
@@ -90,14 +90,14 @@ In the context of predicting clients with good or bad credit scores, with **Good
         \text{Recall} = \frac{\text{Number of customers predicted as GOOD given that they are GOOD}}{\text{Total number that is actually GOOD}}
     \end{align}
    ```
-- Specificity: Also referred to as the __true negative rate__; that is, the ratio of true negatives to all the negatives.
+- __Specificity__: Also referred to as the __true negative rate__; that is, the ratio of true negatives to all the negatives.
   ```math
       \begin{align}
         \text{Recall} = \frac{\widehat{\text{TN}}}{\widehat{\text{TN}}+ \widehat{\text{FP}}}
     \end{align}
    ```
     
-- F-Score:
+- __F-Score__: This estimates the classification model based on predictions for the positive class.
   ```math
       \begin{align}
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
@@ -105,6 +105,7 @@ In the context of predicting clients with good or bad credit scores, with **Good
   ```
 
 ## Pros and Cons of the Algorithm
+A few of the advantages and limitations of the logistic regression algorithm are listed below:
 ### Pros
 - Logistic regression is suitable in the need for a quick initial benchmark as it's easy to implement.
 - With lower-dimensional datasets, it is less prone to overfitting.
@@ -112,3 +113,6 @@ In the context of predicting clients with good or bad credit scores, with **Good
 ### Cons
 - It is applicable only when the response variable is a discrete function.
 - It assumes the condition of linearity between the response variable and the feature variables.
+
+## Useful References
+- [The Elements of Statistical Learning](https://www.amazon.co.uk/Elements-Statistical-Learning-Springer-Statistics/dp/0387848576#:~:text=Book%20details&text=This%20book%20describes%20the%20important,liberal%20use%20of%20colour%20graphics.)
