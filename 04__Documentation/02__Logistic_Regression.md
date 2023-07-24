@@ -74,6 +74,12 @@ The table below gives the representation of the components of the evaluation met
         \text{Recall} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}}+ \widehat{\text{FN}}}
     \end{align}
    ```
+  In the context of predicting clients with good or bad credit scores, with **Good** as the positive class, it can also be expressed as 
+  ```math
+      \begin{align}
+        \text{Recall} = \frac{Number of customers predicted as **Good** given that they are good}{Total number that are actually good}
+    \end{align}
+   ```
 - Specificity: Also referred to as the __true negative rate__.
   ```math
       \begin{align}
@@ -87,5 +93,10 @@ The table below gives the representation of the components of the evaluation met
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
   \end{align}
 ```
+
+## Pros and Cons of the Algorithm
+### Pros
+- Logistic regression is suitable in the need for a quick initial benchmark as it's easy to implement.
+- 
 
 
