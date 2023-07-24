@@ -49,8 +49,7 @@ These are metrics used to access the classification model with respect to differ
 | **Prediction $\widehat{f}(\text{x})$** | Positive   | True Positive ($\widehat{\text{TP}}$)     | False Positive ($\widehat{\text{FN}}$) |
 |         | Negative        | False Negative ($\widehat{\text{FP}}$)    | True Negative ($\widehat{\text{TN}}$) |
 
-
-For each of the four representative cells, we have
+- For each of the four representative cells, we have
       - True Positive (TP): Positive observation, and predicted as positive.
       - True Negative (TN): Negative observation, and predicted as negative.
       - False Positive (FP): Negative observation, but predicted as positive.
