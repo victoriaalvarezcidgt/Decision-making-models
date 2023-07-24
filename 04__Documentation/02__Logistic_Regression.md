@@ -116,3 +116,6 @@ A few of the advantages and limitations of the logistic regression algorithm are
 
 ## Useful References
 - [The Elements of Statistical Learning](https://www.amazon.co.uk/Elements-Statistical-Learning-Springer-Statistics/dp/0387848576#:~:text=Book%20details&text=This%20book%20describes%20the%20important,liberal%20use%20of%20colour%20graphics.)
+- [Model Evaluation, Model Selection, and Algorithm Selection in Machine Learning](https://arxiv.org/pdf/1811.12808.pdf)
+- [Hands-on Machine Learning with Scikit-Learn, Keras & TensorFlow](https://www.amazon.co.uk/Hands-Machine-Learning-Scikit-Learn-TensorFlow/dp/1098125975)
+- [Data Science from Scratch](https://www.amazon.co.uk/Data-Science-Scratch-Joel-Grus/dp/1492041130)
