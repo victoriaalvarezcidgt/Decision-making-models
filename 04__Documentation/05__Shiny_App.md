@@ -285,7 +285,7 @@ else if (input$selection == "None") {
 The <code>selection()</code> function returns a list with both the selected model output and the reduced dataset.
 
 ```R
-return(list(model, df_reduced))
+return(list(model = model, df_reduced = df_reduced))
 ```
 
 <h3 align = "left"> Modelling </h3>
@@ -302,7 +302,7 @@ model <- eventReactive(input$runModel,{
     # Selecting dataset to use
     if(c(input$selection == "Boruta" & input$runSelection)| c(input$selection == "Recursive Feature Selection"& input$runSelection)){
       
-      df <- selection()[[2]] # Use the reduced dataset
+      df <- selection()$df_reduced# Use the reduced dataset
     }
     else{
       df <- data_processing() # Use the full dataset
