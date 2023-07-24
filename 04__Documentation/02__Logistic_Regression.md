@@ -77,7 +77,7 @@ The table below gives the representation of the components of the evaluation met
   In the context of predicting clients with good or bad credit scores, with **Good** as the positive class, it can also be expressed as 
   ```math
       \begin{align}
-        \text{Recall} = \frac{\text{Number of customers predicted as $\mathbf{Good}$ given that they are good}}{\text{Total number that is actually good}}
+        \text{Recall} = \frac{\text{Number of customers predicted as Good given that they are good}}{\text{Total number that is actually good}}
     \end{align}
    ```
 - Specificity: Also referred to as the __true negative rate__.
