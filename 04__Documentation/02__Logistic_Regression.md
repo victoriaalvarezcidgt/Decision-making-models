@@ -92,7 +92,7 @@ The table below gives the representation of the components of the evaluation met
       \begin{align}
               \text{F-Score}  = \frac{2 \times Recall \times Precision}{Recall+ Precision}
   \end{align}
-```
+  ```
 
 ## Pros and Cons of the Algorithm
 ### Pros
