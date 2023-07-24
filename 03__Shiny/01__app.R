@@ -66,7 +66,7 @@ ui <- dashboardPage(
       tags$body(
       h1(strong("Machine Learning Credit Risk Models"), align = "center", style = "30px"),
       p("The following shiny app provides decision making tools for 
-        assessing loan defaults.", align = "center", style = "font-size: 20px"),
+        assessing classification problems.", align = "center", style = "font-size: 20px"),
       p("Our tool utilizes three models to analyze borrower data and predict 
         the likelihood of loan defaults.", style = "font-size: 20px"),
       tags$ol(
@@ -416,7 +416,18 @@ ui <- dashboardPage(
         tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md"))
         )
       ) # End of tabItem() {Guides}
-    ))) # End of tabItems() & dashboardBody() & dashboardPage()
+    )), # End of tabItems() & dashboardBody()
+  
+  # Custom CSS to change body background color
+  tags$head(tags$style(HTML(
+  '/* body */
+  .content-wrapper, .right-side {
+  background-color: #FFFFFF;
+  }
+  '
+  ))) # End of custom CSS
+  
+  ) # End of dashboardPage()
 
 # Creating server logic --------------------------------------------------------
 server <- function(input, output, session) {
