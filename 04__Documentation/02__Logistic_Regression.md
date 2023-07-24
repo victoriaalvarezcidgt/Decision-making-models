@@ -39,8 +39,8 @@ This uses part of the dataset for modelling and another different part for testi
 
 
 ## Performance Evaluation Metrics
-These are metrics used to access the model with respect to different considerations.
-The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the __confusion matrix__.
+These are metrics used to access the classification model with respect to different considerations. The prominent ones relevant to the model are discussed as follows:
+- Confusion Matrix: The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the __confusion matrix__.
 
 |         |                 | Reference/Actual $(\text{y})$ |         |
 |---------|-----------------|-------------------------------|---------|
@@ -51,11 +51,10 @@ The table below gives the representation of the components of the evaluation met
 
 
 For each of the four representative cells, we have
-
--- True Positive (TP): Positive observation, and predicted as positive.
--- True Negative (TN): Negative observation, and predicted as negative.
--- False Positive (FP): Negative observation, but predicted as positive.
--- False Negative (FN): Positive observation, but as predicted negative.
+      - True Positive (TP): Positive observation, and predicted as positive.
+      - True Negative (TN): Negative observation, and predicted as negative.
+      - False Positive (FP): Negative observation, but predicted as positive.
+      - False Negative (FN): Positive observation, but as predicted negative.
     
 
 - Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, _accuracy_ measures the number of classifications correctly output as a `good` credit score.
@@ -66,27 +65,33 @@ For each of the four representative cells, we have
 \end{align}
 ```
 
-- Precision: Also known as __positive predictive value__.
+- Precision: Also known as __positive predictive value__. The ratio of true positives to all the predicted positives by the model.
   
 ```math
       \begin{align}
         \text{Precision} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}} + \widehat{\text{FP}}}
     \end{align}
 ```
+In the context of predicting clients with good or bad credit scores, with **Good** as the positive class, it can also be expressed as 
+  ```math
+      \begin{align}
+        \text{Recall} = \frac{\text{Number of customers predicted as GOOD given that they are GOOD}}{\text{Total number predicted as GOOD}}
+    \end{align}
+   ```
 
-- Sensitivity or Recall: Also referred to as the __true positive rate__.
+- Sensitivity or Recall: Also referred to as the __true positive rate__; that is, the ratio of true positives to all the positives.
   ```math
       \begin{align}
         \text{Recall} = \frac{\widehat{\text{TP}}}{\widehat{\text{TP}}+ \widehat{\text{FN}}}
     \end{align}
    ```
-  In the context of predicting clients with good or bad credit scores, with **Good** as the positive class, it can also be expressed as 
+  Also, using the same context as above, it can also be expressed as 
   ```math
       \begin{align}
         \text{Recall} = \frac{\text{Number of customers predicted as Good given that they are good}}{\text{Total number that is actually good}}
     \end{align}
    ```
-- Specificity: Also referred to as the __true negative rate__.
+- Specificity: Also referred to as the __true negative rate__; that is, the ratio of true negatives to all the negatives.
   ```math
       \begin{align}
         \text{Recall} = \frac{\widehat{\text{TN}}}{\widehat{\text{TN}}+ \widehat{\text{FP}}}
