@@ -116,8 +116,13 @@ ui <- dashboardPage(
       # Text 
       h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
       h4("Please upload your dataset and select the binary classification column"),
-      h4("Accepted variable coding: \"Good / Bad\" or \"Yes / No \" or \"Default / Non_Default\" "),
-    
+      h4(strong("Accepted variable coding:")),
+      tags$ul(
+        tags$li("Good / Bad", style = "font-size: 15px"),
+        tags$li("Yes / No", style = "font-size: 15px"),
+        tags$li("1 / 0", style = "font-size: 15px"),
+        tags$li("Non_Default / Default", style = "font-size: 15px")),
+
       # Inputting of data
       fileInput("dataset", h4(strong("Upload a dataset (CSV format)")),
                 multiple = FALSE, placeholder = "Enter your data here", 
@@ -461,22 +466,31 @@ server <- function(input, output, session) {
     df <- dataset()
     target <- toString(input$targetVariable)
     
-    # Processing Data (recoding to 0 & 1)
+    # Processing Data (recoding to default and non default)
     if("Bad" %in% df[, target] | "Good" %in% df[, target]){
       df <- df %>%
         mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non_Default")) %>%
-        mutate(!!sym(target) := as.factor(!!sym(target)))
+        mutate(!!sym(target) := as.factor(!!sym(target))) %>%
+        filter(complete.cases(.))
     }
     else if("No" %in% df[, target] | "Yes" %in% df[, target]){
       df <- df %>%
         mutate(!!sym(target) := recode(!!sym(target), "No" = "Default", "Yes" = "Non_Default")) %>%
-        mutate(!!sym(target) := as.factor(!!sym(target)))
+        mutate(!!sym(target) := as.factor(!!sym(target))) %>%
+        filter(complete.cases(.))
+    }
+    else if("0" %in% df[, target] | "1" %in% df[, target]) {
+      df <- df %>%
+        mutate(!!sym(target) := recode(!!sym(target), "0" = "Default", "1" = "Non_Default")) %>%
+        mutate(!!sym(target) := as.factor(!!sym(target))) %>%
+        filter(complete.cases(.))
     }
     else{
       df <- df %>%
-        mutate(!!sym(target) := as.factor(!!sym(target)))
+        mutate(!!sym(target) := as.factor(!!sym(target))) %>%
+        filter(complete.cases(.))
     }
-    
+
     return(df)
   })
   
@@ -982,7 +996,8 @@ server <- function(input, output, session) {
   output$logTree <- renderPlot({
     model <- model()$model_train$finalModel
     
-    fancyRpartPlot(model, main = "Decision Tree", sub = NULL, palettes = c("Greys", "Oranges"))
+    fancyRpartPlot(model, main = "Decision Tree", sub = NULL, 
+                   palettes = c("Greys", "Oranges"))
     })
   
   # Random Forest Output -------------------------------------------------------
