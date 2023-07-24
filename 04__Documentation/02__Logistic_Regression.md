@@ -88,7 +88,7 @@ In the context of predicting clients with good or bad credit scores, with **Good
   Also, using the same context as above, it can also be expressed as 
   ```math
       \begin{align}
-        \text{Recall} = \frac{\text{Number of customers predicted as Good given that they are good}}{\text{Total number that is actually good}}
+        \text{Recall} = \frac{\text{Number of customers predicted as GOOD given that they are GOOD}}{\text{Total number that is actually GOOD}}
     \end{align}
    ```
 - Specificity: Also referred to as the __true negative rate__; that is, the ratio of true negatives to all the negatives.
