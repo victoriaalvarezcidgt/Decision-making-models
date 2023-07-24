@@ -63,18 +63,3 @@ plot_roc_curve <- function(predicted_probabilities, actual_labels) {
     ylab("True Positive") +
     theme(plot.title = element_text(hjust = 0.5))
 }
-
-# Creating a decision tree -----------------------------------------------------
-decision_tree <- function(formula, trainingData){
-  
-  set.seed(112)
-  
-  # Specifying Controls
-  controls <- rpart.control(xval = 10, cp = 0.008)
-  
-  # Running Model
-  tree_mod <- rpart(formula = formula, data = trainingData, method = "class",
-                    control = controls)
-  
-  rpart.plot(tree_mod, type = 3, clip.right.labs = FALSE)
-}
