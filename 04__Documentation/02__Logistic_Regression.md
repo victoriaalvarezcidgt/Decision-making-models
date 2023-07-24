@@ -1,5 +1,5 @@
 ## Logistic Regression: Brief Overview
-Logistic Regression represents a machine learning algorithm commonly employed in supervised learning scenarios, specifically tailored for situations with binary categorical outcomes. This means that the response variable's categories typically comprise two possibilities, such as yes/no, true/false, good/bad, and benign/malignant, among others. While logistic regression shares a mathematical framework similar to linear regression, its primary application lies in classification learning rather than regression. In essence, when aiming to predict categorical variables like `credit score` (good/bad), `breast cancer type` (benign/malignant), or `customer returning` (yes/no), logistic regression serves as the suitable algorithm, as opposed to scenarios where the outcome variable is continuous.
+Logistic Regression represents a machine learning algorithm commonly employed in supervised learning scenarios, specifically tailored for situations with binary categorical outcomes. This means that the response variable's categories typically comprise two possibilities: yes/no, true/false, good/bad, and benign/malignant, among others. While logistic regression shares a mathematical framework similar to linear regression, its primary application lies in classification learning rather than regression. In essence, when aiming to predict categorical variables like `credit score` (good/bad), `breast cancer type` (benign/malignant), or `customer returning` (yes/no), logistic regression serves as the suitable algorithm, as opposed to scenarios where the outcome variable is continuous.
 
 For context, continuous variables are obtained through measurements, often expressed as decimal values, encompassing attributes such as weight and height. On the other hand, categorical variables consist of distinct categories, such as skill levels (beginner, intermediate, and expert) and credit scores (good, bad). The former is seen as ordinal, involving a specific order, while the latter is nominal, signifying an absence of order.
 
@@ -39,7 +39,7 @@ This uses part of the dataset for modelling and another different part for testi
 
 
 ## Performance Evaluation Metrics
-These are metrics used to access the classification model with respect to different considerations. The prominent ones relevant to the model are discussed as follows:
+These metrics are used to access the classification model concerning different considerations. The prominent ones relevant to the model are discussed as follows:
 - Confusion Matrix: The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the __confusion matrix__.
 
 |         |                 | Reference/Actual $(\text{y})$ |         |
@@ -56,7 +56,7 @@ For each of the four representative cells, we have:
 + False Negative (FN): Positive observation, but predicted as negative.
     
 
-- Accuracy: Measures the total correct classification. For instance, considering the case of determining the credit score of a client, _accuracy_ measures the number of classifications correctly output as a `good` credit score.
+- __Accuracy__: Measures the total correct classification. For instance, considering the case of determining a client's credit score, _accuracy_ measures the number of classifications correctly output as a `good` credit score.
 
 ```math
     \begin{align}
