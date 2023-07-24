@@ -21,7 +21,8 @@ packages <- c(
   "ROCR",
   "cvms",
   "markdown",
-  "DiagrammeR"
+  "DiagrammeR",
+  "rattle"
 )
 
 # Installs and loads all required packages
@@ -650,8 +651,8 @@ server <- function(input, output, session) {
         method = "cv", number = input$regressionFolds, savePredictions = "all", classProbs = TRUE)
       
       # Training Logistic Regression Model
-      model_train <- train(formula, data = training_set, method = "glm",
-                           family = binomial, trControl = ctrlspec)
+      model_train <- train(formula, data = training_set, 
+                           method = "rpart", trControl = ctrlspec)
       
       progress$set(message = "Generating Predictions", value = 0.7)
       Sys.sleep(0.75)
@@ -979,11 +980,10 @@ server <- function(input, output, session) {
   
   # Decision Tree
   output$logTree <- renderPlot({
-    formula <- model()$formula
-    trainingData <- model()$training_data
+    model <- model()$model_train$finalModel
     
-    decision_tree(formula, trainingData)
-  })
+    fancyRpartPlot(model, main = "Decision Tree", sub = NULL, palettes = c("Greys", "Oranges"))
+    })
   
   # Random Forest Output -------------------------------------------------------
   # Model Information
