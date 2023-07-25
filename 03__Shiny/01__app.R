@@ -256,7 +256,10 @@ ui <- dashboardPage(
                        fluidRow(
                          column(width = 6, textOutput("logModelAccuracy", container = pre)),
                          column(width = 6, plotOutput("logModelMatrix")))),
-              tabPanel("Variable Importance", textOutput("logVarImportance", container = pre)),
+              tabPanel("Variable Importance",
+                       fluidRow(
+                         column(width = 6, textOutput("logVarImportance", container = pre)),
+                         column(width = 6, plotOutput("logVarImpPlot", width = "100%", height = "500px")))),
               tabPanel("Metrics", 
                        fluidRow(
                          column(width = 6, plotOutput("logMatrixPlot")),
@@ -302,7 +305,10 @@ ui <- dashboardPage(
                                fluidRow(
                                  column(width = 6, textOutput("forestModelAccuracy", container = pre)),
                                  column(width = 6, plotOutput("forestModelMatrix")))),                      
-                      tabPanel("Variable Importance", textOutput("forestVarImportance", container = pre)),
+                      tabPanel("Variable Importance",
+                               fluidRow(
+                                 column(width = 6, textOutput("forestVarImportance", container = pre)),
+                                 column(width = 6, plotOutput("forestVarImpPlot", width = "100%", height = "500px")))),
                       tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("forestMatrixPlot")),
@@ -349,7 +355,11 @@ ui <- dashboardPage(
                       tabPanel("Model Accuracy", 
                                fluidRow(
                                  column(width = 6, textOutput("boostModelAccuracy", container = pre)),
-                                 column(width = 6, plotOutput("boostModelMatrix")))),                      
+                                 column(width = 6, plotOutput("boostModelMatrix")))),    
+                      tabPanel("Variable Importance",
+                               fluidRow(
+                                 column(width = 6, textOutput("boostVarImp", container = pre)),
+                                 column(width = 6, plotOutput("boostVarImpPlot", width = "100%", height = "500px")))),
                       tabPanel("Metrics", 
                                fluidRow(
                                  column(width = 6, plotOutput("boostMatrixPlot")),
@@ -768,12 +778,14 @@ server <- function(input, output, session) {
       
       # Small data processing to create correct y & yvals reference levels
       training_set <- training_set %>%
-        mutate(!!sym(target) := as.numeric(as.factor(!!sym(target)))) %>%
-        mutate(!!sym(target) := !!sym(target) - 1)
-      
+        mutate(!!sym(target) := recode(!!sym(target), "Default" = 0, "Non_Default" = 1),
+               !!sym(target) := as.numeric(as.factor(!!sym(target))),
+               !!sym(target) := !!sym(target) - 1)
+
       test_set <- test_set %>%
-        mutate(!!sym(target) := as.numeric(as.factor(!!sym(target)))) %>%
-        mutate(!!sym(target) := !!sym(target) - 1)
+        mutate(!!sym(target) := recode(!!sym(target), "Default" = 0, "Non_Default" = 1),
+               !!sym(target) := as.numeric(as.factor(!!sym(target))),
+               !!sym(target) := !!sym(target) - 1)
       
       # Creating model matrices
       x <- model.matrix(formula, data = training_set)
@@ -872,11 +884,11 @@ server <- function(input, output, session) {
         numrounds <- output$scoreSummary$nrounds[
           which(output$scoreSummary$Score == max(output$scoreSummary$Score))]
         
-        model_train <- xgboost(data = x,
-                               label = y,
-                               params = params,
-                               nrounds = numrounds,
-                               eval_metric = "auc")
+        model_train <- xgboost::xgboost(data = x,
+                                        label = y,
+                                        params = params,
+                                        nrounds = numrounds,
+                                        eval_metric = "auc")
         
         xgbcv <- NULL
       }
@@ -908,10 +920,10 @@ server <- function(input, output, session) {
           xgbcv$evaluation_log$test_auc_mean == max(xgbcv$evaluation_log$test_auc_mean)))
         
         # Running model with default parameters
-        model_train <- xgboost(data = x,
-                               label = y,
-                               params = params,
-                               nrounds = numrounds)
+        model_train <- xgboost::xgboost(data = x,
+                                        label = y,
+                                        params = params,
+                                        nrounds = numrounds)
       }
       
       # Evaluating model
@@ -960,11 +972,17 @@ server <- function(input, output, session) {
     # return(paste(capture.output(print(accuracy)), collapse = '\n'))
   }, height = 600, res = 100)
   
-  # Variable Importance
+  # Variable Importance (Text)
   output$logVarImportance <- renderText({
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
   })
+  
+  output$logVarImpPlot <- renderPlot({
+    varImportance <- varImp(model()$model_train)
+    
+    plot(varImportance, top = 10, main = "Variable Importance Plot (Logistic Regression)")
+  }, res = 100)
   
   # Matrix Plot
   output$logMatrixPlot <- renderPlot({
@@ -1022,11 +1040,19 @@ server <- function(input, output, session) {
     # return(paste(capture.output(print(accuracy)), collapse = '\n'))
   }, height = 600, res = 100)
   
-  # Variable Importance
+  # Variable Importance (Text)
   output$forestVarImportance <- renderText({
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
   })
+  
+  # Variable Importance (Plot)
+  output$forestVarImpPlot <- renderPlot({
+    model <- model()$model_train
+    
+    varImpPlot(model, sort = TRUE, n.var = 10, pch = 16, 
+               main = "Variable Importance Plot (Random Forest)")
+  }, res = 100)
   
   # Matrix Plot
   output$forestMatrixPlot <- renderPlot({
@@ -1090,8 +1116,27 @@ server <- function(input, output, session) {
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
   }, height = 600, res = 100)
+  
+  # Variable Importance (Text)
+  output$boostVarImp <- renderText({
+    model <- model()$model_train
+    training <- model()$training_data
+    
+    importance_matrix <- xgb.importance(model = model)
+    
+    return(paste(capture.output(print(importance_matrix)), collapse = '\n'))
+  })
+  
+  output$boostVarImpPlot <- renderPlot({
+    model <- model()$model_train
+    training <- model()$training_data
+
+    importance_matrix <- xgb.importance(model = model)
+
+    xgb.plot.importance(importance_matrix, top_n = 10, 
+                        main = "Variable Importance Plot (XGBoost)")
+  }, res = 100)
   
   # Matrix Plot
   output$boostMatrixPlot <- renderPlot({
