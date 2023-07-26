@@ -379,6 +379,8 @@ ui <- dashboardPage(
         conditionalPanel(
           condition = "input.boostOutput == 'Decision Tree'",
           tags$h4("Decision Tree"),
+          hr(),
+          sliderInput("boostTreeNumber", "Decision Tree Number", min = 1, max = 1, value = 1, step = 1),
           tabsetPanel(
             id = "tree",
             tabPanel("Decision Tree",
@@ -450,6 +452,10 @@ server <- function(input, output, session) {
   # Update the max value of the treeNumber slider
   observe({
     updateSliderInput(session, "treeNumber", max = model()$ntree)
+  })
+  # Update the max value of the boostTreeNumber slider
+  observe({
+    updateSliderInput(session, "boostTreeNumber", max = model()$model_train$niter)
   })
   
   # Data uploading -------------------------------------------------------------
@@ -1168,10 +1174,16 @@ server <- function(input, output, session) {
   
   # Decision Tree
     output$boostTree <- renderPlot({
+      decision_tree <- list()
       boost_model <- model()$model_train
+      iter <- model()$model_train$niter
       
-      return(xgb.plot.tree(model = boost_model, trees = 0))
-  })
+      for(i in 1:iter){
+        decision_tree[[i]] <- xgb.plot.tree(model = boost_model, trees = i - 1)
+      }
+      
+      decision_tree[[input$boostTreeNumber]]
+  }, res = 100)
   
   # Probability of default -----------------------------------------------------
   # Reading in new dataset -----------------------------------------------------
