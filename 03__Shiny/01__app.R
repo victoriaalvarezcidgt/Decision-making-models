@@ -402,9 +402,10 @@ ui <- dashboardPage(
       actionButton("uploadProb", "Upload"),
       hr(),
       actionButton("predict", "Generate Predictions"),
+      downloadButton("downloadprobDataset", "Download Probability Dataset"),
       hr(),
       h4("Probability of Default"),
-      textOutput("probability", container = pre)
+      dataTableOutput("probability")
              
       ), # End of tabItem() {Predictions}
       
@@ -1206,26 +1207,42 @@ server <- function(input, output, session) {
     # If logistic regression or random forest was run 
     if(input$modelSelection != "XGBoost") {
       prob_predict <- predict(model, newdata = df_prob, type = "prob")
+      prob_predict <- round(prob_predict, digits = 2)
       
     } else{
       
       # Changing to matrix format
-      df_prob <- xgb.DMatrix(data = as.matrix(df_prob))
+      df_prob_matrix <- xgb.DMatrix(data = as.matrix(df_prob))
       
-      # Predicting raw scores
-      prob_predict <- predict(model, newdata = df_prob, type = "response")
+      # Predicting probability
+      prob_predict <- predict(model, newdata = df_prob_matrix, type = "prob")
       
-      # Using sigmoid function to convert to probability
-      prob_predict <- 1 / (1 + exp(-prob_predict))
+      # Converting to dataframe
+      prob_predict <- data.frame("Default" = 1- prob_predict,
+                                 "Non Default" = prob_predict)
+      
+      prob_predict <- round(prob_predict, digits = 2)
     }
     
-    return(prob_predict)
+    df_prob <- cbind(prob_predict, df_prob)
+    return(df_prob)
   })
   
   # Outputting predictions
-  output$probability <- renderText({
-    return(paste(capture.output(print(predictions())), collapse = '\n'))
+  output$probability <- renderDataTable({
+    datatable(predictions(), options = list(scrollX = TRUE, paginate = TRUE,
+                                            pageLength = 10))
   })
+  
+  # Downloading probability dataset
+  output$downloadprobDataset <- downloadHandler(
+    filename = function(){
+      paste("default_probability_dataset.csv", sep = "")
+    },
+    content = function(file){
+      prob_data <- predictions()
+      write.csv(prob_data, file, row.names = FALSE)
+    })
 
   
   } # End of Server()
