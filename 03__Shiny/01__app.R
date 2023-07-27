@@ -56,9 +56,12 @@ ui <- dashboardPage(
   # Defining the dashboard body
   dashboardBody(
     useShinyjs(),
-    # Adaptive Sizing
+    # CSS code for adaptive Sizing and notification box
     tags$head(tags$style(
-      HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}')
+      HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
+           .shiny-notification {font-size: 18px; padding: 15px; margin-bottom: 10px; border-radius: 5px;
+           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); background-color: #f44336; color: #fff; text-align: center;
+           }')
     )),
     # Adding body contents
     tabItems(
@@ -116,7 +119,7 @@ ui <- dashboardPage(
       # Text 
       h1(strong("Upload a dataset"), align = "center", style = "font-size: 30px"),
       h4("Please upload your dataset and select the binary classification column"),
-      h4(strong("Accepted variable coding:")),
+      h4(strong("Accepted variable coding (case insensitive):")),
       tags$ul(
         tags$li("Good / Bad", style = "font-size: 15px"),
         tags$li("Yes / No", style = "font-size: 15px"),
@@ -128,9 +131,7 @@ ui <- dashboardPage(
                 multiple = FALSE, placeholder = "Enter your data here", 
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
-      # Uploading dataset, selecting target variable and processing
-      actionButton("upload", "Upload"),
-      hr(),
+      # Selecting target variable and processing
       selectInput("targetVariable", "Select Target Variable", choices = NULL),
       hr(),
       actionButton("processing", "Process Data"),
@@ -438,13 +439,13 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   
   # Observations ---------------------------------------------------------------
-  # Unticks Random Search Optimization button if Random Forest is no selected
+  # Unticks Random Search Optimization button if Random Forest is not selected
   observe({
     if (input$modelSelection != "Random Forest") {
       updateCheckboxInput(session, "randomisation", value = FALSE)
     }
   })
-  # Unticks Bayesian Optimization button if XGBoost is no selected
+  # Unticks Bayesian Optimization button if XGBoost is not selected
   observe({
     if (input$modelSelection != "XGBoost") {
       updateCheckboxInput(session, "bayes", value = FALSE)
@@ -461,53 +462,87 @@ server <- function(input, output, session) {
   
   # Data uploading -------------------------------------------------------------
   dataset <- reactive({
-    req(input$upload)
-    if(!is.null(input$dataset)){
-      # Reading in data
-      df <- read.csv(input$dataset$datapath)
+    # If a dataset has NOT been uploaded an error message will be returned
+    # If a dataset is NOT in CSV format an error message will be returned
+    # If a dataset has been uploaded AND is in CSV format it will be read in
+    if(is.null(input$dataset)){
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    } 
+    else if(!grepl("\\.csv$", input$dataset$name, ignore.case = TRUE)){
+      shiny::showNotification("Please upload a CSV file", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    }
+    else{ # Handling potential errors while reading the datafile
+      df <- tryCatch({
+        read.csv(input$dataset$datapath) # Reading in data
+      },
+      error = function(e){
+        shiny::showNotification(paste("Error while reading the CSV file:", e$message), 
+                                duration = 10, type = "error")
+        return(NULL)
+      }) # End of tryCatch()
+      
       return(df)
     }
   }) # End of dataset()
   
-  # Selecting target variable --------------------------------------------------
-  observeEvent(input$upload, {
+  # Once the upload button has been pressed a list of variables will appear for
+  # the user to select
+  observeEvent(input$dataset, {
     updateSelectInput(session, "targetVariable", 
                       choices = as.character(colnames(dataset())))
   })
   
   # Processing Data ------------------------------------------------------------
+  is_processed <- reactiveVal(FALSE) # Will be set to TRUE after processing has been complete
   data_processing <- reactive({
     req(input$processing)
     
+    # If a dataset has NOT been uploaded an error message will be returned
+    if(is.null(input$dataset)){
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    } else if(!grepl("\\.csv$", input$dataset$name, ignore.case = TRUE)){
+      shiny::showNotification("Please upload a CSV file", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    }
+
     # Reading in dataset and target selection
     df <- dataset()
     target <- toString(input$targetVariable)
-    
+
     # Processing Data (recoding to default and non default)
-    if("Bad" %in% df[, target] | "Good" %in% df[, target]){
+    if("bad" %in% tolower(df[, target]) && "good" %in% tolower(df[, target])){
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "Bad" = "Default", "Good" = "Non_Default")) %>%
+        mutate(!!sym(target) := recode(tolower(!!sym(target)), "bad" = "Default", "good" = "Non_Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target))) %>%
         filter(complete.cases(.))
-    }
-    else if("No" %in% df[, target] | "Yes" %in% df[, target]){
+    } 
+    else if("No" %in% tolower(df[, target]) && "Yes" %in% tolower(df[, target])){
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "No" = "Default", "Yes" = "Non_Default")) %>%
+        mutate(!!sym(target) := recode(tolower(!!sym(target)), "No" = "Default", "Yes" = "Non_Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target))) %>%
         filter(complete.cases(.))
-    }
-    else if("0" %in% df[, target] | "1" %in% df[, target]) {
+    } else if("0" %in% tolower(df[, target]) && "1" %in% tolower(df[, target])) {
       df <- df %>%
-        mutate(!!sym(target) := recode(!!sym(target), "0" = "Default", "1" = "Non_Default")) %>%
+        mutate(!!sym(target) := recode(tolower(!!sym(target)), "0" = "Default", "1" = "Non_Default")) %>%
         mutate(!!sym(target) := as.factor(!!sym(target))) %>%
         filter(complete.cases(.))
-    }
-    else{
+    } else if("default" %in% tolower(df[, target]) && "non_default" %in% tolower(df[, target])){
       df <- df %>%
         mutate(!!sym(target) := as.factor(!!sym(target))) %>%
         filter(complete.cases(.))
+    } else{ # If invalid variable coding then an error will be returned
+      shiny::validate(need(FALSE, "Invalid variable coding: At least two valid variable names are required."))
+      return(NULL)
     }
 
+    is_processed(TRUE)
     return(df)
   })
   
@@ -520,9 +555,20 @@ server <- function(input, output, session) {
   # Feature Selection ----------------------------------------------------------
   selection <- eventReactive(input$runSelection, {
     
-    # Starting progress message
-    progress <- Progress$new()
-    progress$set(message = "Preparing Data", value = 0.1)
+    # If no dataset is uploaded an error message will appear
+    # If data processing has not been complete an error message will appear
+    if(is.null(input$dataset)){
+      shiny::validate(need(!is.null(input$dataset), "Please upload a dataset"))
+      progress$close()
+      return(NULL)
+    } else if(!is_processed()){
+      shiny::validate(need(FALSE, "Please complete data processing first"))
+      return(NULL)
+    } else{
+      # Starting progress message
+      progress <- Progress$new()
+      progress$set(message = "Preparing Data", value = 0.1)
+    }
     
     # Variables to be used
     df <- data_processing() # Processed data
@@ -540,7 +586,8 @@ server <- function(input, output, session) {
       progress$set(message = "Preparing Boruta", value = 0.3)
       progress$set(message = "Running Boruta", value = 0.5)
       
-      # Running Boruta selection method
+      # Running Boruta selection method with potential error handling
+      tryCatch({
       model <- Boruta(formula, data = df, doTrace = 2, maxRuns = input$borutaIter)
       model <- TentativeRoughFix(model)
       
@@ -551,6 +598,12 @@ server <- function(input, output, session) {
       
       progress$set(message = "Outputting Information", value = 1)
       progress$close()
+      }, error = function(e){
+        shiny::showNotification(paste("Error occurred during Boruta feature selection:", e$message), 
+                                type = "error")
+        progress$close()
+        return(NULL)
+      }) # End of tryCatch
     } # End of Boruta
     else if(input$selection == "Recursive Feature Selection"){
       set.seed(110)
@@ -561,7 +614,8 @@ server <- function(input, output, session) {
       # Creating cross validation controls
       ctrl <- rfeControl(functions = rfFuncs, method = "cv", number = input$recursiveIter)
       
-      # Running model
+      # Running RFS model with potential error handling
+      tryCatch({
       model <- rfe(df[, -which(names(df) == input$targetVariable)], df[[input$targetVariable]], 
                     sizes = c(1:ncol(df)-1), 
                     rfeControl = ctrl)
@@ -573,6 +627,12 @@ server <- function(input, output, session) {
       
       progress$set(message = "Outputting Information", value = 1)
       progress$close()
+      }, error = function(e){
+        shiny::showNotification(paste("Error occurred during Recursive Feature Selection:", e$message),
+                                type = "error")
+        progress$close()
+        return(NULL)
+      }) # End of tryCatch
     } # End of Recursive Feature Selection
     else if(input$selection == "None"){
       
@@ -635,22 +695,34 @@ server <- function(input, output, session) {
       write.csv(df_reduced, file, row.names = FALSE)
     })
   
-  # Decision Making Models -------------------------------------------------
-  model <- eventReactive(input$runModel,{
-    
-    # Starting progress message
-    progress <- Progress$new()
-    progress$set(message = "Preparing Data", value = 0.1)
+  # Decision Making Models -----------------------------------------------------
+  # First we create a reactive value that tracks if the model function has been run
+  model_trained <- reactiveVal(FALSE)
+  
+  model <- eventReactive(input$runModel, {
+    # If no dataset is uploaded an error message will appear
+    # If data processing has not been complete an error message will appear
+    if(is.null(input$dataset)){
+      shiny::validate(need(!is.null(input$dataset), "Please upload a dataset"))
+      progress$close()
+      return(NULL)
+    } else if(!is_processed()){
+      shiny::validate(need(FALSE, "Please complete data processing first"))
+      return(NULL)
+    } else{
+      # Starting progress message
+      progress <- Progress$new()
+      progress$set(message = "Preparing Data", value = 0.1)
+    }
     
     # Variables to be used
-    # Selecting dataset to use
-    if(c(input$selection == "Boruta" & input$runSelection)| c(input$selection == "Recursive Feature Selection"& input$runSelection)){
-      
+    # Selecting dataset to use based off feature selection method
+    if(c(input$selection == "Boruta" & input$runSelection) | c(input$selection == "Recursive Feature Selection"& input$runSelection)){
       df <- selection()$df_reduced # Use the reduced dataset
-    }
-    else{
+    } else{ # If no feature selection was performed
       df <- data_processing() # Use the full dataset
     }
+    
     target <- toString(input$targetVariable) # Target variable
     formula <- as.formula(paste(target, "~ . - 1")) # Formula
     
@@ -681,9 +753,16 @@ server <- function(input, output, session) {
       ctrlspec <- trainControl(
         method = "cv", number = input$regressionFolds, savePredictions = "all", classProbs = TRUE)
       
-      # Training Logistic Regression Model
-      model_train <- train(formula, data = training_set, 
-                           method = "rpart", trControl = ctrlspec)
+      # Training Logistic Regression Model with error handling
+      tryCatch({
+        model_train <- train(formula, data = training_set,
+                             method = "rpart", trControl = ctrlspec)
+      }, error = function(e){
+        shiny::showNotification(paste("Error occurred during Logistic Regression model training:", e$message), 
+                                type = "error")
+        progress$close()
+        return(NULL)
+      }) # End of tryCatch
       
       progress$set(message = "Generating Predictions", value = 0.7)
       Sys.sleep(0.75)
@@ -703,7 +782,6 @@ server <- function(input, output, session) {
       
       progress$close()
     } # End of Logistic Regression
-    
     else if(input$modelSelection == "Random Forest"){
       progress$set(message = "Running Random Forest", value = 0.4)
       Sys.sleep(0.75)
@@ -717,7 +795,6 @@ server <- function(input, output, session) {
       best_model <- NULL
       best_ntree <- NULL
       best_mtry <- NULL
-      
 
       progress$set(message = "Training Model", value = 0.5)
       Sys.sleep(0.75)
@@ -725,7 +802,8 @@ server <- function(input, output, session) {
       set.seed(112)
       
       if(input$randomisation == TRUE){
-      for(i in 1:num_iterations){
+      tryCatch({
+        for(i in 1:num_iterations){
         progress$set(message = paste0("Training Model (", i, "/", num_iterations, ")"), value = 0.5)
         # Randomly selecting hyper parameters
         ntree <- sample(ntree_values, 1)
@@ -748,6 +826,12 @@ server <- function(input, output, session) {
           best_mtry <- mtry
         }
       } # End of for loop
+      }, error = function(e){
+        shiny::showNotification(paste("Error occurred during Random Optimization training:", e$message), 
+                                type = "error")
+        progress$close()
+        return(NULL)
+      }) # End of tryCatch
         progress$set(message = "Generating Predictions", value = 0.7)
         
         model_test <- predict(best_model, newdata = test_set)
@@ -761,8 +845,14 @@ server <- function(input, output, session) {
                             ntree = best_ntree, mtry = best_mtry)
         } # End of if statement
       else{
-        model_train <- randomForest(formula = formula, data = training_set)
-        
+       tryCatch({
+         model_train <- randomForest(formula = formula, data = training_set)
+       }, error = function(e){
+         shiny::showNotification(paste("Error occurred during Random Forest training:", e$message), 
+                                 type = "error")
+         progress$close()
+         return(NULL)
+       }) # End of tryCatch
         progress$set(message = "Generating Predictions", value = 0.7)
         
         model_test <- predict(model_train, newdata = test_set)
@@ -783,7 +873,8 @@ server <- function(input, output, session) {
       progress$set(message = "Running XGBoost", value = 0.4)
       Sys.sleep(0.75)
       
-      # Small data processing to create correct y & yvals reference levels
+      tryCatch({
+        # Small data processing to create correct y & yvals reference levels
       training_set <- training_set %>%
         mutate(!!sym(target) := recode(!!sym(target), "Default" = 0, "Non_Default" = 1),
                !!sym(target) := as.numeric(as.factor(!!sym(target))),
@@ -793,6 +884,11 @@ server <- function(input, output, session) {
         mutate(!!sym(target) := recode(!!sym(target), "Default" = 0, "Non_Default" = 1),
                !!sym(target) := as.numeric(as.factor(!!sym(target))),
                !!sym(target) := !!sym(target) - 1)
+      }, error = function(e){
+        shiny::showNotification("Error occurred during XGBoost data processing.", type = "error")
+        progress$close()
+        return(NULL)
+      })
       
       # Creating model matrices
       x <- model.matrix(formula, data = training_set)
@@ -809,10 +905,12 @@ server <- function(input, output, session) {
         set.seed(112)
         progress$set(message = "Applying Bayesian Optimisation", value = 0.6)
         Sys.sleep(0.75)
+        
+        tryCatch({
         # Function will take the tuning parameters as an input and return the best
         # cross validation results
         scoring_function <- function(
-    eta, gamma, max_depth, min_child_weight, subsample, nfold) {
+        eta, gamma, max_depth, min_child_weight, subsample, nfold) {
           
           dtrain <- xgb.DMatrix(x, label = y, missing = NA)
           
@@ -847,18 +945,14 @@ server <- function(input, output, session) {
           # with at least one element of "Score", the measure to optimize
           # Score must start with capital S
           # For this case, we also report the best number of iterations
-          return(
-            list(
-              Score = max(xgbcv$evaluation_log$test_auc_mean),
-              nrounds = xgbcv$best_iteration
-            )
-          )
-        }
+          return(list(Score = max(xgbcv$evaluation_log$test_auc_mean),
+                      nrounds = xgbcv$best_iteration))
+        } # End of scoring_function()
         
         # Setting tuning boundaries
         bounds <- list(
           eta = c(0, 1),
-          gamma =c(0, 100),
+          gamma = c(0, 100),
           max_depth = c(2L, 10L), # L means integers
           min_child_weight = c(1, 25),
           subsample = c(0.25, 1),
@@ -876,7 +970,7 @@ server <- function(input, output, session) {
             iters.n = input$bayesIter, # Can be set to any iteration value
           ))
         
-        # outputting best parameters
+        # Outputting best parameters
         best_parameters <- getBestPars(output)
         
         # Fitting a tuned model --------------------------------------------------------
@@ -891,14 +985,25 @@ server <- function(input, output, session) {
         numrounds <- output$scoreSummary$nrounds[
           which(output$scoreSummary$Score == max(output$scoreSummary$Score))]
         
-        model_train <- xgboost::xgboost(data = x,
-                                        label = y,
-                                        params = params,
-                                        nrounds = numrounds,
-                                        eval_metric = "auc")
+        model_train <- tryCatch({
+          xgboost::xgboost(data = x,
+                           label = y,
+                           params = params,
+                           nrounds = numrounds,
+                           eval_metric = "auc")
+          }, error = function(e) {
+          shiny::showNotification("Error occurred during XGBoost model training:", type = "error")
+          progress$close()
+          return(NULL)
+        }) # End of tryCatch {model_train}
         
         xgbcv <- NULL
-      }
+        }, error = function(e) {
+          shiny::showNotification("Error occurred during Bayesian Optimization:", type = "error")
+          progress$close()
+          return(NULL)
+        }) # End of tryCatch (Bayesian Optimization)
+        } # end of if statement
       else{
         set.seed(112)
         # Set the XGBoost parameters
@@ -915,23 +1020,34 @@ server <- function(input, output, session) {
         )
         
         # Using cross validation to find best number of rounds
-        xgbcv <- xgb.cv(data = x,
-                           label = y,
-                           params = params,
-                           nrounds = 100, prediction = TRUE, showsd = TRUE,
-                           early_stopping_rounds = 10,
-                           maximize = TRUE, nfold = 10, stratified = TRUE)
+        # with potential error handling
+        tryCatch({
+          xgbcv <- xgb.cv(data = x,
+                          label = y,
+                          params = params,
+                          nrounds = 100, prediction = TRUE, showsd = TRUE,
+                          early_stopping_rounds = 10,
+                          maximize = TRUE, nfold = 10, stratified = TRUE)
+        }, error = function(e){
+          shiny::showNotification("Error occurred during cross-validation:", type = "error")
+          return(NULL)
+        }) # End of tryCatch
         
-        # Optimal number of rounds
+        # Extracting optimal number of rounds
         numrounds <- min(which(
           xgbcv$evaluation_log$test_auc_mean == max(xgbcv$evaluation_log$test_auc_mean)))
         
-        # Running model with default parameters
+        tryCatch({
+          # Running model with default parameters
         model_train <- xgboost::xgboost(data = x,
                                         label = y,
                                         params = params,
                                         nrounds = numrounds)
-      }
+        }, error = function(e){
+          shiny::showNotification("Error occurred during model training:", type = "error")
+          return(NULL)
+        }) # End of tryCatch
+      } # end of else statement
       
       # Evaluating model
       progress$set(message = "Generating Predictions", value = 0.7)
@@ -954,6 +1070,7 @@ server <- function(input, output, session) {
       
     } # End of XGBoost
     
+    model_trained(TRUE) # Model has been trained
     return(return_list)
   }) # End of model()
   
@@ -976,7 +1093,6 @@ server <- function(input, output, session) {
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
   }, height = 600, res = 100)
   
   # Variable Importance (Text)
@@ -1044,7 +1160,6 @@ server <- function(input, output, session) {
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-    # return(paste(capture.output(print(accuracy)), collapse = '\n'))
   }, height = 600, res = 100)
   
   # Variable Importance (Text)
@@ -1189,17 +1304,29 @@ server <- function(input, output, session) {
   # Probability of default -----------------------------------------------------
   # Reading in new dataset -----------------------------------------------------
   dataset_new <- reactive({
-    req(input$uploadProb)
-    if(!is.null(input$probData)){
-      # Reading in data
+    # If a dataset has NOT been uploaded an error message will be returned
+    # If a dataset is NOT in CSV format an error message will be returned
+    # If a dataset has been uploaded AND is in CSV format it will be read in
+    if(is.null(input$probData)){
+      shiny::validate(need(!is.null(input$probData), "Please upload a dataset"))
+      return(NULL)
+    } else if(!grepl("\\.csv$", input$probData$name, ignore.case = TRUE)){
+      shiny::validate(need(FALSE, "Please upload a CSV file"))
+      return(NULL)
+    } else{
       df_prob <- read.csv(input$probData$datapath)
       return(df_prob)
     }
   }) # End of dataset_new()
-  
+    
   # Generating predictions -----------------------------------------------------
   predictions <- reactive({
     req(input$predict)
+    
+    if(!model_trained()){
+      shiny::showNotification("Model has not been trained yet. Please train a model.", type = "error")
+      return(NULL)
+    }
     
     df_prob <- dataset_new() # Getting data
     model <- model()$model_train
