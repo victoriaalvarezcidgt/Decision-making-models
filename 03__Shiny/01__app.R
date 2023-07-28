@@ -8,7 +8,8 @@ packages <- c(
   "shiny", 
   "shinydashboard", 
   "shinyWidgets", 
-  "shinyjs", 
+  "shinyjs",
+  "shinyalert", 
   "DT", 
   "dplyr", 
   "Boruta", 
@@ -30,8 +31,18 @@ for (package_name in packages) {
   check_install_package(package_name)
 }
 
-# So we can use the image pathway and not the default "www" pathway
+# Pre Requisites ---------------------------------------------------------------
+# Instead of using the default "www" pathway for images we'd like to use 
+# a more logical directory
 addResourcePath("new_path", "./03__Shiny/01__Logo/")
+
+# CSS Code for adaptive sizing and notification box adjustments
+css_code <- " 
+.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
+.shiny-notification {font-size: 18px; padding: 15px; margin-bottom: 10px; border-radius: 5px;
+box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); text-align: center;}
+.error-notification {background-color: #f44336; color: #fff;}
+"
 
 # Defining UI ------------------------------------------------------------------
 ui <- dashboardPage(
@@ -56,13 +67,11 @@ ui <- dashboardPage(
   # Defining the dashboard body
   dashboardBody(
     useShinyjs(),
-    # CSS code for adaptive sizing and notification box
-    tags$head(tags$style(
-      HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
-           .shiny-notification {font-size: 18px; padding: 15px; margin-bottom: 10px; border-radius: 5px;
-           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); background-color: #f44336; color: #fff; text-align: center;
-           }') # End of HTML
-    )),
+    useShinyalert(),
+    
+    # Applying the CSS code
+    tags$head(tags$style(HTML(css_code))),
+    
     # Adding body contents
     tabItems(
       # Creating home page ----------------------------------------------------
@@ -466,22 +475,20 @@ server <- function(input, output, session) {
     # If a dataset is NOT in CSV format an error message will be returned
     # If a dataset has been uploaded AND is in CSV format it will be read in
     if(is.null(input$dataset)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops!", text = "Please upload a dataset", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
-    } 
-    else if(!grepl("\\.csv$", input$dataset$name, ignore.case = TRUE)){
-      shiny::showNotification("Please upload a CSV file", duration = 10, 
-                              closeButton = TRUE, type = "error")
+    } else if(!grepl("\\.csv$", input$dataset$name, ignore.case = TRUE)){
+      shinyalert::shinyalert(title = "Oops!", text = "Please upload a CSV file", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
-    }
-    else{ # Handling potential errors while reading the datafile
+    } else{ # Handling potential errors while reading the data file
       df <- tryCatch({
         read.csv(input$dataset$datapath) # Reading in data
       },
       error = function(e){
-        shiny::showNotification(paste("Error while reading the CSV file:", e$message), 
-                                duration = 10, type = "error")
+        shinyalert::shinyalert(title = "Oops!", text = paste("Error while reading the CSV file:", e$message), 
+                               type = "error", showCancelButton = FALSE)
         return(NULL)
       }) # End of tryCatch()
       
@@ -503,13 +510,14 @@ server <- function(input, output, session) {
     req(input$processing)
     
     # If a dataset has NOT been uploaded an error message will be returned
+    # If a dataset is NOT in CSV format an error message will be returned
     if(is.null(input$dataset)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops!", text = "Please upload a dataset", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!grepl("\\.csv$", input$dataset$name, ignore.case = TRUE)){
-      shiny::showNotification("Please upload a CSV file", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops!", text = "Please upload a CSV file", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     }
 
@@ -539,7 +547,8 @@ server <- function(input, output, session) {
         mutate(!!sym(target) := as.factor(!!sym(target))) %>%
         filter(complete.cases(.))
     } else{ # If invalid variable coding then an error will be returned
-      shiny::validate(need(FALSE, "Invalid variable coding: At least two valid variable names are required."))
+      shinyalert::shinyalert(title = "Error!", text = "Invalid variable coding: At least two valid variable names are required.", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     }
 
@@ -559,12 +568,12 @@ server <- function(input, output, session) {
     # If no dataset is uploaded an error message will appear
     # If data processing has not been complete an error message will appear
     if(is.null(input$dataset)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops!", text = "Please upload a dataset", 
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!is_processed()){
-      shiny::showNotification("Please complete data processing first", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Error", text = "Please complete data processing first",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else{
       # Starting progress message
@@ -601,8 +610,8 @@ server <- function(input, output, session) {
       progress$set(message = "Outputting Information", value = 1)
       progress$close()
       }, error = function(e){
-        shiny::showNotification(paste("Error occurred during Boruta feature selection:", e$message), 
-                                type = "error", duration = 10, closeButton = TRUE)
+        shinyalert::shinyalert(title = "Error", text = paste("Error occurred during Boruta feature selection:", e$message),
+                               type = "error", showCancelButton = FALSE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -630,8 +639,8 @@ server <- function(input, output, session) {
       progress$set(message = "Outputting Information", value = 1)
       progress$close()
       }, error = function(e){
-        shiny::showNotification(paste("Error occurred during Recursive Feature Selection:", e$message),
-                                type = "error", duration = 10, closeButton = TRUE)
+        shinyalert::shinyalert(title = "Error", text = paste("Error occurred during Recursive Feature Selection:", e$message),
+                               type = "error", showCancelButton = FALSE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -676,7 +685,6 @@ server <- function(input, output, session) {
     model = selection()$model
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
-    
     return(plot(model, type = c("g", "o")))
   })
   
@@ -705,12 +713,12 @@ server <- function(input, output, session) {
     # If no dataset is uploaded an error message will appear
     # If data processing has not been complete an error message will appear
     if(is.null(input$dataset)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please upload a dataset",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!is_processed()){
-      shiny::showNotification("Please complete data processing first", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please complete data processing first",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else{
       # Starting progress message
@@ -761,8 +769,8 @@ server <- function(input, output, session) {
         model_train <- train(formula, data = training_set,
                              method = "rpart", trControl = ctrlspec)
       }, error = function(e){
-        shiny::showNotification(paste("Error occurred during Logistic Regression model training:", e$message), 
-                                type = "error", duration = 10, closeButton = TRUE)
+        shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during Logistic Regression model training:", e$message),
+                               type = "error", showCancelButton = FALSE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -830,8 +838,8 @@ server <- function(input, output, session) {
         }
       } # End of for loop
       }, error = function(e){
-        shiny::showNotification(paste("Error occurred during Random Optimization training:", e$message), 
-                                type = "error", duration = 10, closeButton = TRUE)
+        shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during Random Optimization training:", e$message),
+                               type = "error", showCancelButton = FALSE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -851,8 +859,8 @@ server <- function(input, output, session) {
        tryCatch({
          model_train <- randomForest(formula = formula, data = training_set)
        }, error = function(e){
-         shiny::showNotification(paste("Error occurred during Random Forest training:", e$message), 
-                                 type = "error", duration = 10, closeButton = TRUE)
+         shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during Random Forest training:", e$message),
+                                type = "error", showCancelButton = FALSE)
          progress$close()
          return(NULL)
        }) # End of tryCatch
@@ -888,8 +896,8 @@ server <- function(input, output, session) {
                !!sym(target) := as.numeric(as.factor(!!sym(target))),
                !!sym(target) := !!sym(target) - 1)
       }, error = function(e){
-        shiny::showNotification(paste("Error occurred during XGBoost data processing - ", e$message),
-                                type = "error", duration = 10, closeButton = TRUE)
+        shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during XGBoost data processing:", e$message),
+                               type = "error", showCancelButton = FALSE)
         progress$close()
         return(NULL)
       })
@@ -996,16 +1004,16 @@ server <- function(input, output, session) {
                            nrounds = numrounds,
                            eval_metric = "auc")
           }, error = function(e) {
-          shiny::showNotification(paste("Error occurred during XGBoost model training -", e$message),
-                                  type = "error", duration = 10, closeButton = TRUE)
+            shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during XGBoost training:", e$message),
+                                   type = "error", showCancelButton = FALSE)
           progress$close()
           return(NULL)
         }) # End of tryCatch {model_train}
         
         xgbcv <- NULL
         }, error = function(e) {
-          shiny::showNotification(paste("Error occurred during Bayesian Optimization - ", e$message),
-                                  type = "error", duration = 10, closeButton = TRUE)
+          shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during Bayesian Optimization:", e$message),
+                                 type = "error", showCancelButton = FALSE)
           progress$close()
           return(NULL)
         }) # End of tryCatch (Bayesian Optimization)
@@ -1035,8 +1043,8 @@ server <- function(input, output, session) {
                           early_stopping_rounds = 10,
                           maximize = TRUE, nfold = 10, stratified = TRUE)
         }, error = function(e){
-          shiny::showNotification(paste("Error occurred during cross-validation - ", e$message),
-                                  type = "error", duration = 10, closeButton = TRUE)
+          shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during cross-validation:", e$message),
+                                 type = "error", showCancelButton = FALSE)
           return(NULL)
         }) # End of tryCatch
         
@@ -1051,8 +1059,8 @@ server <- function(input, output, session) {
                                         params = params,
                                         nrounds = numrounds)
         }, error = function(e){
-          shiny::showNotification(paste("Error occurred during model training - ", e$message),
-                                  type = "error", duration = 10, closeButton = TRUE)
+          shinyalert::shinyalert(title = "Oops", text = paste("Error occurred during XGBoost model training:", e$message),
+                                 type = "error", showCancelButton = FALSE)
           return(NULL)
         }) # End of tryCatch
       } # end of else statement
@@ -1317,19 +1325,19 @@ server <- function(input, output, session) {
     # If a dataset is NOT in CSV format an error message will be returned
     # If a dataset has been uploaded AND is in CSV format it will be read in
     if(is.null(input$probData)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please upload a dataset",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!grepl("\\.csv$", input$probData$name, ignore.case = TRUE)){
-      shiny::showNotification("Please upload a CSV file", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please upload a CSV file",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else { # Handling potential errors while reading the datafile
       tryCatch({
         df_prob <- read.csv(input$probData$datapath)
       }, error = function(e){
-        shiny::showNotification(paste("Error while reading the CSV file:", e$message), 
-                                duration = 10, type = "error")
+        shinyalert::shinyalert(title = "Oops", text = paste("Error while reading the CSV file: ", e$message),
+                               type = "error", showCancelButton = FALSE)
         return(NULL)
       }) # End of tryCatch
       
@@ -1344,16 +1352,16 @@ server <- function(input, output, session) {
     # If a dataset is NOT in CSV format an error message will be returned
     # If a model has been previously trained an error message will be returned
     if(is.null(input$probData)){
-      shiny::showNotification("Please upload a dataset", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please upload a dataset",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!grepl("\\.csv$", input$probData$name, ignore.case = TRUE)){
-      shiny::showNotification("Please upload a CSV file", duration = 10, 
-                              closeButton = TRUE, type = "error")
+      shinyalert::shinyalert(title = "Oops", text = "Please upload a CSV file",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     } else if(!model_trained()){
-      shiny::showNotification("Model has not been trained yet. Please train a model.", type = "error",
-                              duration = 10)
+      shinyalert::shinyalert(title = "Oops", text = "Model has not been trained yet. Please train a model",
+                             type = "error", showCancelButton = FALSE)
       return(NULL)
     }
     
