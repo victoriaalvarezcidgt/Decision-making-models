@@ -56,12 +56,12 @@ ui <- dashboardPage(
   # Defining the dashboard body
   dashboardBody(
     useShinyjs(),
-    # CSS code for adaptive Sizing and notification box
+    # CSS code for adaptive sizing and notification box
     tags$head(tags$style(
       HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
            .shiny-notification {font-size: 18px; padding: 15px; margin-bottom: 10px; border-radius: 5px;
            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); background-color: #f44336; color: #fff; text-align: center;
-           }')
+           }') # End of HTML
     )),
     # Adding body contents
     tabItems(
@@ -498,6 +498,7 @@ server <- function(input, output, session) {
   
   # Processing Data ------------------------------------------------------------
   is_processed <- reactiveVal(FALSE) # Will be set to TRUE after processing has been complete
+  
   data_processing <- reactive({
     req(input$processing)
     
@@ -558,11 +559,12 @@ server <- function(input, output, session) {
     # If no dataset is uploaded an error message will appear
     # If data processing has not been complete an error message will appear
     if(is.null(input$dataset)){
-      shiny::validate(need(!is.null(input$dataset), "Please upload a dataset"))
-      progress$close()
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
     } else if(!is_processed()){
-      shiny::validate(need(FALSE, "Please complete data processing first"))
+      shiny::showNotification("Please complete data processing first", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
     } else{
       # Starting progress message
@@ -600,7 +602,7 @@ server <- function(input, output, session) {
       progress$close()
       }, error = function(e){
         shiny::showNotification(paste("Error occurred during Boruta feature selection:", e$message), 
-                                type = "error")
+                                type = "error", duration = 10, closeButton = TRUE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -629,7 +631,7 @@ server <- function(input, output, session) {
       progress$close()
       }, error = function(e){
         shiny::showNotification(paste("Error occurred during Recursive Feature Selection:", e$message),
-                                type = "error")
+                                type = "error", duration = 10, closeButton = TRUE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -703,11 +705,12 @@ server <- function(input, output, session) {
     # If no dataset is uploaded an error message will appear
     # If data processing has not been complete an error message will appear
     if(is.null(input$dataset)){
-      shiny::validate(need(!is.null(input$dataset), "Please upload a dataset"))
-      progress$close()
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
     } else if(!is_processed()){
-      shiny::validate(need(FALSE, "Please complete data processing first"))
+      shiny::showNotification("Please complete data processing first", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
     } else{
       # Starting progress message
@@ -759,7 +762,7 @@ server <- function(input, output, session) {
                              method = "rpart", trControl = ctrlspec)
       }, error = function(e){
         shiny::showNotification(paste("Error occurred during Logistic Regression model training:", e$message), 
-                                type = "error")
+                                type = "error", duration = 10, closeButton = TRUE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -828,7 +831,7 @@ server <- function(input, output, session) {
       } # End of for loop
       }, error = function(e){
         shiny::showNotification(paste("Error occurred during Random Optimization training:", e$message), 
-                                type = "error")
+                                type = "error", duration = 10, closeButton = TRUE)
         progress$close()
         return(NULL)
       }) # End of tryCatch
@@ -849,7 +852,7 @@ server <- function(input, output, session) {
          model_train <- randomForest(formula = formula, data = training_set)
        }, error = function(e){
          shiny::showNotification(paste("Error occurred during Random Forest training:", e$message), 
-                                 type = "error")
+                                 type = "error", duration = 10, closeButton = TRUE)
          progress$close()
          return(NULL)
        }) # End of tryCatch
@@ -885,7 +888,8 @@ server <- function(input, output, session) {
                !!sym(target) := as.numeric(as.factor(!!sym(target))),
                !!sym(target) := !!sym(target) - 1)
       }, error = function(e){
-        shiny::showNotification("Error occurred during XGBoost data processing.", type = "error")
+        shiny::showNotification(paste("Error occurred during XGBoost data processing - ", e$message),
+                                type = "error", duration = 10, closeButton = TRUE)
         progress$close()
         return(NULL)
       })
@@ -992,14 +996,16 @@ server <- function(input, output, session) {
                            nrounds = numrounds,
                            eval_metric = "auc")
           }, error = function(e) {
-          shiny::showNotification("Error occurred during XGBoost model training:", type = "error")
+          shiny::showNotification(paste("Error occurred during XGBoost model training -", e$message),
+                                  type = "error", duration = 10, closeButton = TRUE)
           progress$close()
           return(NULL)
         }) # End of tryCatch {model_train}
         
         xgbcv <- NULL
         }, error = function(e) {
-          shiny::showNotification("Error occurred during Bayesian Optimization:", type = "error")
+          shiny::showNotification(paste("Error occurred during Bayesian Optimization - ", e$message),
+                                  type = "error", duration = 10, closeButton = TRUE)
           progress$close()
           return(NULL)
         }) # End of tryCatch (Bayesian Optimization)
@@ -1029,7 +1035,8 @@ server <- function(input, output, session) {
                           early_stopping_rounds = 10,
                           maximize = TRUE, nfold = 10, stratified = TRUE)
         }, error = function(e){
-          shiny::showNotification("Error occurred during cross-validation:", type = "error")
+          shiny::showNotification(paste("Error occurred during cross-validation - ", e$message),
+                                  type = "error", duration = 10, closeButton = TRUE)
           return(NULL)
         }) # End of tryCatch
         
@@ -1044,7 +1051,8 @@ server <- function(input, output, session) {
                                         params = params,
                                         nrounds = numrounds)
         }, error = function(e){
-          shiny::showNotification("Error occurred during model training:", type = "error")
+          shiny::showNotification(paste("Error occurred during model training - ", e$message),
+                                  type = "error", duration = 10, closeButton = TRUE)
           return(NULL)
         }) # End of tryCatch
       } # end of else statement
@@ -1109,7 +1117,6 @@ server <- function(input, output, session) {
   
   # Matrix Plot
   output$logMatrixPlot <- renderPlot({
-    
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
   
@@ -1178,7 +1185,6 @@ server <- function(input, output, session) {
   
   # Matrix Plot
   output$forestMatrixPlot <- renderPlot({
-
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
   
@@ -1186,7 +1192,6 @@ server <- function(input, output, session) {
   output$forestRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
-    
     
     return(plot_roc_curve(predicted, actual)) # Using custom function script
   }, res = 100)
@@ -1209,12 +1214,15 @@ server <- function(input, output, session) {
     model <- model()$model_train
     ntree_num <- model()$ntree
     
+    # Getting all the trees made by the model and storing them as rpart objects 
+    # in a list
     for(i in 1:ntree_num){
       tree <- getTree(model, k = i, labelVar = TRUE)
       tree <- rpart(tree)
       decision_trees[[i]] <- tree
     }
     
+    # Plotting tree based on slider input
     rpart.plot(decision_trees[[input$treeNumber]], type = 3, 
                clip.right.labs = FALSE, roundint = FALSE)
   })
@@ -1250,6 +1258,7 @@ server <- function(input, output, session) {
     return(paste(capture.output(print(importance_matrix)), collapse = '\n'))
   })
   
+  # Variable Importance (Plot)
   output$boostVarImpPlot <- renderPlot({
     model <- model()$model_train
     training <- model()$training_data
@@ -1262,7 +1271,6 @@ server <- function(input, output, session) {
   
   # Matrix Plot
   output$boostMatrixPlot <- renderPlot({
-
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
   }, res = 100)
   
@@ -1270,7 +1278,6 @@ server <- function(input, output, session) {
   output$boostRocPlot <- renderPlot({
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
-    
     
     return(plot_roc_curve(predicted, actual)) # Using custom function script
     
@@ -1294,10 +1301,12 @@ server <- function(input, output, session) {
       boost_model <- model()$model_train
       iter <- model()$model_train$niter
       
+      # Getting all the trees made by the model and storing them in a list
       for(i in 1:iter){
         decision_tree[[i]] <- xgb.plot.tree(model = boost_model, trees = i - 1)
       }
       
+      # Plotting tree based on slider input
       decision_tree[[input$boostTreeNumber]]
   }, res = 100)
   
@@ -1308,13 +1317,22 @@ server <- function(input, output, session) {
     # If a dataset is NOT in CSV format an error message will be returned
     # If a dataset has been uploaded AND is in CSV format it will be read in
     if(is.null(input$probData)){
-      shiny::validate(need(!is.null(input$probData), "Please upload a dataset"))
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
     } else if(!grepl("\\.csv$", input$probData$name, ignore.case = TRUE)){
-      shiny::validate(need(FALSE, "Please upload a CSV file"))
+      shiny::showNotification("Please upload a CSV file", duration = 10, 
+                              closeButton = TRUE, type = "error")
       return(NULL)
-    } else{
-      df_prob <- read.csv(input$probData$datapath)
+    } else { # Handling potential errors while reading the datafile
+      tryCatch({
+        df_prob <- read.csv(input$probData$datapath)
+      }, error = function(e){
+        shiny::showNotification(paste("Error while reading the CSV file:", e$message), 
+                                duration = 10, type = "error")
+        return(NULL)
+      }) # End of tryCatch
+      
       return(df_prob)
     }
   }) # End of dataset_new()
@@ -1322,9 +1340,20 @@ server <- function(input, output, session) {
   # Generating predictions -----------------------------------------------------
   predictions <- reactive({
     req(input$predict)
-    
-    if(!model_trained()){
-      shiny::showNotification("Model has not been trained yet. Please train a model.", type = "error")
+    # If a dataset has NOT been uploaded an error message will be returned
+    # If a dataset is NOT in CSV format an error message will be returned
+    # If a model has been previously trained an error message will be returned
+    if(is.null(input$probData)){
+      shiny::showNotification("Please upload a dataset", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    } else if(!grepl("\\.csv$", input$probData$name, ignore.case = TRUE)){
+      shiny::showNotification("Please upload a CSV file", duration = 10, 
+                              closeButton = TRUE, type = "error")
+      return(NULL)
+    } else if(!model_trained()){
+      shiny::showNotification("Model has not been trained yet. Please train a model.", type = "error",
+                              duration = 10)
       return(NULL)
     }
     
