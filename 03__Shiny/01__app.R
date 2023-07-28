@@ -36,13 +36,42 @@ for (package_name in packages) {
 # a more logical directory
 addResourcePath("new_path", "./03__Shiny/01__Logo/")
 
-# CSS Code for adaptive sizing and notification box adjustments
-css_code <- " 
+# CSS and JaveScript Code
+# Adaptive sizing and notification box adjustments
+css_code_sizing_notification <- " 
 .wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
 .shiny-notification {font-size: 18px; padding: 15px; margin-bottom: 10px; border-radius: 5px;
 box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); text-align: center;}
 .error-notification {background-color: #f44336; color: #fff;}
 "
+# CRT Logo Positioning
+css_code_logo_position <- "
+#image-container {
+position: absolute;
+bottom: 0;
+left: 210px;
+transition: all 0.3s ease;
+}
+        
+#image-container.move-up {
+left: 0;
+}
+"
+# Moving CRT Logo
+js_code_logo_moving <- "
+$(document).ready(function() {
+$('.sidebar-toggle').on('click', function() {
+$('#image-container').toggleClass('move-up');
+});
+});
+"
+# Custom colour scheme
+css_code_custom_colour <- '
+/* body */
+.content-wrapper, .right-side {
+background-color: #FFFFFF;
+}
+'
 
 # Defining UI ------------------------------------------------------------------
 ui <- dashboardPage(
@@ -67,10 +96,9 @@ ui <- dashboardPage(
   # Defining the dashboard body
   dashboardBody(
     useShinyjs(),
-    useShinyalert(),
     
-    # Applying the CSS code
-    tags$head(tags$style(HTML(css_code))),
+    # Adaptive layout and notification boxes
+    tags$head(tags$style(HTML(css_code_sizing_notification))),
     
     # Adding body contents
     tabItems(
@@ -92,35 +120,12 @@ ui <- dashboardPage(
       
       # Logos ------------------------------------------------------------------
       # Grant Thornton logo
-      div(style = "text-align: center;",
-          img(src = "new_path/01__GT_Logo.png", height = "150px", width = "auto")),
+      div(style = "text-align: center;", img(src = "new_path/01__GT_Logo.png", height = "150px", width = "auto")),
       
       # Dynamically moving uni + funding logo
-      tags$head(
-        tags$style(HTML("
-        #image-container {
-        position: absolute;
-        bottom: 0;
-        left: 210px;
-        transition: all 0.3s ease;
-        }
-        
-        #image-container.move-up {
-        left: 0;
-        }"
-        ))), # End of tags$style() & HTML() & tags$head()
-      
-      div(
-        id = "image-container",
-        img(src = "new_path/02__Uni_Logos.png", alt = "Image", height = "150px")
-      ),
-      tags$script(HTML("
-      $(document).ready(function() {
-      $('.sidebar-toggle').on('click', function() {
-      $('#image-container').toggleClass('move-up');
-      });
-      });"
-      ))), # End of tags$script() & HTML() & tags$body()
+      tags$head(tags$style(HTML(css_code_logo_position))),
+      div(id = "image-container", img(src = "new_path/02__Uni_Logos.png", alt = "Image", height = "150px")),
+      tags$script(HTML(js_code_logo_moving))),
       ), # End of tabItem() {Home Page}
       
       # Creating data input page -----------------------------------------------
@@ -435,13 +440,8 @@ ui <- dashboardPage(
     )), # End of tabItems() & dashboardBody()
   
   # Custom CSS to change body background color
-  tags$head(tags$style(HTML(
-  '/* body */
-  .content-wrapper, .right-side {
-  background-color: #FFFFFF;
-  }
-  '
-  ))) # End of custom CSS
+  tags$head(tags$style(HTML(css_code_custom_colour)))
+  
   ) # End of dashboardPage()
 
 # Creating server logic --------------------------------------------------------
