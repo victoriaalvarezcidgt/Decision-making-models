@@ -1,6 +1,7 @@
 rm(list = ls())
 
-options(shiny.maxRequestSize = 1024 ^ 2)
+options(shiny.maxRequestSize = 1024 ^ 2,
+        shiny.sanitize.errors = TRUE)
 source(file.path("03__Shiny/00__Custom_Functions.R"))
 
 # Required packages ------------------------------------------------------------
@@ -98,7 +99,8 @@ ui <- dashboardPage(
     useShinyjs(),
     
     # Adaptive layout and notification boxes
-    tags$head(tags$style(HTML(css_code_sizing_notification))),
+    tags$head(tags$style(HTML(css_code_sizing_notification),
+                         HTML(css_code_custom_colour))),
     
     # Adding body contents
     tabItems(
@@ -438,10 +440,6 @@ ui <- dashboardPage(
         )
       ) # End of tabItem() {Guides}
     )), # End of tabItems() & dashboardBody()
-  
-  # Custom CSS to change body background color
-  tags$head(tags$style(HTML(css_code_custom_colour)))
-  
   ) # End of dashboardPage()
 
 # Creating server logic --------------------------------------------------------
