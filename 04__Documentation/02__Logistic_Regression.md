@@ -73,13 +73,29 @@ This uses part of the dataset for modelling and another different part for testi
 These metrics are used to access the classification model concerning different considerations. The prominent ones relevant to the model are discussed as follows:
 - Confusion Matrix: The table below gives the representation of the components of the evaluation metrics, defining the predicted and actual labels. It is referred to as the __confusion matrix__.
 
-|         |                 | Reference/Actual $(\text{y})$ |         |
-|---------|-----------------|-------------------------------|---------|
-|         |                 | Positive                      | Negative |
-|---------|-----------------|-------------------------------|---------|
-| **Prediction $\widehat{f}(\text{x})$** | Positive   | True Positive ($\widehat{\text{TP}}$)     | False Positive ($\widehat{\text{FN}}$) |
-|         | Negative        | False Negative ($\widehat{\text{FP}}$)    | True Negative ($\widehat{\text{TN}}$) |
-
+<table border = "1">
+      <tr>
+            <th rowspan = "2"></th>
+            <th rowspan = "2"></th>
+            <th colspan = "3">Reference/Actual $(\text{y}$)</th>
+      </tr>
+      <tr>
+            <th>Positive</th>
+            <th>Negative</th>
+      </tr>
+      <tr>
+            <th rowspan = "2">Prediction $\widehat{f}(\text{x}$)</th>
+            <th>Positive</th>
+            <td>True Positive ($\widehat{\text{TP}}$)</td>
+            <td>False Positive ($\widehat{\text{FN}}$)</td>
+      </tr>
+      <tr>
+            <th>Negative</th>
+            <td>False Negative ($\widehat{\text{FP}}$)</td>
+            <td>True Negative ($\widehat{\text{TN}}$)</td>
+      </tr>
+</table>
+      
 For each of the four representative cells, we have:
 + True Positive (TP): Positive observation, and predicted as positive.
 + True Negative (TN): Negative observation, and predicted as negative.
