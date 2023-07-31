@@ -197,7 +197,7 @@ ui <- dashboardPage(
       
       # Conditional Panel for Recursive Feature Selection (Output)
       conditionalPanel(
-        condition = "input.selection == 'Recursive Feature Selection' & input.runSelection",
+        condition = "input.selection == 'Recursive Feature Selection' & input.runSelection", 
         # Plots
         tags$h4("Cross-Validation Accuracy"),
         plotOutput("rfsPlot", width = "100%", height = "500"),
@@ -432,7 +432,7 @@ ui <- dashboardPage(
       tabsetPanel(
         id = "guides",
         tabPanel("Feature Selection", includeMarkdown(path = "04__Documentation/01__Feature_Selection.md")),
-        tabPanel("Logistic Regression", includeMarkdown(path = "04__Documentation/02__Logistic_Regression.md")),
+        tabPanel("Logistic Regression", withMathJax(includeMarkdown(path = "04__Documentation/02__Logistic_Regression.md"))),
         tabPanel("Random Forest", includeMarkdown(path = "04__Documentation/03__Random_Forest.md")),
         tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md"))
         )
