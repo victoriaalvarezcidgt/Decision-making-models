@@ -1,7 +1,6 @@
 rm(list = ls())
 
-options(shiny.maxRequestSize = 1024 ^ 2,
-        shiny.sanitize.errors = TRUE)
+options(shiny.maxRequestSize = 1024 ^ 2, shiny.sanitize.errors = TRUE)
 source(file.path("03__Shiny/00__Custom_Functions.R"))
 
 # Required packages ------------------------------------------------------------
@@ -98,7 +97,7 @@ ui <- dashboardPage(
   dashboardBody(
     useShinyjs(),
     
-    # Adaptive layout and notification boxes
+    # Adaptive layout/notification boxes & custom colouring
     tags$head(tags$style(HTML(css_code_sizing_notification),
                          HTML(css_code_custom_colour))),
     
@@ -186,7 +185,7 @@ ui <- dashboardPage(
       
       # Conditional text for Boruta (Output)
       conditionalPanel(
-        condition = "input.selection == 'Boruta' & input.runSelection",
+        condition = "input.selection == 'Boruta' & input.runSelection", 
         # Plots
         tags$h4("Feature Importance Plots"),
         plotOutput("borutaPlots", width = "100%", height = "500"),
@@ -465,6 +464,7 @@ server <- function(input, output, session) {
     updateSliderInput(session, "boostTreeNumber", max = model()$model_train$niter)
   })
   
+  # Reactive Statements --------------------------------------------------------
   # Data uploading -------------------------------------------------------------
   dataset <- reactive({
     # If a dataset has NOT been uploaded an error message will be returned
@@ -516,7 +516,7 @@ server <- function(input, output, session) {
                              type = "error", showCancelButton = FALSE)
       return(NULL)
     }
-
+    
     # Reading in dataset and target selection
     df <- dataset()
     target <- toString(input$targetVariable)
@@ -654,35 +654,40 @@ server <- function(input, output, session) {
     
   }) # End of selection()
   
+  # Feature Selection Output ---------------------------------------------------
   # Outputting Boruta model information
   output$borutaInfo <- renderText({
+    if(!is.null(selection())){
     model <- selection()$model
     return(paste(capture.output(print(model)), collapse = '\n'))
-  })
+    }})
   
   # Outputting feature importance plot
   output$borutaPlots <- renderPlot({
+    if(!is.null(selection())){
     model = selection()$model
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     
     return(plot(model, las = 2, xlab = '', cex.lab = 1, cex.axis = 1, 
                 colCode = c("#4AEA0E", "#FFB807", "#FF0040", "#BCBCBC")))
-  })
+    }})
   
   # Outputting RFS model information
   output$rfsInfo <- renderText({
+    if(!is.null(selection())){
     model <- selection()$model
     return(paste(capture.output(print(model)), collapse = '\n'))
-  })
+    }})
   
   # Outputting cross-validation plot
   output$rfsPlot <- renderPlot({
+    if(!is.null(selection())){
     model = selection()$model
     
     par(mar=c(10,5,2,2)) # Specifying margin sizes (in inches)
     return(plot(model, type = c("g", "o")))
-  })
+  }})
   
   # Outputting processed dataset
   output$data_table_reduced <- renderDataTable({
@@ -1089,48 +1094,55 @@ server <- function(input, output, session) {
   # Logistic Regression Output -------------------------------------------------
   # Model Information
   output$logModelInfo <- renderText({
+    if(!is.null(model())){
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Text)
   output$logModelAccuracy <- renderText({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Plot)
   output$logModelMatrix <- renderPlot({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-  }, height = 600, res = 100)
+  }}, height = 600, res = 100)
   
   # Variable Importance (Text)
   output$logVarImportance <- renderText({
+    if(!is.null(model())){
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
-  })
+  }})
   
   output$logVarImpPlot <- renderPlot({
+    if(!is.null(model())){
     varImportance <- varImp(model()$model_train)
     
     plot(varImportance, top = 10, main = "Variable Importance Plot (Logistic Regression)")
-  }, res = 100)
+  }}, res = 100)
   
   # Matrix Plot
   output$logMatrixPlot <- renderPlot({
+    if(!is.null(model())){
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
-  }, res = 100)
+  }}, res = 100)
   
   # ROC Plot
   output$logRocPlot <- renderPlot({
+    if(!is.null(model())){
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
     return(plot_roc_curve(predicted, actual)) # Using custom function script
-  }, res = 100)
+  }}, res = 100)
   
   # Training Data
   output$logTrainingData <- renderDataTable({
@@ -1146,59 +1158,67 @@ server <- function(input, output, session) {
   
   # Decision Tree
   output$logTree <- renderPlot({
+    if(!is.null(model())){
     model <- model()$model_train$finalModel
     
     fancyRpartPlot(model, main = "Decision Tree", sub = NULL, 
                    palettes = c("Greys", "Oranges"))
-    })
+    }})
   
   # Random Forest Output -------------------------------------------------------
   # Model Information
   output$forestModelInfo <- renderText({
+    if(!is.null(model())){
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Text)
   output$forestModelAccuracy <- renderText({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Plot)
   output$forestModelMatrix <- renderPlot({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-  }, height = 600, res = 100)
+  }}, height = 600, res = 100)
   
   # Variable Importance (Text)
   output$forestVarImportance <- renderText({
+    if(!is.null(model())){
     varImportance <- varImp(model()$model_train)
     return(paste(capture.output(print(varImportance)), collapse = '\n'))
-  })
+  }})
   
   # Variable Importance (Plot)
   output$forestVarImpPlot <- renderPlot({
+    if(!is.null(model())){
     model <- model()$model_train
     
     varImpPlot(model, sort = TRUE, n.var = 10, pch = 16, 
                main = "Variable Importance Plot (Random Forest)")
-  }, res = 100)
+  }}, res = 100)
   
   # Matrix Plot
   output$forestMatrixPlot <- renderPlot({
+    if(!is.null(model())){
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
-  }, res = 100)
+  }}, res = 100)
   
   # ROC Plot
   output$forestRocPlot <- renderPlot({
+    if(!is.null(model())){
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
     return(plot_roc_curve(predicted, actual)) # Using custom function script
-  }, res = 100)
+  }}, res = 100)
   
   # Training Data
   output$forestTrainingData <- renderDataTable({
@@ -1214,6 +1234,7 @@ server <- function(input, output, session) {
   
   # Decision Tree
   output$forestTree <- renderPlot({
+    if(!is.null(model())){
     decision_trees <- list()
     model <- model()$model_train
     ntree_num <- model()$ntree
@@ -1229,41 +1250,46 @@ server <- function(input, output, session) {
     # Plotting tree based on slider input
     rpart.plot(decision_trees[[input$treeNumber]], type = 3, 
                clip.right.labs = FALSE, roundint = FALSE)
-  })
+  }})
   
   # XGboost Output -------------------------------------------------------------
   # Model Information
   output$boostModelInfo <- renderText({
+    if(!is.null(model())){
     information <- model()$model_train
     return(paste(capture.output(print(information)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Text)
   output$boostModelAccuracy <- renderText({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     return(paste(capture.output(print(accuracy)), collapse = '\n'))
-  })
+  }})
   
   # Model Accuracy (Plot)
   output$boostModelMatrix <- renderPlot({
+    if(!is.null(model())){
     accuracy <- model()$confusion_matrix
     accuracy <- as_tibble(accuracy$table)
     cvms::plot_confusion_matrix(accuracy, target_col = "Reference",
                                 prediction_col = "Prediction", counts_col = "n")
-  }, height = 600, res = 100)
+  }}, height = 600, res = 100)
   
   # Variable Importance (Text)
   output$boostVarImp <- renderText({
+    if(!is.null(model())){
     model <- model()$model_train
     training <- model()$training_data
     
     importance_matrix <- xgb.importance(model = model)
     
     return(paste(capture.output(print(importance_matrix)), collapse = '\n'))
-  })
+  }})
   
   # Variable Importance (Plot)
   output$boostVarImpPlot <- renderPlot({
+    if(!is.null(model())){
     model <- model()$model_train
     training <- model()$training_data
 
@@ -1271,21 +1297,23 @@ server <- function(input, output, session) {
 
     xgb.plot.importance(importance_matrix, top_n = 10, 
                         main = "Variable Importance Plot (XGBoost)")
-  }, res = 100)
+  }}, res = 100)
   
   # Matrix Plot
   output$boostMatrixPlot <- renderPlot({
+    if(!is.null(model())){
     return(plot_confusion_matrix(model()$confusion_matrix)) # Using custom function script
-  }, res = 100)
+  }}, res = 100)
   
   # ROC Plot
   output$boostRocPlot <- renderPlot({
+    if(!is.null(model())){
     predicted <- model()$model_test
     actual <- model()$test_data[, model()$loan_default]
     
     return(plot_roc_curve(predicted, actual)) # Using custom function script
     
-  }, res = 100)
+  }}, res = 100)
   
   # Training Data
   output$boostTrainingData <- renderDataTable({
@@ -1301,6 +1329,7 @@ server <- function(input, output, session) {
   
   # Decision Tree
     output$boostTree <- renderPlot({
+      if(!is.null(model())){
       decision_tree <- list()
       boost_model <- model()$model_train
       iter <- model()$model_train$niter
@@ -1312,7 +1341,7 @@ server <- function(input, output, session) {
       
       # Plotting tree based on slider input
       decision_tree[[input$boostTreeNumber]]
-  }, res = 100)
+  }}, res = 100)
   
   # Probability of default -----------------------------------------------------
   # Reading in new dataset -----------------------------------------------------
