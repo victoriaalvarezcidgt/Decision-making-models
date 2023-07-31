@@ -92,7 +92,7 @@ $('#image-container').toggleClass('move-up');
 css_code_custom_colour <- '
 /* body */
 .content-wrapper, .right-side {
-background-color: #FFFFFF;
+background-color: #F9F4F4;
 }
 '
 ```
