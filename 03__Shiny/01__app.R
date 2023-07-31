@@ -70,7 +70,7 @@ $('#image-container').toggleClass('move-up');
 css_code_custom_colour <- '
 /* body */
 .content-wrapper, .right-side {
-background-color: #FFFFFF;
+background-color: #F9F4F4;
 }
 '
 
@@ -416,8 +416,6 @@ ui <- dashboardPage(
                 multiple = FALSE, placeholder = "Enter your data here",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv" )),
       
-      actionButton("uploadProb", "Upload"),
-      hr(),
       actionButton("predict", "Generate Predictions"),
       downloadButton("downloadprobDataset", "Download Probability Dataset"),
       hr(),
