@@ -40,4 +40,4 @@ and identify appropriate risk mitigation measures.
 </ul>
 
 <h2 align="left"> Shiny App </h2>
-The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/05__Shiny_App.md"> shiny app </a> provides decision making tools for classification problems (in this case <strong> loan defaults) </strong>
+The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/05__Shiny_App.md"> shiny app </a> utlizes these models and provides decision making tools for classification problems.
