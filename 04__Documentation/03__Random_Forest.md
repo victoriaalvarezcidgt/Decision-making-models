@@ -11,18 +11,17 @@
 
 <div id = "introduction">
 <h2 align = "left"> Introduction to Random Forest Models </h2>
-Random Forest is a popular ensemble learning method used for both classification and regression tasks. It is a collection of decision trees that work together to make predictions, and it has gained widespread popularity due to its high accuracy, robustness, 
+Random Forest is a popular ensemble learning method for classification and regression tasks. It is a collection of decision trees that work together to make predictions, and it has gained widespread popularity due to its high accuracy, robustness, 
 and ability to handle complex datasets.
 </div>
 
-The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone.
+The idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone. Random Forest provides additional support in decorrelating the base learners by constructing trees using randomly selected subsets of input variables and data cases. Unlike bagging, which applies the same learning algorithm to different subsets of the data, Random Forest introduces randomness in the selection process to enhance diversity among the individual trees and improve overall predictive performance.
 
 <div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
 Random Forest models can be summarized in the following steps:
 <ul>
-  <li> <strong> Bootstrap Aggregating (Bagging): </strong> The process begins by randomly selecting subsets (with replacement) of the original training data. These subsets are used to train individual decision trees, making each tree slightly different from 
-    the others. </li>
+  <li> <strong> Bootstrap Aggregating (Bagging): </strong> The process begins by randomly selecting subsets (with replacement) of the original training data. These subsets train individual decision trees, making each tree slightly different. </li>
   <li> <strong> Decision Tree Training: </strong> Each tree in the Random Forest is trained using a different subset of the features. This randomness helps to diversify the trees and reduce the risk of overfitting. During tree training, the algorithm 
     recursively splits the data into subsets based on different feature thresholds, creating a hierarchical tree structure. </li>
   <li> <strong> Voting or Averaging: </strong> Once the individual trees are trained, they make predictions on new data points. For classification tasks, the final prediction is determined through majority voting, where each tree "votes" for a class, and the 
