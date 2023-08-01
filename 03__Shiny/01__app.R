@@ -502,8 +502,7 @@ server <- function(input, output, session) {
   # Processing Data ------------------------------------------------------------
   is_processed <- reactiveVal(FALSE) # Will be set to TRUE after processing has been complete
   
-  data_processing <- reactive({
-    req(input$processing)
+  data_processing <- eventReactive(input$processing, {
     
     # If a dataset has NOT been uploaded an error message will be returned
     # If a dataset is NOT in CSV format an error message will be returned
@@ -1371,8 +1370,7 @@ server <- function(input, output, session) {
   }) # End of dataset_new()
     
   # Generating predictions -----------------------------------------------------
-  predictions <- reactive({
-    req(input$predict)
+  predictions <- eventReactive(input$predict, {
     # If a dataset has NOT been uploaded an error message will be returned
     # If a dataset is NOT in CSV format an error message will be returned
     # If a model has been previously trained an error message will be returned
