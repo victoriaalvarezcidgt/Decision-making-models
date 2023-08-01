@@ -11,11 +11,11 @@
 
 <div id = "introduction">
 <h2 align = "left"> Introduction to Random Forest Models </h2>
-Random Forest is a popular ensemble learning method for classification and regression tasks. It is a collection of decision trees that work together to make predictions, and it has gained widespread popularity due to its high accuracy, robustness, 
-and ability to handle complex datasets. Moreover, the main idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone.
+<p>Random Forest is a popular ensemble learning method for classification and regression tasks. It is a collection of decision trees that work together to make predictions, and it has gained widespread popularity due to its high accuracy, robustness, 
+and ability to handle complex datasets. Moreover, the main idea behind Random Forest is to combine the predictions of multiple decision trees, each trained on a random subset of the data, to achieve more accurate and stable predictions than individual trees alone.</p>
 <br>
 
-Random Forest provides additional support in decorrelating the base learners by constructing trees using randomly selected subsets of input variables and data cases. Unlike bagging, which applies the same learning algorithm to different subsets of the data, Random Forest introduces randomness in the selection process to enhance diversity among the individual trees and improve overall predictive performance.
+<p> Random Forest provides additional support in decorrelating the base learners by constructing trees using randomly selected subsets of input variables and data cases. Unlike bagging, which applies the same learning algorithm to different subsets of the data, Random Forest introduces randomness in the selection process to enhance diversity among the individual trees and improve overall predictive performance.</p>
 
 <div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
