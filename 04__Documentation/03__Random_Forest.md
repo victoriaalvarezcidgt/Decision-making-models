@@ -54,24 +54,35 @@ Despite their strengths, Random Forest models have some limitations:
 
 <div id = "optimization">
 <h2 align = "left"> Random Search Optimization in Random Forests </h2>
-Random Search Optimization is a technique used to find the optimal hyperparameters for building a Random Forest model. Hyperparameters are parameters that are not learned during the training process but are set before training and can significantly influence the model's performance. Common hyperparameters for Random Forests include the number of trees (n_estimators), the maximum depth of each tree (max_depth), the number of features to consider for the best split at each node (max_features), and the minimum number of samples required to split an internal node (min_samples_split), among others.
+Random Search Optimization is a technique used to find the optimal hyperparameters for building a Random Forest model. Hyperparameters are parameters that are not learned during the training process but are set 
+before training and can significantly influence the model's performance. Common hyperparameters for Random Forests include the number of trees (n_estimators), the maximum depth of each tree (max_depth), the number 
+of features to consider for the best split at each node (max_features), and the minimum number of samples required to split an internal node (min_samples_split), among others.
 
-Instead of exhaustively trying all possible combinations of hyperparameter values, which can be computationally expensive and time-consuming, Random Search Optimization takes a more efficient approach. It randomly samples hyperparameter values from predefined ranges and evaluates the model's performance with each combination. This random sampling allows us to explore the hyperparameter space more effectively and, in many cases, find good hyperparameter values faster than traditional grid search.
+Instead of exhaustively trying all possible combinations of hyperparameter values, which can be computationally expensive and time-consuming, Random Search Optimization takes a more efficient approach. It randomly 
+samples hyperparameter values from predefined ranges and evaluates the model's performance with each combination. This random sampling allows us to explore the hyperparameter space more effectively and, in many 
+cases, find good hyperparameter values faster than traditional grid search.
 
 The process of Random Search Optimization in Random Forests can be summarized as follows:
 <ul>
-  <li> <strong> Define the Search Space: </strong> Determine the range of hyperparameter values to be considered for the Random Forest model. For example, you might specify a range for n_estimators from 100 to 1000 and a max_depth from 5 to 50. </li>
-  <li> <strong> Randomly Sample Hyperparameters:: </strong> Randomly select combinations of hyperparameter values from the defined search space. For each combination, build a Random Forest model with the selected hyperparameters. </li>
-  <li> <strong> Model Evaluation: </strong> Train the Random Forest model on a training dataset and evaluate its performance on a separate validation or test dataset. The evaluation metric could be accuracy for classification tasks, mean squared error for 
+  <li> <strong> Define the Search Space: </strong> Determine the range of hyperparameter values to be considered for the Random Forest model. For example, you might specify a range for n_estimators from 100 to 
+    1000 and a max_depth from 5 to 50. </li>
+  <li> <strong> Randomly Sample Hyperparameters:: </strong> Randomly select combinations of hyperparameter values from the defined search space. For each combination, build a Random Forest model with the selected 
+    hyperparameters. </li>
+  <li> <strong> Model Evaluation: </strong> Train the Random Forest model on a training dataset and evaluate its performance on a separate validation or test dataset. The evaluation metric could be accuracy for 
+    classification tasks, mean squared error for 
     regression tasks, or other suitable metrics depending on the problem at hand. </li>
-  <li> <strong> Update Best Hyperparameters: </strong> Keep track of the hyperparameter values that lead to the best-performing Random Forest model so far. This way, you can keep updating the optimal hyperparameters as you explore more combinations. </li>
+  <li> <strong> Update Best Hyperparameters: </strong> Keep track of the hyperparameter values that lead to the best-performing Random Forest model so far. This way, you can keep updating the optimal 
+    hyperparameters as you explore more combinations. </li>
   <li> <strong> Repeat: </strong> Repeat steps 2 to 4 for a predefined number of iterations or until a specified computational budget is reached. </li>
 </ul>
 
-Once the Random Search Optimization process is complete, you will have identified the hyperparameters that yield the best-performing Random Forest model for your specific task. This optimized model can then be used for making predictions on new, unseen data.
+Once the Random Search Optimization process is complete, you will have identified the hyperparameters that yield the best-performing Random Forest model for your specific task. This optimized model can then be 
+used for making predictions on new, unseen data.
 </div>
 
 <div id = "conclusion">
 <h2 align = "left"> Conclusion </h2>
-Random Forest Models are powerful and versatile ensemble learning techniques that offer high accuracy and robustness. They are widely used for both classification and regression tasks, providing valuable insights into feature importance. By understanding their strengths and limitations, and following best practices, you can effectively utilize Random Forests to make accurate predictions and gain valuable insights from your data.
+Random Forest Models are powerful and versatile ensemble learning techniques that offer high accuracy and robustness. They are widely used for both classification and regression tasks, providing valuable insights 
+into feature importance. By understanding their strengths and limitations, and following best practices, you can effectively utilize Random Forests to make accurate predictions and gain valuable insights from your 
+data.
 </div>
