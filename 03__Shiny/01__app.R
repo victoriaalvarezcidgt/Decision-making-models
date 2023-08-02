@@ -27,7 +27,7 @@ packages <- c(
 )
 
 # Installs and loads all required packages
-for (package_name in packages) {
+for(package_name in packages){
   check_install_package(package_name)
 }
 
@@ -433,10 +433,15 @@ ui <- dashboardPage(
         tabPanel("Feature Selection", includeMarkdown(path = "04__Documentation/01__Feature_Selection.md")),
         tabPanel("Logistic Regression", withMathJax(includeMarkdown(path = "04__Documentation/02__Logistic_Regression.md"))),
         tabPanel("Random Forest", includeMarkdown(path = "04__Documentation/03__Random_Forest.md")),
-        tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md"))
+        tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md")),
+        tabPanel("Using the App", includeMarkdown(path = "04__Documentation/05__Shiny_App.md"))
+        
+        # Please leave random forest file here - it is the only way to get it to correctly render
+        # Reason currently unknown ???
+
         )
       ) # End of tabItem() {Guides}
-    )), # End of tabItems() & dashboardBody()
+    )) # End of tabItems() & dashboardBody()
   ) # End of dashboardPage()
 
 # Creating server logic --------------------------------------------------------

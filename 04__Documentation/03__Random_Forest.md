@@ -16,6 +16,7 @@ and ability to handle complex datasets. Moreover, the main idea behind Random Fo
 <br>
 
 <p> Random Forest provides additional support in decorrelating the base learners by constructing trees using randomly selected subsets of input variables and data cases. Unlike bagging, which applies the same learning algorithm to different subsets of the data, Random Forest introduces randomness in the selection process to enhance diversity among the individual trees and improve overall predictive performance.</p>
+</div>
 
 <div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
