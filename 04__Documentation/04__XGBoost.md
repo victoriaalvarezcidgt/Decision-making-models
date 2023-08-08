@@ -62,4 +62,5 @@
 <div id = "conclusion">
 <h2 align = "left"> Conclusion </h2>
   XGBoost is a state-of-the-art machine learning algorithm known for its performance and versatility. Its unique combination of gradient boosting, regularization, and tree pruning makes it robust and capable of handling complex datasets. By tuning 
-  hyperparameters and using best practices, users can harness the full potential of XGBoost and build highly accurate and efficient machine learning models
+  hyperparameters and using best practices, users can harness the full potential of XGBoost and build highly accurate and efficient machine learning models.
+</div>
