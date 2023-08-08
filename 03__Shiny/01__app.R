@@ -14,7 +14,7 @@ packages <- c(
   "dplyr", 
   "Boruta", 
   "caret", 
-  "randomForest", 
+  "randomForest",
   "xgboost", 
   "ParBayesianOptimization",
   "rpart.plot",
