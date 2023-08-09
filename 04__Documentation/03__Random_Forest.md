@@ -26,6 +26,8 @@ A random forest model is a classifier composed of multiple trees of length $k$, 
 \end{align*}
 where each $\Theta_k$ are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input $\mathbf{x}$.
 
+</div>
+
 
 <div id = "how-it-works">
 <h2 align = "left"> How Random Forest Works </h2>
