@@ -29,6 +29,7 @@ $$
       h(x, \Theta_k ), k = 1,...
   \end{align*}
 $$
+
 where each $\Theta_k$ are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input $\mathbf{x}$.
 
 </div>
