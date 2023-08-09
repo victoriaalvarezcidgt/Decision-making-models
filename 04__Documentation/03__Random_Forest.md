@@ -19,14 +19,16 @@ and ability to handle complex datasets. Moreover, the main idea behind Random Fo
 </div>
 
 
-<div id = "Mathematical Representation">
-A random forest model is a classifier composed of multiple trees of length $k$, as 
-\begin{align*}
-    h(x, \Theta_k ), k = 1,...
-\end{align*}
-where each $\Theta_k$ are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input $\mathbf{x}$.
-
+<h2>Mathematical Representation</h2>
+<p>A random forest model is a classifier composed of multiple trees of length <span class="math">\(k\)</span>, as</p>
+<div class="math">
+  \[
+  \begin{align*}
+      h(x, \Theta_k ), k = 1,...
+  \end{align*}
+  \]
 </div>
+<p>where each <span class="math">\(\Theta_k\)</span> are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input <span class="math">\(\mathbf{x}\)</span>.</p>
 
 
 <div id = "how-it-works">
