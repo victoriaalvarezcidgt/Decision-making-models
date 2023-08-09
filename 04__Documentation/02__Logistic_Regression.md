@@ -2,7 +2,7 @@
 <h2 align = "left"> Table of Contents </h2>
 <ul>
       <li> <a href = "#overview"> Logistic Regression: Overview </a> </li>
-      <li> <a href = "#goals"> Logistic Regression: Goals </a> </li>
+      <li> <a href = "#goals"> Task of Logistic Regression </a> </li>
       <li> <a href = "#crossValid"> Cross Validation </a> </li>
       <li> <a href = "#evaluation"> Performance Evaluation </a> </li>
       <li> <a href = "#proandcon"> Pros and Cons </a> </li>
