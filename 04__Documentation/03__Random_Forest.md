@@ -22,7 +22,7 @@ and ability to handle complex datasets. Moreover, the main idea behind Random Fo
 <div id = "mathematics">
 <h2 align = "left"> Mathematical Representation  </h2>
 
-A random forest model is a classifier composed of multiple trees of length $k$, as
+A random forest model is a classifier composed of multiple trees. If the number of decision trees, then the collection of tree classifiers is defined as
 
 $$
   \begin{align*}
