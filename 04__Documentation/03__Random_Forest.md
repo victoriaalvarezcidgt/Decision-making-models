@@ -2,6 +2,7 @@
 <h2 align = "left"> Table of Contents </h2>
 <ul>
   <li> <a href = "#introduction"> Introduction to Random Forest Models </a> </li>
+  <li> <a href = "#mathematics"> Mathematical Representation </a> </li>
   <li> <a href = "#how-it-works"> How Random Forests Work </a> </li>
   <li> <a href = "#advantages"> Advantages of Random Forest Models </a> </li>
   <li> <a href = "#limitations"> Limitations of Random Forest Models </a> </li>
