@@ -18,17 +18,22 @@ and ability to handle complex datasets. Moreover, the main idea behind Random Fo
 <p> Random Forest provides additional support in decorrelating the base learners by constructing trees using randomly selected subsets of input variables and data cases. Unlike bagging, which applies the same learning algorithm to different subsets of the data, Random Forest introduces randomness in the selection process to enhance diversity among the individual trees and improve overall predictive performance.</p>
 </div>
 
+<div id = "maths">
+<h2 align = "left"> Mathematical Representation  </h2>
 
-<h2>Mathematical Representation</h2>
-<p>A random forest model is a classifier composed of multiple trees of length <span class="math">\(k\)</span>, as</p>
-<div class="math">
-  \[
+A random forest model is a classifier composed of multiple trees of length <span class="math">\(k\)</span>, as
+$$
   \begin{align*}
       h(x, \Theta_k ), k = 1,...
   \end{align*}
-  \]
+
+$$
+
 </div>
-<p>where each <span class="math">\(\Theta_k\)</span> are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input <span class="math">\(\mathbf{x}\)</span>.</p>
+<p>where each <span class="math">\(\Theta_k\)</span> are independently and identically distributed random vectors, with each tree casting a single vote for the modal class at input <span class="math">\(\mathbf{x}\)</span>.
+
+</div>
+
 
 
 <div id = "how-it-works">
