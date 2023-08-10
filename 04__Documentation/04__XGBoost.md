@@ -20,7 +20,7 @@
   XGBoost is based on the concept of gradient boosting, which involves iteratively adding weak learners (decision trees) to the model. Each tree is built to correct the errors made by the previous trees, and the final prediction is obtained by summing up the 
   predictions of all the trees.
 <h3 align = "left"> Regularization in XGBoost </h3>
-  XGBoost includes L1 and L2 regularization terms in its objective function to prevent overfitting and improve generalization. Regularization penalizes complex models and encourages simplicity, making XGBoost more robust to noisy data. The objective function is represented as follows
+  XGBoost includes L1 and L2 regularization terms in its objective function to prevent overfitting and improve generalization. Regularization penalizes complex models and encourages simplicity, making XGBoost more robust to noisy data. The objective function is represented as follows \\
   $$
   \begin{align*}
 \mathcal{L}(\phi) = \sum_i l(\hat{y}_i, y_i) + \sum_j \Omega (f_j)
