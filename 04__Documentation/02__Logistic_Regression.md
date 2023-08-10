@@ -62,7 +62,9 @@ $$
 \sigma(t) & = \frac{1}{1 + e^{-t}}
 \end{align}
 $$
+
 where we have 
+
 $$
 t = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k
 $$
