@@ -45,8 +45,8 @@ $$
 \begin{align}
 \hat{y}(x) = 
 \begin{cases} 
-      1 & \hat{f}(x) \geq 0.5 \\
-      0 & \hat{f}(x) < 0.5 
+      1 & \hat{p}(x) \geq 0.5 \\
+      0 & \hat{p}(x) < 0.5 
 \end{cases}
 \end{align}
 $$
