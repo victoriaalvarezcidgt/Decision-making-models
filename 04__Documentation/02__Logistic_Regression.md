@@ -25,7 +25,8 @@ ordinal, involving a specific order, while the latter is nominal, signifying an 
 
 In linear regression, it is required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). In Logistic regression, we minimize the empirical risk by maximizing the likelihood of training the dataset. We have the task of estimating the probability that an instance belongs to a particular class. If the estimated probability is greater than $0.5$ or $50$<span>%</span>, then the model predicts that the instance belongs to the positive class (labelled as $1$), and otherwise it belongs to the other class (labelled as $0$). 
 
-The logistic regression model seeks to estimate the probability $p(x)$ given as 
+The logistic regression model seeks to estimate the probability $p(x)$ given as
+
 $$
 p(x) = \mathbb{P}(Y = 1 | X = x)
 $$
