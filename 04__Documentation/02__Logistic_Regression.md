@@ -25,10 +25,14 @@ ordinal, involving a specific order, while the latter is nominal, signifying an 
 
 In linear regression, it is required to minimize the empirical risk, usually referred to as the average squared error loss or simply, the mean squared error (MSE). In Logistic regression, we minimize the empirical risk by maximizing the likelihood of training the dataset. We have the task of estimating the probability that an instance belongs to a particular class. If the estimated probability is greater than $0.5$ or $50$<span>%</span>, then the model predicts that the instance belongs to the positive class (labelled as $1$), and otherwise it belongs to the other class (labelled as $0$). 
 
-The logistic regression model is written as 
+The logistic regression model seeks to estimate the probability $p(x)$ given as 
+$$
+p(x) = \mathbb{P}(Y = 1 | X = x)
+$$
+which indicates the probability of the outcome being a positive class. Furthermore, the model is formally defined as
 
 $$
-\log\left(\frac{f(x)}{1 - f(x)}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k.
+\log\left(\frac{p(x)}{1 - p(x)}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k.
 $$
 
 And the logistic regression model prediction discussed above is also represented mathematically as
@@ -45,7 +49,7 @@ $$
 
 Here, $\hat{f}(x)$ represents the Logistic Regression model estimated probability &mdash; which is usually accompanied by a bias term &mdash; producing the logistic output. The summary of the logistic regression model is a weight coefficient for the individual features of the dataset plus a bias unit.
 
-Furthermore, the Logistic Regression model utilizes a _sigmoid function_, also known as the _logistic function_, to map the _logistic_ as mentioned earlier to a value between $0$ and $1$. The sigmoid function is mathematically expressed as:
+Furthermore, the Logistic Regression model utilizes a _sigmoid function_, also known as the _logistic function_, to map the _logistic_ as mentioned earlier to a value between $0$ and $1$. The sigmoid function is mathematically expressed in shorthand form as:
 
 
 $$
@@ -53,6 +57,10 @@ $$
 \sigma(t) &= \frac{e^t}{1 + e^t} \\
 \sigma(t) & = \frac{1}{1 + e^{-t}}
 \end{align}
+$$
+where we have 
+$$
+t = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots  + \beta_k x_k
 $$
 
 
