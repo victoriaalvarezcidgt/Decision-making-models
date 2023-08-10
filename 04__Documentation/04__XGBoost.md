@@ -10,8 +10,18 @@
 
 <div id = "introduction">
 <h2 align = "left"> Introduction to XGBoost </h2>
-  XGBoost (Extreme Gradient Boosting) is a powerful and efficient machine learning algorithm known for its high performance and wide applicability. It belongs to the gradient-boosting family and is designed to work with tabular data for both classification 
-  and regression tasks.
+ Gradient Boosting is a boosting algorithm that utilizes the gradient descent algorithm in minimizing errors. XGBoost (Extreme Gradient Boosting) is a powerful and efficient machine learning algorithm known for its high performance and wide applicability. It belongs to the gradient-boosting family and is designed to work with tabular data for both classification 
+  and regression tasks. The iterative process of the gradient descent algorithm used in the gradient boosting is represented mathematically as follows
+
+  $$
+ \begin{align*}
+w & = w - \eta \nabla w \\
+\text{and} \qquad \nabla w &= \frac{\partial L}{\partial w}
+\end{align*}
+  $$
+
+  Where $\eta$ refers to the _learning rate_, $w$ is the _weight vector_, and $L$ is the _loss_.
+  
 </div>
 
 <div id = "how-it-works">
