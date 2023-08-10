@@ -1,7 +1,7 @@
 rm(list = ls())
 
 options(shiny.maxRequestSize = 1024 ^ 2, shiny.sanitize.errors = TRUE)
-source(file.path("03__Shiny/00__Custom_Functions.R"))
+source(file.path("02__Shiny/00__Custom_Functions.R"))
 
 # Required packages ------------------------------------------------------------
 packages <- c(
@@ -34,7 +34,7 @@ for(package_name in packages){
 # Pre Requisites ---------------------------------------------------------------
 # Instead of using the default "www" pathway for images we'd like to use 
 # a more logical directory
-addResourcePath("new_path", "./03__Shiny/01__Logo/")
+addResourcePath("new_path", "./02__Shiny/01__Logo/")
 
 # CSS and JaveScript Code
 # Adaptive sizing and notification box adjustments
@@ -430,11 +430,11 @@ ui <- dashboardPage(
       
       tabsetPanel(
         id = "guides",
-        tabPanel("Feature Selection", includeMarkdown(path = "04__Documentation/01__Feature_Selection.md")),
-        tabPanel("Logistic Regression", withMathJax(includeMarkdown(path = "04__Documentation/02__Logistic_Regression.md"))),
-        tabPanel("Random Forest", includeMarkdown(path = "04__Documentation/03__Random_Forest.md")),
-        tabPanel("XGBoost", includeMarkdown(path = "04__Documentation/04__XGBoost.md")),
-        tabPanel("Using the App", includeMarkdown(path = "04__Documentation/05__Shiny_App.md"))
+        tabPanel("Feature Selection", includeMarkdown(path = "03__Documentation/01__Feature_Selection.md")),
+        tabPanel("Logistic Regression", withMathJax(includeMarkdown(path = "03__Documentation/02__Logistic_Regression.md"))),
+        tabPanel("Random Forest", includeMarkdown(path = "03__Documentation/03__Random_Forest.md")),
+        tabPanel("XGBoost", includeMarkdown(path = "03__Documentation/04__XGBoost.md")),
+        tabPanel("Using the App", includeMarkdown(path = "03__Documentation/05__Shiny_App.md"))
         
         # Please leave random forest file here - it is the only way to get it to correctly render
         # Reason currently unknown ???
