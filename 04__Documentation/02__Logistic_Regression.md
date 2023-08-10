@@ -28,8 +28,11 @@ In linear regression, it is required to minimize the empirical risk, usually ref
 The logistic regression model seeks to estimate the probability $p(x)$ given as
 
 $$
+\begin{align*}
 p(x) = \mathbb{P}(Y = 1 | X = x)
+\end{align*}
 $$
+
 which indicates the probability of the outcome being a positive class. Furthermore, the model is formally defined as
 
 $$
