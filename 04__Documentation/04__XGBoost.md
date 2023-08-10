@@ -38,7 +38,7 @@ w & = w - \eta \nabla w \\
 \end{align*}
   $$
   
-  Note that the objective function denoted with $\mathcal{L}(\phi)$ has two terms, with the first term, $\displaystyle{\sum_i l(\hat{y}_i, y_i)}$, being the __loss function__ and the second term, $\displaystyle{\sum_j \Omega (f_j)}$, is the __regularization__.
+  Note that the objective function denoted with $\mathcal{L}(\phi)$ has two terms; the first term, $\displaystyle{\sum_i l(\hat{y}_i, y_i)}$, is the __loss function__ and the second term, $\displaystyle{\sum_j \Omega (f_j)}$, is the __regularization__.
   
 <h3 align = "left"> Tree Pruning </h3>
   XGBoost uses a technique called tree pruning to control the tree depth and prevent overfitting. Pruning involves removing branches from the tree that do not contribute significantly to reducing the objective function's loss.
