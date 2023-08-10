@@ -1,5 +1,5 @@
 <h1 align = "center"> Decision Making Models </h1>
-<h4 align = "center"> Decision-making models for assessing credit risk and loan defaults for Grant Thornton </h4>
+<h3 align = "center"> Binary classification decision-making models for Grant Thornton </h3>
 <h2 align = "left"> Project Overview
 <h3 align = "left"> What are Decision Making Models </h3>
   A decision-making model serves as a systematic framework, enabling individuals and organizations to navigate the complexities of making effective choices. By providing a structured process, it facilitates the analysis of various situations, careful 
