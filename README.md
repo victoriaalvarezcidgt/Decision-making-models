@@ -42,6 +42,15 @@ and identify appropriate risk mitigation measures.
 <h2 align="left"> Shiny App </h2>
 The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/05__Shiny_App.md"> shiny app </a> utlizes these models and provides decision making tools for classification problems.
 
+<h2 align = "left"> Getting Started </h2>
+<ul>
+  <li> Open Rstudio </li>
+  <li> Navigate to and open <strong> 02__Shiny/01__app.R </strong> </li>
+  <li> Highlight everything with <strong> ctrl + a </strong> </li>
+  <li> Press <strong> crtl + enter </strong> </li>
+</ul>
+
+
 <h2 align = "left"> Contact </h2>
 <p> If you have any questions or need further assistance, please contact the corresponding authors at: </p>
 <ul>
