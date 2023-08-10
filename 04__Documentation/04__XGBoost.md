@@ -20,13 +20,16 @@
   XGBoost is based on the concept of gradient boosting, which involves iteratively adding weak learners (decision trees) to the model. Each tree is built to correct the errors made by the previous trees, and the final prediction is obtained by summing up the 
   predictions of all the trees.
 <h3 align = "left"> Regularization in XGBoost </h3>
-  XGBoost includes L1 and L2 regularization terms in its objective function to prevent overfitting and improve generalization. Regularization penalizes complex models and encourages simplicity, making XGBoost more robust to noisy data. The objective function is represented as follows \\
+  XGBoost includes L1 and L2 regularization terms in its objective function to prevent overfitting and improve generalization. Regularization penalizes complex models and encourages simplicity, making XGBoost more robust to noisy data. The objective function is represented as follows
+  
   $$
   \begin{align*}
 \mathcal{L}(\phi) = \sum_i l(\hat{y}_i, y_i) + \sum_j \Omega (f_j)
 \end{align*}
   $$
+  
   Note that the objective function denoted with $\mathcal{L}(\phi)$ as two terms, with the first $\sum_i l(\hat{y}_i, y_i)$ being the **loss function** and the second term being the **regularization**.
+  
 <h3 align = "left"> Tree Pruning </h3>
   XGBoost uses a technique called tree pruning to control the tree depth and prevent overfitting. Pruning involves removing branches from the tree that do not contribute significantly to reducing the objective function's loss.
 <h3 align = "left"> Column Subsampling </h3>
