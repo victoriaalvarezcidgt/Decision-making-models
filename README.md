@@ -34,10 +34,10 @@ and identify appropriate risk mitigation measures.
 
 <h2 align="left"> Utilized Models </h2>
 <ul>
-  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/02__Logistic_Regression.md"> Logistic Regression </a> </li>
-  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/03__Random_Forest.md"> Random Forest </a> </li>
-  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/04__XGBoost.md"> XGBoost </a> </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/02__Logistic_Regression.md"> Logistic Regression </a> </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/03__Random_Forest.md"> Random Forest </a> </li>
+  <li> <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/04__XGBoost.md"> XGBoost </a> </li>
 </ul>
 
 <h2 align="left"> Shiny App </h2>
-The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/04__Documentation/05__Shiny_App.md"> shiny app </a> utlizes these models and provides decision making tools for classification problems.
+The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/05__Shiny_App.md"> shiny app </a> utlizes these models and provides decision making tools for classification problems.
