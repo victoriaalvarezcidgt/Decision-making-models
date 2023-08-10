@@ -20,7 +20,7 @@ w & = w - \eta \nabla w \\
 \end{align*}
   $$
 
-  Where $\eta$ refers to the _learning rate_, $w$ is the _weight vector_, and $L$ is the _loss_.
+  Where $\eta$ is the _learning rate_, $w$ is the _weight vector_, and $L$ is the _loss_.
   
 </div>
 
