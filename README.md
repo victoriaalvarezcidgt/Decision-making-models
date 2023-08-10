@@ -41,3 +41,10 @@ and identify appropriate risk mitigation measures.
 
 <h2 align="left"> Shiny App </h2>
 The following <a href = "https://github.com/C-Monaghan/DM_Models/blob/main/03__Documentation/05__Shiny_App.md"> shiny app </a> utlizes these models and provides decision making tools for classification problems.
+
+<h2 align = "left"> Contact </h2>
+<p> If you have any questions or need further assistance, please contact the corresponding authors at: </p>
+<ul>
+  <li> <a href = mailto:cormac.monaghan.2019@mumail.ie> cormac.monaghan.2019@mumail.ie </a> </li>
+  <li> <a href = "mailto:Toheeb.Jimoh@ul.ie"> Toheeb.Jimoh@ul.ie </a> </li>
+</ul>
