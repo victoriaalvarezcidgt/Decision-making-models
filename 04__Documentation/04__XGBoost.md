@@ -28,7 +28,7 @@
 \end{align*}
   $$
   
-  Note that the objective function is denoted with $\mathcal{L}(\phi)$ as two terms, with the first $\displaystyle{\sum_i l(\hat{y}_i, y_i)}$ being the __loss function__ and the second term being the __regularization__.
+  Note that the objective function denoted with $\mathcal{L}(\phi)$ has two terms, with the first term $\displaystyle{\sum_i l(\hat{y}_i, y_i)}$ being the __loss function__ and the second term $\sum_j \Omega (f_j)$ being the __regularization__.
   
 <h3 align = "left"> Tree Pruning </h3>
   XGBoost uses a technique called tree pruning to control the tree depth and prevent overfitting. Pruning involves removing branches from the tree that do not contribute significantly to reducing the objective function's loss.
